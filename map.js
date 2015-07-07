@@ -19,13 +19,24 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
     accessToken: 'pk.eyJ1IjoienN1ZmZlcm4wNjE0IiwiYSI6IjVlNWFkYjQwZDc0ZTY0OTZmMDQyMzM4NmVmMjFmNWNiIn0.oZhSA6w9Pgv3ISwLjP7vTQ'
 }).addTo(map);
 
-var marker = L.marker([32.4117889404,-87.0222320557]).addTo(map)
-marker.bindPopup("<b>Hello world!</b><br>I am a popup.");
+// var marker = L.marker([32.4117889404,-87.0222320557]).addTo(map)
+// marker.bindPopup("<b>Hello world!</b><br>I am a popup.");
 
 var app = angular.module('myApp', []);
 app.controller('customersCtrl', function($scope, $http) {
-  $http.get("http://130.207.211.77:8983/solr/loc/select?q=*%3A*&wt=json&indent=true")
-  .success(function (response){$scope.names = response.records; console.log($scope.names);});
+    $http.get("http://130.207.211.77:8983/solr/loc/select?q=*%3A*&wt=json&indent=true")
+    .success(function (response){console.log(response.response.docs);
+    for (i = 0; i < response.response.docs.length; i++) { 
+        var datum = response.response.docs[i];
+        var mark = L.marker([parseInt(datum.loc.substring(14,30)),parseInt(datum.loc.substring(0,13))]).addTo(map);
+        mark.bindPopup("<b>Hello world!</b><br>I am a popup.");
+
+    }
+
+
+
+
+  });
 });
 
  
