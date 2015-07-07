@@ -1,10 +1,10 @@
-import os, pymongo,csv,json,requests
+import os, pymongo,csv,json,requests,sys
 import simplejson as json
 import pysolr
 import datetime
 import dicttoxml
 
-HOME = os.getcwd()
+HOME = sys.argv[1]#this must be directory holding all sn folders and only works for this type of data due to difficulty in getting dates. 
 LOC_DATA = 'town_ref.csv'
 DATA = {}
 solr = 'http://130.207.211.77:8983/solr/loc/update/json?commit=true'
@@ -44,6 +44,7 @@ def load_data(filename,date,folder):
 	 	# print {'seq_num':data[0],'city':data[1],'state':data[2],'long':data[3],'lat':type(data[4]),'date':date}
 	 	#k = dicttoxml.dicttoxml
 	 	k = json.dumps([{'seq_num':data[0],'city':data[1],'state':data[2],'loc':str(data[4]) + "," + str(data[3]),'date_field':date,'text':afile.read()}])
+	 	
 	 	g = requests.post(solr,data=k)
 	 
 
@@ -61,7 +62,7 @@ def import_data(data):
 
 
 
-
+print HOME
 import_data(LOC_DATA)
 loop(HOME)
 
