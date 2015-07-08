@@ -46,6 +46,7 @@ def load_data(filename,date,folder):
 	 	k = json.dumps([{'seq_num':data[0],'city':data[1],'state':data[2],'loc':str(data[4]) + "," + str(data[3]),'date_field':date,'text':afile.read()}])
 	 	
 	 	g = requests.post(solr,data=k)
+	 	print g.text
 	 
 
 
@@ -60,7 +61,7 @@ def import_data(data):
 #http://130.207.211.77:8983/solr/loc/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E&commit=true
 #yyyy-MM-dd'T'HH:mm:sss'Z'
 
-
+#/storage/loc/downloads/sn
 
 print HOME
 import_data(LOC_DATA)
