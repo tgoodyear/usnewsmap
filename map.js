@@ -1,4 +1,4 @@
-var app = angular.module("myApp", ['leaflet-directive']);
+var app = angular.module("myApp", ['leaflet-directive','ngRangeSlider']);
 app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelpers", function($scope, $http, leafletData, leafletBoundsHelpers) {
     
 
@@ -27,12 +27,15 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
             var mark = {
                 lat:parseFloat(loc[0]),
                 lng:parseFloat(loc[1]),
-                message: "<b>" + datum.city + "," + datum.state+"</b><br>"+datum.seq_num
+                message: "<b>" + datum.city + "," + datum.state+"</b><br>"+datum.seq_num,
+                /*icon: {
+                    iconSize:  [19, 46], // size of the icon
+                    iconUrl : "leaflet/images/marker-icon-Grey.png"
+                },*/
+                icon:{}
 
 
             }
-            // mark.bindPopup("<b>" + datum.city + "," + datum.state+"</b><br>"+datum.seq_num);
-            console.log(mark);
             markers[i] = mark;
         }
     });
@@ -42,7 +45,8 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
         maxbounds: bounds,
         center: {},
         tiles: tiles,
-        markers:markers
+        markers:markers,
+        range : { from: 0, to: 36890 }
     });
 }]);
 

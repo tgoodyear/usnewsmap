@@ -5,13 +5,19 @@
 		<script type="text/javascript" src="angular.js"></script>
 		<script type="text/javascript" src="leaflet/leaflet.js"></script>
 		<script type="text/javascript" src="angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+		<script type="text/javascript" src="ngRangeSlider-master/dist/ng-range-slider.js"></script>
 		<script type="text/javascript" src="map.js"></script>
 
 		<link rel="stylesheet" type="text/css" href="leaflet/leaflet.css" />
+		<link rel="stylesheet" type="text/css" href="ngRangeSlider-master/example/css/Default.css" />
+
 
 
 	</head>
 	<body ng-controller="MapCtrl">
-    	<leaflet maxbounds="maxbounds" tiles="tiles" markers="markers" center="center" width="100%" height="480px"></leaflet>
+    	<leaflet maxbounds="maxbounds" tiles="tiles" markers="markers" icon = "markers.defaultIcon" center="center" width="100%" height="480px"></leaflet>
+    	<section data-range-slider class="range-slider" ng-model="range"></section>
+    	<input type="date"><input type="date"></input>
+    	<input type="search" name="googlesearch">
   </body>
 </html>
