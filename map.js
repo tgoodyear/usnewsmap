@@ -83,7 +83,8 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
         var eventName = 'leafletDirectiveMarker.' + markerEvents[k];
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
-                $scope.text = args.leafletObject.options.text_msg;
+                var k = args.leafletObject.options.text_msg.replace($scope.search,"<mark>"+$scope.search+"</mark>");
+                $scope.text = k;
             }
         });
     }
