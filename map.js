@@ -31,8 +31,10 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
         $scope.markers = [];
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
-        var search = $scope.search.replace(" ","+");
-        $http.get("http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&indent=true")
+        var search = $scope.search.split(" ").join("+");
+        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=1000&indent=true";
+        console.log(url); 
+        $http.get(url)
         .success(function (response){
             for (i = 0; i < response.response.docs.length; i++) { 
                 var datum = response.response.docs[i];
@@ -40,7 +42,7 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
                 var mark = ({
                     lat:(parseFloat(loc[0]) + Math.random()/10-0.05),
                     lng:(parseFloat(loc[1]) + Math.random()/10-0.05),
-                    message: "<b>" + datum.city + "," + datum.state+"</b><br>"+datum.seq_num,
+                    message: "<b>" + datum.city + "," + datum.state+"</b><br>"+datum.date_field,
                     /*icon: {
                         iconSize:  [19, 46], // size of the icon
                         iconUrl : "leaflet/images/marker-icon-Grey.png"
@@ -74,7 +76,7 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
                 enable: leafletEvents.getAvailableMarkerEvents(),
             }
         },
-        text: "hi mom"
+        text: "TO HELL WITH GEORGIA!!!"
     });
 
                
@@ -83,7 +85,8 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
         var eventName = 'leafletDirectiveMarker.' + markerEvents[k];
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
-                var k = args.leafletObject.options.text_msg.replace($scope.search,"<mark>"+$scope.search+"</mark>");
+                console.log($scope.search);
+                var k = args.leafletObject.options.text_msg.replace($scope.search,"<p><mark>"+$scope.search+"</mark></p>");
                 $scope.text = k;
             }
         });
