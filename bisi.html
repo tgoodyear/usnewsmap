@@ -11,7 +11,9 @@
 		<link rel="stylesheet" type="text/css" href="leaflet/leaflet.css" />
 		<link rel="stylesheet" type="text/css" href="ngRangeSlider-master/example/css/Default.css" />
 
-
+		<style>
+    		.highlighted { background: yellow }
+    	</style>
 
 	</head>
 	<body ng-controller="MapCtrl">
@@ -21,6 +23,6 @@
     	<input type="range" min = 0 max = 100 ng-model="range" ng-mousemove="filter()"></input>  
     	<input type="date" ng-model="endDate" min="1836-01-02" max="1923-01-01"></input>
     	<input type="search" ng-model="search"><button ng-click="searchT()">Search</button>
-    	<p >{{text}}</p>
+    	<p ng-model="text" ng-bind-html="text"></p>
   </body>
 </html>

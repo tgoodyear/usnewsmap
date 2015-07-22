@@ -1,5 +1,5 @@
 var app = angular.module("myApp", ['leaflet-directive','ngRangeSlider']);
-app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelpers", "leafletEvents",function($scope, $http, leafletData, leafletBoundsHelpers, leafletEvents) {
+app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBoundsHelpers", "leafletEvents",function($scope, $http, $sce, leafletData, leafletBoundsHelpers, leafletEvents) {
     
     
 
@@ -39,10 +39,11 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
             for (i = 0; i < response.response.docs.length; i++) { 
                 var datum = response.response.docs[i];
                 var loc = datum.loc.split(',');
+                var dats = datum.date_field.split("T")[0].split("-");
                 var mark = ({
                     lat:(parseFloat(loc[0]) + Math.random()/10-0.05),
                     lng:(parseFloat(loc[1]) + Math.random()/10-0.05),
-                    message: "<b>" + datum.city + "," + datum.state+"</b><br>"+datum.date_field,
+                    message: "<b>" + datum.city + "," + datum.state+"</b><br>"+dats[1]+"/"+dats[2]+"/"+dats[0],
                     /*icon: {
                         iconSize:  [19, 46], // size of the icon
                         iconUrl : "leaflet/images/marker-icon-Grey.png"
@@ -76,7 +77,7 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
                 enable: leafletEvents.getAvailableMarkerEvents(),
             }
         },
-        text: "TO HELL WITH GEORGIA!!!"
+        text: $sce.trustAsHtml("TO HELL WITH GEORGIA!!!")
     });
 
                
@@ -86,15 +87,22 @@ app.controller("MapCtrl", [ "$scope","$http","leafletData", "leafletBoundsHelper
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
                 console.log($scope.search);
-                var k = args.leafletObject.options.text_msg.replace($scope.search,"<p><mark>"+$scope.search+"</mark></p>");
-                $scope.text = k;
+                var k = args.leafletObject.options.text_msg;
+                k = k.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>')
+                $scope.text = $sce.trustAsHtml(k);
             }
         });
     }
     
     getMarkers();
 
+    function filter(){
+        var marks = $scope.markers;
+    }
+
 }]);
+
+
 
 
 
