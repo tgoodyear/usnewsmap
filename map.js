@@ -23,15 +23,17 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
     
 
     $scope.searchT = function(){
-        getMarkers();
+        $scope.getMarkers();
+        $scope.filter();
     };
 
 
-    function getMarkers(){
+    $scope.getMarkers = function(){
         $scope.markers = [];
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
-        var endDate = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
+        var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
+        console.log(search);
         var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=1000&indent=true";
         console.log(url); 
         $http.get(url)
@@ -51,13 +53,13 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
                     icon:{},
                     text_msg : datum.text
                 });
-                $scope.markers.push(mark);
+                $scope.allMarkers.push(mark);
             }
         })
     }
 
     angular.extend($scope, {
-        search : "Georgia Institute of Technology",
+        search : "",
         maxbounds: bounds,
         center: {
             lat: 39.82825,
@@ -66,12 +68,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
         },
         tiles: tiles,
         markers: [],
-        range: { 
-            from: 0, 
-            to: 36890 
-        },
+        allMarkers : [],
         startDate: new Date( "1836-01-02"),
         endDate: new Date("1923-01-01"),
+        range : new Date("1923-01-01").getTime(),
         events : {
             markers: {
                 enable: leafletEvents.getAvailableMarkerEvents(),
@@ -94,16 +94,17 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
         });
     }
     
-    getMarkers();
+    $scope.getMarkers();
 
-    function filter(){
-        var marks = $scope.markers;
+    $scope.filter = function(){
+        //console.log(new Date(dats[0],dats[2],dats[1],12));
+        $scope.markers = $scope.allMarkers.splice(0,4);
     }
 
 }]);
 
 
-
+//http://www.stevespanglerscience.com/lab/experiments/liquid-nitrogen-ice-cream
 
 
 //http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B1836-01-02T00%3A00%3A00%3A000Z+TO+1839-01-02T00%3A00%3A00%3A000Z%5D%2C+text%3A%22christmas%22&rows=100&wt=json&indent=true
