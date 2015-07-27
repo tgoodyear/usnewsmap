@@ -53,7 +53,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
                     icon:{},
                     text_msg : datum.text
                 });
-                $scope.allMarkers.push(mark);
+                $scope.markers.push(mark);
             }
         })
     }
@@ -97,8 +97,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
     $scope.getMarkers();
 
     $scope.filter = function(){
-        //console.log(new Date(dats[0],dats[2],dats[1],12));
-        $scope.markers = $scope.allMarkers.splice(0,4);
+        //console.        log(new Date(dats[0],dats[2],dats[1],12));
+       // $scope.markers = $scope.allMarkers.splice(0,4);
     }
 
 }]);
