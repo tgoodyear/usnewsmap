@@ -153,7 +153,7 @@ angular.module("leaflet-directive").directive('markers',
         var doCheckOldModel =  isDefined(oldMarkerModels);
         for (var name in lMarkers) {
             if(!hasLogged) {
-                $log.debug(errorHeader + "[markers] destroy: ");
+               // $log.debug(errorHeader + "[markers] destroy: ");
                 hasLogged = true;
             }
 
@@ -177,7 +177,7 @@ angular.module("leaflet-directive").directive('markers',
     var _destroy = function(markerModels, oldMarkerModels, lMarkers, map, layers){
         _seeWhatWeAlreadyHave(markerModels, oldMarkerModels, lMarkers, false,
             function(newMarker, oldMarker, lMarkerName){
-                $log.debug(errorHeader + '[marker] is deleting marker: ' + lMarkerName);
+              //  $log.debug(errorHeader + '[marker] is deleting marker: ' + lMarkerName);
                 deleteMarker(lMarkers[lMarkerName], map, layers);
                 delete lMarkers[lMarkerName];
             });
@@ -187,7 +187,7 @@ angular.module("leaflet-directive").directive('markers',
         var skips = {};
         _seeWhatWeAlreadyHave(newModels, oldModels, lMarkers, true,
             function(newMarker, oldMarker, lMarkerName){
-                $log.debug(errorHeader + '[marker] is already rendered, marker: ' + lMarkerName);
+                //$log.debug(errorHeader + '[marker] is already rendered, marker: ' + lMarkerName);
                 skips[lMarkerName] = newMarker;
             });
         return skips;

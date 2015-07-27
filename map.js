@@ -1,14 +1,10 @@
 var app = angular.module("myApp", ['leaflet-directive','ngRangeSlider']);
 app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBoundsHelpers", "leafletEvents",function($scope, $http, $sce, leafletData, leafletBoundsHelpers, leafletEvents) {
     
-    
-
-
     var bounds = leafletBoundsHelpers.createBoundsFromArray([
-        [ 24.11567, -125.73004 ],
+        [24.11567, -125.73004 ],
         [50.38407, -65.94975 ],
     ]);
-
 
     var tiles = {
         url: "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
@@ -20,11 +16,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
         }
     }
 
-    
-
     $scope.searchT = function(){
         $scope.getMarkers();
-        $scope.filter();
     };
 
 
@@ -42,6 +35,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
                 var datum = response.response.docs[i];
                 var loc = datum.loc.split(',');
                 var dats = datum.date_field.split("T")[0].split("-");
+                var date = new Date(dats[0],dats[2],dats[1])
                 var mark = ({
                     lat:(parseFloat(loc[0]) + Math.random()/10-0.05),
                     lng:(parseFloat(loc[1]) + Math.random()/10-0.05),
@@ -51,10 +45,19 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
                         iconUrl : "leaflet/images/marker-icon-Grey.png"
                     },*/
                     icon:{},
-                    text_msg : datum.text
+                    text_msg : datum.text,
+                    date: date
                 });
-                $scope.markers.push(mark);
+                $scope.allMarkers.push(mark);
             }
+            $scope.allMarkers.sort(function(a,b){
+                if (a.date < b.date){
+                    return -1;
+                }else{
+                    return 1; 
+                }
+            });
+            $scope.filter();
         })
     }
 
@@ -70,13 +73,15 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
         markers: [],
         allMarkers : [],
         startDate: new Date( "1836-01-02"),
-        endDate: new Date("1923-01-01"),
-        range : new Date("1923-01-01").getTime(),
+        endDate: new Date("1925-01-01"),
+        range : new Date("1925-01-01").getTime(),
+        rangeDate : new Date("1925-01-01"),
         events : {
             markers: {
                 enable: leafletEvents.getAvailableMarkerEvents(),
             }
         },
+        isPlaying : false, 
         text: $sce.trustAsHtml("TO HELL WITH GEORGIA!!!")
     });
 
@@ -86,7 +91,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
         var eventName = 'leafletDirectiveMarker.' + markerEvents[k];
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
-                console.log($scope.search);
                 var k = args.leafletObject.options.text_msg;
                 k = k.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>')
                 $scope.text = $sce.trustAsHtml(k);
@@ -94,11 +98,24 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
         });
     }
     
-    $scope.getMarkers();
-
     $scope.filter = function(){
-        //console.        log(new Date(dats[0],dats[2],dats[1],12));
-       // $scope.markers = $scope.allMarkers.splice(0,4);
+        var x = 0;
+        while(x < $scope.allMarkers.length && $scope.allMarkers[x]['date'].getTime() <= $scope.range){
+            x = x + 1;
+        }
+
+        $scope.rangeDate = new Date($scope.range/1);
+
+        if(x == 0){
+            x++;
+        }else if(x >= $scope.allMarkers.length){
+            x = -1;
+        }
+       $scope.markers = $scope.allMarkers.slice(0,x);
+    }
+
+    $scope.play = function(){
+        $scope.isPlaying = !$scope.isPlaying;
     }
 
 }]);
