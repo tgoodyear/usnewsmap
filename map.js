@@ -1,5 +1,5 @@
 var app = angular.module("myApp", ['leaflet-directive','ngRangeSlider']);
-app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBoundsHelpers", "leafletEvents",function($scope, $http, $sce, leafletData, leafletBoundsHelpers, leafletEvents) {
+app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents",function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents) {
     
     var bounds = leafletBoundsHelpers.createBoundsFromArray([
         [24.11567, -125.73004 ],
@@ -81,7 +81,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
                 enable: leafletEvents.getAvailableMarkerEvents(),
             }
         },
-        isPlaying : false, 
+        isPlaying : false  , 
         text: $sce.trustAsHtml("TO HELL WITH GEORGIA!!!")
     });
 
@@ -99,23 +99,62 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
     }
     
     $scope.filter = function(){
-        var x = 0;
-        while(x < $scope.allMarkers.length && $scope.allMarkers[x]['date'].getTime() <= $scope.range){
-            x = x + 1;
-        }
-
         $scope.rangeDate = new Date($scope.range/1);
 
-        if(x == 0){
-            x++;
-        }else if(x >= $scope.allMarkers.length){
-            x = -1;
+        var curr;
+        if ($scope.markers.length  == 0){
+            $scope.markers.push($scope.allMarkers[0]);
         }
-       $scope.markers = $scope.allMarkers.slice(0,x);
+
+        if( $scope.markers.length > 0 && $scope.markers.length <= $scope.allMarkers.length){
+            curr = $scope.markers.pop();
+            if (curr['date'] < new Date($scope.range/1)){//add markers
+                $scope.markers.push(curr);
+                while ($scope.markers.length < $scope.allMarkers.length){
+                    curr = $scope.allMarkers[$scope.markers.length];
+                    if (curr['date'] <= new Date($scope.range/1)){
+                        $scope.markers.push(curr);
+                    }else{
+                        return;//we cant add anymore
+                    }
+                }
+            }else  if (curr['date'] > new Date($scope.range/1)){ //remove markers
+                while ( $scope.markers.length > 0 ){
+                    curr = $scope.markers.pop();
+                    if (curr['date'] <= new Date($scope.range/1)){
+                        $scope.markers.push(curr);
+                        return;
+                    }
+                }
+
+            }
+        }
     }
 
     $scope.play = function(){
         $scope.isPlaying = !$scope.isPlaying;
+        if ($scope.isPlaying){
+            $interval($scope.playRange,100);
+        }
+    }
+
+
+    $scope.playRange = function(){
+        if($scope.isPlaying && new Date($scope.range/1) <= $scope.endDate){
+            $scope.range = new Date(($scope.range/1) + 86400000).getTime();
+            $scope.rangeDate = new Date($scope.range/1);
+            $scope.filter();
+        }else if (!$scope.isPlaying){
+           $interval.cancel($scope.playRange);
+        }else{
+            $scope.isPlaying = !$scope.isPlaying;
+        }
+    }
+
+    $scope.updateRange = function(){//broken
+        console.log($scope.rangeDate);
+        $scope.range = $scope.rangeDate.getTime();
+        $scope.filter(); 
     }
 
 }]);
@@ -135,5 +174,3 @@ app.controller("MapCtrl", [ "$scope","$http","$sce","leafletData", "leafletBound
 // marker.bindPopup("<b>Hello world!</b><br>I am a popup.");
 // date_field:[1914-03-06T23:59:59.999Z TO 1914-03-07T23:59:59.999Z]
 // goes from 1836 - 1922 , 36,890 days difference
-
- 

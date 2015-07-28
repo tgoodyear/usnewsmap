@@ -13,13 +13,25 @@
 		<title>Chronicling America</title>
 	</head>
 	<body ng-controller="MapCtrl">
-    	<leaflet maxbounds="maxbounds" tiles="tiles" markers="markers" icon = "markers.defaultIcon" event-broadcast="events" center="center" width="100%" height="480px"></leaflet>
-    	<input type="date" ng-model="startDate" min="1836-01-02" max="1925-01-01">
-    	<input type="range" min={{startDate.getTime()}} max={{endDate.getTime()}} ng-model="range" ng-mousedown="filter()">{{rangeDate.toDateString()}}</input>  
-    	<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-01"></input>
-    	<input type="search" ng-model="search"><button ng-click="searchT()">Search</button>
-    	<button ng-hide="isPlaying" ng-click="play()">Play</button>
-    	<button ng-show="isPlaying" ng-click="play()">Pause</button>
+		<div>
+			<leaflet maxbounds="maxbounds" tiles="tiles" markers="markers" icon = "markers.defaultIcon" event-broadcast="events" center="center" width="100%" height="480px"></leaflet>
+		</div>
+		<div>
+    		<input type="search" ng-model="search">
+    		<button ng-click="searchT()">Search</button>
+  
+    	</div>
+    	<div>
+    		<input type="date" ng-model="startDate" min="1836-01-02" max="1925-01-01"></input>    
+    		<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousemove="filter()"></input>    
+    		<input type="date" ng-model="rangeDate" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-change="updateRange()" ></input>
+    		<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-01"></input>
+    		<button ng-hide="isPlaying" ng-click="play()">Play</button>
+    		<button ng-show="isPlaying" ng-click="play()">Pause</button>
+    	</div>
+
     	<p ng-model="text" ng-bind-html="text"></p>
+
+    	
   </body>
 </html>
