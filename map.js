@@ -151,10 +151,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
     }
 
-    $scope.updateRange = function(){//broken
-        console.log($scope.rangeDate);
-        $scope.range = $scope.rangeDate.getTime();
-        $scope.filter(); 
+    $scope.updateRange = function(){
+    	$scope.range = $scope.rangeDate.getTime();
+    	$scope.filter();
     }
 
 }]);
