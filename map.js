@@ -18,8 +18,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         options: {
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
             maxZoom: 18,
-            id: 'zsuffern0614.2ed6b495',
-            accessToken: 'pk.eyJ1IjoienN1ZmZlcm4wNjE0IiwiYSI6IjVlNWFkYjQwZDc0ZTY0OTZmMDQyMzM4NmVmMjFmNWNiIn0.oZhSA6w9Pgv3ISwLjP7vTQ'
+            id: 'zsuffern0614.2ed6b495',//my stuff
+            accessToken: 'pk.eyJ1IjoienN1ZmZlcm4wNjE0IiwiYSI6IjVlNWFkYjQwZDc0ZTY0OTZmMDQyMzM4NmVmMjFmNWNiIn0.oZhSA6w9Pgv3ISwLjP7vTQ'//mystuff
         }
     }
 
@@ -134,16 +134,16 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 $scope.markers.push(curr);
                 while ($scope.markers.length < $scope.allMarkers.length){//make sure that we don't go outside the allMarkers array.  
                     curr = $scope.allMarkers[$scope.markers.length];//get the next marker that we are going to check.
-                    if (curr['date'] <= new Date($scope.range/1)){//If that mark 
+                    if (curr['date'] <= new Date($scope.range/1)){//If that marker is still less then the date we are att, push it onto the stack and go back to the beggining of the while loop. 
                         $scope.markers.push(curr);
                     }else{
-                        return;//we cant add anymore
+                        return;//we cant add anymore so stop the function
                     }
                 }
             }else  if (curr['date'] > new Date($scope.range/1)){ //remove markers
-                while ( $scope.markers.length > 0 ){
+                while ( $scope.markers.length > 0 ){//as long as there are still markers to remove
                     curr = $scope.markers.pop();
-                    if (curr['date'] <= new Date($scope.range/1)){
+                    if (curr['date'] <= new Date($scope.range/1)){//pop off the marker if it is younger then the date redo the loop, else we've reached the date we wanted and so we push the marker back on the stack and end the function. 
                         $scope.markers.push(curr);
                         return;
                     }
@@ -153,45 +153,32 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
     }
 
+    //This function is called when you press the play/pause button. 
     $scope.play = function(){
-        $scope.isPlaying = !$scope.isPlaying;
-        if ($scope.isPlaying){
+        $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse 
+        if ($scope.isPlaying){//if true we will have play range function be called every 100 seconds. 
             $interval($scope.playRange,100);
         }
     }
 
 
+    //This function moves the range slider over, then calls filter(). This causes the effect of markers appearing over time.
     $scope.playRange = function(){
         if($scope.isPlaying && new Date($scope.range/1) <= $scope.endDate){
-            $scope.range = new Date(($scope.range/1) + 86400000).getTime();
-            $scope.rangeDate = new Date($scope.range/1);
-            $scope.filter();
-        }else if (!$scope.isPlaying){
+            $scope.range = new Date(($scope.range/1) + 86400000).getTime();//86400000 is the number of milliseconds in a day. 
+            $scope.rangeDate = new Date($scope.range/1);//update $scope.range and $scope.rangeDate to make sure they are the same since they are linked. 
+            $scope.filter();//call filter with new $scope.rangeDate
+        }else if (!$scope.isPlaying){//When we press pause, stop moving ranger and cancel calling this function. 
            $interval.cancel($scope.playRange);
-        }else{
+        }else{//we've pressed the pause button, we will call this function one more time. 
             $scope.isPlaying = !$scope.isPlaying;
         }
     }
 
+    //Function that updates the slider when the user manually changes the current date, then filters.
     $scope.updateRange = function(){
     	$scope.range = $scope.rangeDate.getTime();
     	$scope.filter();
     }
 
 }]);
-
-
-//http://www.stevespanglerscience.com/lab/experiments/liquid-nitrogen-ice-cream
-
-
-//http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B1836-01-02T00%3A00%3A00%3A000Z+TO+1839-01-02T00%3A00%3A00%3A000Z%5D%2C+text%3A%22christmas%22&rows=100&wt=json&indent=true
-//http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B1836-01-02T00%3A00%3A00%3A000Z+TO+1900-01-02T00%3A00%3A00%3A000Z%5D+&wt=json&indent=true
-//http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B1836-01-02T00%3A00%3A00%3A000Z+TO+1836-01-02T00%3A00%3A00%3A000Z%5D%2C+text%3A%22Georgia%20Institute%20of%20Technology%22&rows=1000&wt=json&indent=true
-//http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B1836-01-02T00%3A00%3A00%3A000Z+TO+1900-01-02T00%3A00%3A00%3A000Z%5D+%0Atext%3A%22georgia+tech%22&wt=json&indent=true
-//date_field:[1836-01-02T00:00:00:000Z TO 1900-01-02T00:00:00:000Z] 
-
-
-// var marker = L.marker([32.4117889404,-87.0222320557]).addTo(map)
-// marker.bindPopup("<b>Hello world!</b><br>I am a popup.");
-// date_field:[1914-03-06T23:59:59.999Z TO 1914-03-07T23:59:59.999Z]
-// goes from 1836 - 1922 , 36,890 days difference
