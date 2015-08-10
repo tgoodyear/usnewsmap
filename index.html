@@ -1,12 +1,12 @@
 <html ng-app = "myApp">
 	<head>
-		<script type="text/javascript" src="angular.js"></script>
-		<script type="text/javascript" src="leaflet/leaflet.js"></script>
-		<script type="text/javascript" src="angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
-		<script type="text/javascript" src="ngRangeSlider-master/dist/ng-range-slider.js"></script>
-		<script type="text/javascript" src="map.js"></script>
-		<link rel="stylesheet" type="text/css" href="leaflet/leaflet.css" />
-		<link rel="stylesheet" type="text/css" href="ngRangeSlider-master/example/css/Default.css" />
+		<script type="text/javascript" src="js/angular.js"></script>
+		<script type="text/javascript" src="js/leaflet/leaflet.js"></script>
+		<script type="text/javascript" src="js/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+		<script type="text/javascript" src="js/ngRangeSlider-master/dist/ng-range-slider.js"></script>
+		<script type="text/javascript" src="js/map.js"></script>
+		<link rel="stylesheet" type="text/css" href="js/leaflet/leaflet.css" />
+		<link rel="stylesheet" type="text/css" href="js/ngRangeSlider-master/example/css/Default.css" />
 		<!--- This style is for highlighting text, can propably be placed somewhere else-->
         <style>
     		.highlighted { background: yellow }
@@ -23,11 +23,10 @@
 		<div>
     		<input type="search" ng-model="search">
     		<button ng-click="getMarkers()">Search</button>
-  
     	</div>
     	<div>
-    		<input type="date" ng-model="startDate" min="1836-01-02" max="1925-01-01" ></input>    
-    		<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousemove="filter()"></input>    
+    		<input type="date" ng-model="startDate" min="1836-01-02" max="1925-01-01" ></input>
+    		<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousemove="filter()"></input>
     		<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-01"></input>
     		<button ng-hide="isPlaying" ng-click="play()">Play</button>
     		<button ng-show="isPlaying" ng-click="play()">Pause</button>
@@ -50,6 +49,6 @@
         <!---The text that is shown by clicking on a marker.-->
     	<div ng-model="text" ng-bind-html="text"></div>
 
-    	
+
   </body>
 </html>
