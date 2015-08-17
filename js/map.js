@@ -1,7 +1,7 @@
 
 
 //The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
-var app = angular.module("myApp", ['leaflet-directive','ngRangeSlider']);
+var app = angular.module("loc", ['leaflet-directive','ngRangeSlider']);
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents",function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents) {
 
     //These are the bounds of the map, currently centered on the contenental US.
@@ -29,7 +29,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
-        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=1000&indent=true";
+        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10000&indent=true";
+        var fields = '&fl=loc,date_field,id';
+        url += fields;
+        console.log(url);
 
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         $http.get(url)
@@ -43,10 +46,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 //Creating individual makers for the map.
                 var mark = ({
                 	//All markers have a lat and long which are slightly offset in order to show multiple newspapers from the same place.
-                    lat:(parseFloat(loc[0]) + Math.random()/10-0.05),
-                    lng:(parseFloat(loc[1]) + Math.random()/10-0.05),
+                    lat:parseFloat(loc[0]),
+                    lng:parseFloat(loc[1]),
                     //This is the popup msg when you click on a marker on the map.
-                    message: "<b>" + datum.city + "," + datum.state+"</b><br>"+dats[1]+"/"+dats[2]+"/"+dats[0],
+                    message: dats[1]+"/"+dats[2]+"/"+dats[0],
                    	//These next two are for icons for when we can switch between two different icons, currently not in use.
                     /*icon: {
                         iconSize:  [19, 46], // size of the icon
@@ -54,21 +57,15 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     },*/
                     icon:{},
                     //This holds all the newspaper text.
-                    text_msg : datum.text,
+                    text_msg : 'text', //datum.text,
                     //date of the newspaper
-                    date: date
+                    date: date,
+                    group:'us'
                 });
 				//Push the marker to the allMarkers array which hold all the markers for the search. This is just a holding array and its contents are never shown to the screen.
                 $scope.allMarkers.push(mark);
             }
-            //This sorts the allmarkers array by date. If we can do this in solr by date it might be faster then in client.
-            $scope.allMarkers.sort(function(a,b){
-                if (a.date < b.date){
-                    return -1;
-                }else{
-                    return 1;
-                }
-            });
+
             //Once we have done searching, we will then call the filter function which will actually print the markers to the screen.
             $scope.filter();
         })
@@ -128,6 +125,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
         if( $scope.markers.length > 0 && $scope.markers.length <= $scope.allMarkers.length){//I dont think this is actually used for anything.
             curr = $scope.markers.pop();//we pop the top marker off the stack we then compare to our ranegDate to see if we need to add or remove markers from the stack.
+            if(!curr || !curr.hasOwnProperty('date')){
+                return;
+            }
             if (curr['date'] < new Date($scope.range/1)){//we need to add markers in this scenario
                 $scope.markers.push(curr);
                 while ($scope.markers.length < $scope.allMarkers.length){//make sure that we don't go outside the allMarkers array.

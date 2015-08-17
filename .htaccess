@@ -1,4 +1,4 @@
-AuthType Basic
-AuthName "DiamondEye"
-AuthUserFile /var/www/otc/conf/.htpasswd
-Require valid-user
+Order deny,allow
+Deny from all
+Allow from 10.0.0.0/8
+Allow from 130.207.0.0/16
