@@ -10,6 +10,9 @@
 		<link rel="stylesheet" type="text/css" href="js/ngRangeSlider-master/example/css/Default.css" />
 		<link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.css" />
 		<link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
+
+		<link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="bootstrap/dist/css/bootstrap-theme.min.css" />
 		<!--- This style is for highlighting text, can propably be placed somewhere else-->
         <style>
     		.highlighted { background: yellow }
@@ -18,40 +21,82 @@
 	</head>
 	<body ng-controller="MapCtrl">
 	<!--- Chuda said use span or flank instead of div-->
-		<div>
+		<div class="col-md-10">
             <!--- The leaflet map, variables match $scope variables in map.js-->
-
 			<leaflet maxbounds="maxbounds" tiles="tiles" markers="markers" icon = "markers.defaultIcon" event-broadcast="events" center="center" width="100%" height="480px"></leaflet>
 		</div>
-		<div>
-    		<input type="search" ng-model="search">
-    		<button ng-click="getMarkers()">Search</button>
-    	</div>
-    	<div>
-    		<input type="date" ng-model="startDate" min="1836-01-02" max="1925-01-01" ></input>
-    		<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousemove="filter()"></input>
-    		<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-01"></input>
-    		<button ng-hide="isPlaying" ng-click="play()">Play</button>
-    		<button ng-show="isPlaying" ng-click="play()">Pause</button>
-    	</div>
-    	<div>
-            <!--- This date input goes with the range input above-->
 
-    		<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()"></input>
-            <!---Started to add an option to have play go by days weeks or years with the search bar being how many of the timeframe selected to go forward.-->
+		<div class="col-md-2">
+			<h3>Search </h3>
+			<!-- Search Term -->
+			<div class="row form-inline">
+				<div class="col-md-3">
+					<label for="search_term">
+						Term
+					</label>
+				</div>
+				<div class="col-md-9">
+		    		<input type="search" ng-model="search" class="form-control" id="search_term" />
+				</div>
+	    	</div>
 
-    		<input type="search">
-    		<select convert-to-number>
-  				<option value="86400000">Day</option>
-  				<option value="6.048e+8">Week</option>
-                <Option value="2.63e+9">Month</option>
-  				<option value="3.156e+10">Year</option>
-			</select>
-    	</div>
+			<!-- Start Date -->
+			<div class="row form-inline">
+				<div class="col-md-3">
+					<label for="start_date">
+						Start Date
+					</label>
+				</div>
+				<div class="col-md-9">
+		    		<input type="date" ng-model="startDate" min="1836-01-02" max="1925-01-01" class="form-control" id="start_date" />
+				</div>
+	    	</div>
 
-        <!---The text that is shown by clicking on a marker.-->
-    	<div ng-model="text" ng-bind-html="text"></div>
+			<!-- End Date -->
+			<div class="row form-inline">
+				<div class="col-md-3">
+					<label for="end_date">
+						End Date
+					</label>
+				</div>
+				<div class="col-md-9">
+					<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-01" class="form-control" id="end_date" />
+				</div>
+	    	</div>
 
+		    <button ng-click="getMarkers()" class="form-control">Search</button>
+
+			<h3>Playback</h3>
+	    	<div class="row">
+				<div class="col-md-12 form-inline">
+		            <!--- This date input goes with the range input above-->
+
+					<div class="row form-inline">
+						<div class="col-md-3">
+							<label for="playback_date">
+								Playback Date
+							</label>
+						</div>
+						<div class="col-md-9">
+			    			<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()" class="form-control" id="playback_date" />
+						</div>
+					</div>
+					
+				</div>
+	    	</div>
+			<div class="row">
+				<div class="col-md-12 form-inline">
+		    		<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousemove="filter()" />
+		    		<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
+		    		<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
+				</div>
+	    	</div>
+
+		</div>
+	    <div class="row">
+	        <!---The text that is shown by clicking on a marker.-->
+			<div ng-model="text" ng-bind-html="text"></div>
+		</div>
 
   </body>
 </html>

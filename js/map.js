@@ -14,7 +14,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     var tiles = {
         url: "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
         options: {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+            // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+            attribution: '',
             maxZoom: 18,
             id: 'zsuffern0614.2ed6b495',//my stuff
             accessToken: 'pk.eyJ1IjoienN1ZmZlcm4wNjE0IiwiYSI6IjVlNWFkYjQwZDc0ZTY0OTZmMDQyMzM4NmVmMjFmNWNiIn0.oZhSA6w9Pgv3ISwLjP7vTQ'//mystuff
@@ -29,7 +30,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
-        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10000&indent=true";
+        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=1000&indent=true";
         var fields = '&fl=loc,date_field,id';
         url += fields;
         console.log(url);
@@ -162,8 +163,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     //This function moves the range slider over, then calls filter(). This causes the effect of markers appearing over time.
     $scope.playRange = function(){
+        var ONE_YEAR = 86400000 * 365.25; // 86400000 is the number of milliseconds in a day.
         if($scope.isPlaying && new Date($scope.range/1) <= $scope.endDate){
-            $scope.range = new Date(($scope.range/1) + 86400000).getTime();//86400000 is the number of milliseconds in a day.
+            $scope.range = new Date(($scope.range/1) + ONE_YEAR).getTime();
             $scope.rangeDate = new Date($scope.range/1);//update $scope.range and $scope.rangeDate to make sure they are the same since they are linked.
             $scope.filter();//call filter with new $scope.rangeDate
         }else if (!$scope.isPlaying){//When we press pause, stop moving ranger and cancel calling this function.
