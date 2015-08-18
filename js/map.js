@@ -57,6 +57,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                         iconUrl : "leaflet/images/marker-icon-Grey.png"
                     },*/
                     icon:{},
+                    nid : datum.id,
                     //This holds all the newspaper text.
                     text_msg : 'text', //datum.text,
                     //date of the newspaper
@@ -66,7 +67,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 				//Push the marker to the allMarkers array which hold all the markers for the search. This is just a holding array and its contents are never shown to the screen.
                 $scope.allMarkers.push(mark);
             }
-
+              //This sorts the allmarkers array by date. If we can do this in solr by date it might be faster then in client.
+            $scope.allMarkers.sort(function(a,b){
+                if (a.date < b.date){
+                    return -1;
+                }else{
+                    return 1;
+                }
+            });
             //Once we have done searching, we will then call the filter function which will actually print the markers to the screen.
             $scope.filter();
         })
@@ -82,7 +90,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             zoom: 4
         },
         tiles: tiles,//This is the var tiles from above.
-        markers: [],//The markers array which is actually shown, used in filter()
+        markers: [],//The markers  array which is actually shown, used in filter()
         allMarkers : [],//The marker holder array used in getMarkers()
         startDate: new Date( "1836-01-02"),//The earliest date possible for search queries.
         endDate: new Date("1925-01-01"),//The latest date possible for search queries.
@@ -94,6 +102,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             }
         },
         isPlaying : false,//For the play button. Switches between true and false when play button is pressed.
+        isOn : false,
         text: $sce.trustAsHtml(" ")//The actual text shown on the screen. Is taken in as HTML so one can highlight text. Causes problems when the documents are so messed up that they inadventernatly make html statements.
     });
 
@@ -104,19 +113,33 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var eventName = 'leafletDirectiveMarker.' + markerEvents[k];
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
-                var k = args.leafletObject.options.text_msg;
-                k = k.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>')//Goes through the text document, searches for teh search term and highlights it.
-                $scope.text = $sce.trustAsHtml(k);//replaces the text variable with the chosen marker text.
+                var l = args.leafletObject.options.nid;
+                var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+l+"%22&wt=json&indent=true"
+                console.log(url);
+				$http.get(url)
+        		.success(function (response){
+        			var datum = response.response.docs[0];
+
+              		//k = k.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>')//Goes through the text document, searches for teh search term and highlights it.
+               		$scope.text = $sce.trustAsHtml(datum.text);//replaces the text variable with the chosen marker text.
+                }); 
             }
         });
     }
 
+
+    $scope.turnOn = function(){
+        $scope.isOn = !$scope.isOn;//Flips $scope.isOnx to its inverse
+    }
     //This function is what figures out which markers to show on the map. Uses $scope.markers as a stack. Since the markers in $scope.allMarkers are already
     //sorted, as we push from the beginning of allMarkers to markers, we guarentee that the oldest markes will be at the bottom of the stack and the "youngest"
     //markers are on the stack. So when we have to remove or add markers, we just have to pop or push to the stack instead of rewriting the stack everytime.
     //Still can use refinments, slows down when moving fast over alot of markers, I think one of the problems is that the function is called with ng-move so
     //it is being called alot when the mouse is near it, causing slowdown.
     $scope.filter = function(){
+    	if (!$scope.isPlaying && $scope.isOn){return};
+    	console.log(new Date($scope.range/1));
+
         $scope.rangeDate = new Date($scope.range/1);//Figureout the date that the range slider is on. Apparently $scope.range is a string and dividing by 1 turns it into a number.
 
         var curr;//Our current marker.
@@ -126,9 +149,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
         if( $scope.markers.length > 0 && $scope.markers.length <= $scope.allMarkers.length){//I dont think this is actually used for anything.
             curr = $scope.markers.pop();//we pop the top marker off the stack we then compare to our ranegDate to see if we need to add or remove markers from the stack.
-            if(!curr || !curr.hasOwnProperty('date')){
+            /*if(!curr || !curr.hasOwnProperty('date')){
                 return;
-            }
+            }*/
             if (curr['date'] < new Date($scope.range/1)){//we need to add markers in this scenario
                 $scope.markers.push(curr);
                 while ($scope.markers.length < $scope.allMarkers.length){//make sure that we don't go outside the allMarkers array.
@@ -156,7 +179,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.play = function(){
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
         if ($scope.isPlaying){//if true we will have play range function be called every 100 seconds.
-            $interval($scope.playRange,100);
+            $interval($scope.playRange,1000);
         }
     }
 
@@ -182,3 +205,5 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     }
 
 }]);
+
+//http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22834903f4-55f4-40eb-9608-7aadbf41d6c2%22&wt=json&indent=true
