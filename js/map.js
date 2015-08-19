@@ -103,6 +103,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         },
         isPlaying : false,//For the play button. Switches between true and false when play button is pressed.
         isOn : false,
+        textShown : false,
+        popupTextData : "",
         text: $sce.trustAsHtml(" ")//The actual text shown on the screen. Is taken in as HTML so one can highlight text. Causes problems when the documents are so messed up that they inadventernatly make html statements.
     });
 
@@ -118,15 +120,36 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 console.log(url);
 				$http.get(url)
         		.success(function (response){
-        			var datum = response.response.docs[0];
+        			var datum = response.response.docs[0].text;
+                    var regex = new RegExp($scope.search, 'gi');
+                    var myArray;
+                    var holdArray = [];
+                    while ((myArray = regex.exec(datum)) !== null) {
+                        holdArray.push(regex.lastIndex);
+                    }
 
-              		//k = k.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>')//Goes through the text document, searches for teh search term and highlights it.
-               		$scope.text = $sce.trustAsHtml(datum.text);//replaces the text variable with the chosen marker text.
+                    var senArr = [];
+                    while(holdArray.length > 0){
+                        var spot = holdArray.pop();
+                        var sting = datum.slice(spot-200,spot+200);
+                        senArr.push('<div>'+sting+"</div>");
+                    }
+                    senArr.reverse();
+                    var ans = senArr.join();
+
+              		ans = ans.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>')//Goes through the text document, searches for teh search term and highlights it.
+               		$scope.popupTextData = $sce.trustAsHtml(datum.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>'));
+                    $scope.text = $sce.trustAsHtml(ans);//replaces the text variable with the chosen marker text.
+                    $scope.textShown = true;
                 }); 
             }
         });
     }
 
+    $scope.popupText = function(){
+        var myWindow = window.open("", "FullPage");
+        myWindow.document.write($scope.popupTextData);   
+    }
 
     $scope.turnOn = function(){
         $scope.isOn = !$scope.isOn;//Flips $scope.isOnx to its inverse
