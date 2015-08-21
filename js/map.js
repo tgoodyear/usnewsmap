@@ -26,6 +26,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.getMarkers = function(){
     	//We want to clear any visible markers when doing a new search.
         $scope.markers = [];
+        $scope.allMarkers = [];
         //Get query data, self explanatory
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');

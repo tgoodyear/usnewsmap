@@ -1,0 +1,7 @@
+History To DO List:
+
+1. Get rid of clustering and reimplement spots for cities
+	a. Color indicates how recent
+	b. Number shows how many hits.
+2. If a text doesnt have an exact hit, dont show it. 
+3. Implement timelime tool
