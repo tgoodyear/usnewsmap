@@ -20,12 +20,14 @@
 		<title>Chronicling America</title>
 	</head>
 	<body ng-controller="MapCtrl">
+	<div class="row">
 	<!--- Chuda said use span or flank instead of div-->
 		<div class="col-md-10">
             <!--- The leaflet map, variables match $scope variables in map.js-->
 			<leaflet maxbounds="maxbounds" tiles="tiles" markers="markers" icon = "markers.defaultIcon" event-broadcast="events" center="center" width="100%" height="480px"></leaflet>
 		</div>
-
+		
+		<form ng-submit="getMarkers()">
 		<div class="col-md-2">
 			<h3>Search </h3>
 			<!-- Search Term -->
@@ -48,7 +50,7 @@
 					</label>
 				</div>
 				<div class="col-md-9">
-		    		<input type="date" ng-model="startDate" min="1836-01-02" max="1925-01-01" class="form-control" id="start_date" />
+		    		<input type="date" ng-model="startDate" min="1836-01-01" max="1925-01-01" class="form-control" id="start_date" />
 				</div>
 	    	</div>
 
@@ -64,7 +66,8 @@
 				</div>
 	    	</div>
 
-		    <button ng-click="getMarkers()" class="form-control">Search</button>
+		<button ng-click="getMarkers()" class="form-control">Search</button>
+		</form>
 
 			<h3>Playback</h3>
 	    	<div class="row">
@@ -93,9 +96,10 @@
 				<div class="col-md-12 form-inline">
 					<button button ng-show="textShown" ng-click="popupText()" class="form-control">Show Full Text</button>
 				</div>
-	    	</div>
+	    		</div>
 
 		</div>
+	</div>
 	    <div class="row">
 	        <!---The text that is shown by clicking on a marker.-->
 			<div ng-model="text" ng-bind-html="text"></div>
