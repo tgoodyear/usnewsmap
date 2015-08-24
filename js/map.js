@@ -1,7 +1,7 @@
 
 
 //The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
-var app = angular.module("loc", ['leaflet-directive','ngRangeSlider']);
+var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline']);
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents",function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents) {
 
     //These are the bounds of the map, currently centered on the contenental US.
@@ -63,7 +63,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     text_msg : 'text', //datum.text,
                     //date of the newspaper
                     date: date,
-                    group:'us'
                 });
 				//Push the marker to the allMarkers array which hold all the markers for the search. This is just a holding array and its contents are never shown to the screen.
                 $scope.allMarkers.push(mark);
