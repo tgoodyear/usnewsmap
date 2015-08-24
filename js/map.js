@@ -27,6 +27,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     	//We want to clear any visible markers when doing a new search.
         $scope.markers = [];
         $scope.allMarkers = [];
+        $scope.finMarkers = [];
+
         //Get query data, self explanatory
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
@@ -91,6 +93,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         },
         tiles: tiles,//This is the var tiles from above.
         markers: [],//The markers  array which is actually shown, used in filter()
+        finMarkers : [],
         allMarkers : [],//The marker holder array used in getMarkers()
         startDate: new Date( "1836-01-02"),//The earliest date possible for search queries.
         endDate: new Date("1925-01-01"),//The latest date possible for search queries.
@@ -182,6 +185,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     if (curr['date'] <= new Date($scope.range/1)){//If that marker is still less then the date we are att, push it onto the stack and go back to the beggining of the while loop.
                         $scope.markers.push(curr);
                     }else{
+                        $scope.cityLoc();
                         return;//we cant add anymore so stop the function
                     }
                 }
@@ -190,14 +194,30 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     curr = $scope.markers.pop();
                     if (curr['date'] <= new Date($scope.range/1)){//pop off the marker if it is younger then the date redo the loop, else we've reached the date we wanted and so we push the marker back on the stack and end the function.
                         $scope.markers.push(curr);
+                        $scope.cityLoc()
                         return;
                     }
                 }
 
             }
+             $scope.cityLoc();
         }
     }
 
+    $scope.cityLoc = function(){
+        var finMark = {};
+        $scope.finMarkers = [];
+        for(mark in $scope.markers){
+                    console.log($scope.markers[mark]);
+
+            if(finMark[$scope.markers[mark].lat] == null){
+                finMark[$scope.markers[mark].lat] = true;
+                $scope.finMarkers.push($scope.markers[mark]);
+            }
+        } 
+        console.log($scope.finMarkers);
+
+    }
     //This function is called when you press the play/pause button.
     $scope.play = function(){
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
