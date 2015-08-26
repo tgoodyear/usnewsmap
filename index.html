@@ -5,14 +5,15 @@
 		<script type="text/javascript" src="js/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
 		<script type="text/javascript" src="js/ngRangeSlider-master/dist/ng-range-slider.js"></script>
 		<script type="text/javascript" src="js/map.js"></script>
+		<script type="text/javascript" src="js/angular-horizontal-timeline-master/angular-horizontal-timeline.js"></script>
+		<script type="text/javascript" src="js/moment.js"></script>
+		<script type="text/javascript" src="js/moment-range/lib/moment-range.js"></script>
+		<script type="text/javascript" src="js/bower-angular-sanitize/angular-sanitize.js"></script>
+
 		<link rel="stylesheet" type="text/css" href="js/leaflet/leaflet.css" />
 		<link rel="stylesheet" type="text/css" href="js/ngRangeSlider-master/example/css/Default.css" />
-
 		<link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css" />
 		<link rel="stylesheet" href="bootstrap/dist/css/bootstrap-theme.min.css" />
-
-
-		<script src="js/angular-horizontal-timeline-master/angular-horizontal-timeline.js"></script>
 		<link rel="stylesheet" href="js/angular-horizontal-timeline-master/angular-horizontal-timeline.css">
 
 		<!--- This style is for highlighting text, can propably be placed somewhere else-->
@@ -23,10 +24,8 @@
 	</head>
 	<body ng-controller="MapCtrl">
 	<div class="row">
-	<!--- Chuda said use span or flank instead of div-->
 		<div class="col-md-10">
-            <!--- The leaflet map, variables match $scope variables in map.js-->
-			<leaflet maxbounds="maxbounds" tiles="tiles" markers="finMarkers" icon = "markers.defaultIcon" event-broadcast="events" center="center" width="100%" height="480px"></leaflet>
+			<leaflet maxbounds="maxbounds" tiles="tiles" markers="finMarkers" icon = "circle" event-broadcast="events" center="center" width="100%" height="480px"></leaflet>
 		</div>
 		
 		<form ng-submit="getMarkers()">
@@ -102,6 +101,14 @@
 
 		</div>
 	</div>
+		<div class="row">
+			<horizontal-timeline 
+	  			start-date="1815-06-25" 
+	  			curr-date="{{rangeDate}}"
+	  			end-date="1935-8-27"
+	  			events='[{"date":"1905-08-18","content":"<p>lorem ipsum</p>"},{"date":"1865-09-01","content":"<p>lorem ipsum</p>"}]'>
+			</horizontal-timeline>	
+		<div>
 	    <div class="row">
 	        <!---The text that is shown by clicking on a marker.-->
 			<div ng-model="text" ng-bind-html="text"></div>

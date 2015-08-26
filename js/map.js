@@ -164,7 +164,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     //it is being called alot when the mouse is near it, causing slowdown.
     $scope.filter = function(){
     	if (!$scope.isPlaying && $scope.isOn){return};
-    	console.log(new Date($scope.range/1));
 
         $scope.rangeDate = new Date($scope.range/1);//Figureout the date that the range slider is on. Apparently $scope.range is a string and dividing by 1 turns it into a number.
 
@@ -208,15 +207,12 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var finMark = {};
         $scope.finMarkers = [];
         for(mark in $scope.markers){
-                    console.log($scope.markers[mark]);
-
-            if(finMark[$scope.markers[mark].lat] == null){
-                finMark[$scope.markers[mark].lat] = true;
-                $scope.finMarkers.push($scope.markers[mark]);
-            }
+            finMark[$scope.markers[mark].lat] = $scope.markers[mark];  
         } 
-        console.log($scope.finMarkers);
 
+        for (x in finMark){
+            $scope.finMarkers.push(finMark[x]);
+        }
     }
     //This function is called when you press the play/pause button.
     $scope.play = function(){
@@ -249,4 +245,4 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
 }]);
 
-//http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22834903f4-55f4-40eb-9608-7aadbf41d6c2%22&wt=json&indent=true
+//http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22834903f4-55f4-40eb-9608-7aadbf41d6c2%22&wt=json&indent=true 

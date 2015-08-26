@@ -37,6 +37,7 @@
 	padding-top: 20px;
 	width: 90%;
 	float: left;
+	z-index: -1;
 }
 
 .timeline-right {
@@ -96,14 +97,14 @@
 .timeline-bg {
 	position: relative;
 	padding: 0px;
-	top: -22px;
+	top: -11px;
 }
 
 .timeline-month {
 	position: relative;
 	display: inline-block;
 	top: 0;
-	height: 13px;
+	height: 15px;
 }
 
 .timeline-month span {

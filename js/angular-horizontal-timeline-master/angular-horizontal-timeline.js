@@ -16,7 +16,7 @@ var template =
 '</div>'+
 '<div class="timeline-center">'+
 '<div class="progress">'+
-'	<span ng-style="{width:progress_percent+\'%\'}"></span>'+
+//'	<span ng-style="{width:progress_percent+\'%\'}"></span>'+
 '	<ul class="timeline-events">'+
 '		<li class="timeline-event" ng-repeat="event in events"'+
 '			ng-mouseenter="selectedEvent[$index]=true"'+
@@ -31,7 +31,7 @@ var template =
 '			</div>'+
 '		</li>'+
 '	</ul>'+
-'	<ul class="timeline-bg">'+
+/*'	<ul class="timeline-bg">'+
 '		<li class="timeline-month" ng-repeat="month in months"'+
 '			timeline-month><span title="{{month.date}}">{{month.name}}</span>'+
 '			<ul>'+
@@ -41,14 +41,14 @@ var template =
 '				</li>'+
 '			</ul></li>'+
 '	</ul>'+
-'</div>'+
+*/'</div>'+
 '</div>'+
 '<div class="timeline-right">'+
 '	<label>{{endDate}}</label>'+
 '</div>'+
 '</div>';
 
-angular.module('angular-horizontal-timeline', [])//'ngSanitize'])
+angular.module('angular-horizontal-timeline', ['ngSanitize'])
 
 .filter('unsafe', function($sce) {
     return function(val) {
@@ -63,16 +63,17 @@ angular.module('angular-horizontal-timeline', [])//'ngSanitize'])
 
 		$scope.getPosition = function(date){
 			date = moment(date);
-			var diff = date.diff(moment($scope.startDate), 'months');
+			var diff = date.diff(moment($scope.startDate),moment($scope.endDate), 'months');
 			var curWeekWidth = 100/$scope.months[diff].days.length;
 			var monthsWidth = 100/$scope.months.length;
 			var ixOfWeek = Math.ceil(date.format('D')/7) - 1;
 			var curDOfMPercent = (date.format('D') - $scope.months[diff].days[ixOfWeek] ) * 14.28;
 
-			return ( (monthsWidth * diff) + (((ixOfWeek * curWeekWidth) + (curDOfMPercent / 100 * curWeekWidth)) / 100 * monthsWidth) );
+			return ((monthsWidth * diff) + (((ixOfWeek * curWeekWidth) + (curDOfMPercent / 100 * curWeekWidth)) / 100 * monthsWidth) );
 		};
 
 		var range  = moment().range(moment($scope.startDate), moment($scope.endDate));
+
 		range.by('months', function(month) {
 			$scope.months.push({
 				'date':month.format('YYYY-MM'),
@@ -84,8 +85,7 @@ angular.module('angular-horizontal-timeline', [])//'ngSanitize'])
 				$scope.months[$scope.months.length - 1].days.push(week.format('DD'));
 			});
 		});
-
-		$scope.progress_percent = $scope.getPosition(moment().format('YYYY-MM-DD'));
+		$scope.progress_percent = $scope.getPosition($scope.currDate);
 	}
 
 	return {
@@ -93,6 +93,7 @@ angular.module('angular-horizontal-timeline', [])//'ngSanitize'])
 		controller: controller,
 		scope: {
 			startDate: '@',
+			currDate: '@',
 			endDate: '@',
 			events: '='
 		},
