@@ -1902,7 +1902,7 @@
                 units === 'week' ? (delta - zoneDelta) / 6048e5 : // 1000 * 60 * 60 * 24 * 7, negate dst
                 delta;
         }
-        return asFloat ? output : absFloor(Math.abs(output));
+        return (Math.abs(output));
     }
 
     function monthDiff (a, b) {

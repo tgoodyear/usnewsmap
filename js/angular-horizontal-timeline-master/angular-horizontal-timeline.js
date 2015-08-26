@@ -63,13 +63,11 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 
 		$scope.getPosition = function(date){
 			date = moment(date);
-			var diff = date.diff(moment($scope.startDate),moment($scope.endDate), 'months');
-			var curWeekWidth = 100/$scope.months[diff].days.length;
-			var monthsWidth = 100/$scope.months.length;
-			var ixOfWeek = Math.ceil(date.format('D')/7) - 1;
-			var curDOfMPercent = (date.format('D') - $scope.months[diff].days[ixOfWeek] ) * 14.28;
-
-			return ((monthsWidth * diff) + (((ixOfWeek * curWeekWidth) + (curDOfMPercent / 100 * curWeekWidth)) / 100 * monthsWidth) );
+			var diff = Math.ceil(date.diff(moment($scope.startDate),moment($scope.endDate), 'year')*365);
+			var diff2 = Math.ceil(date.diff(moment($scope.startDate),moment(date), 'year')*365);
+			console.log((diff2/diff)*100);
+			//range between 0 - 100
+			return (diff2/diff)*100;
 		};
 
 		var range  = moment().range(moment($scope.startDate), moment($scope.endDate));
