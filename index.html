@@ -27,8 +27,9 @@
 			<leaflet maxbounds="maxbounds" tiles="tiles" markers="markers" icon = "markers.defaultIcon" event-broadcast="events" center="center" width="100%" height="480px"></leaflet>
 		</div>
 		
-		<form ng-submit="getMarkers()">
 		<div class="col-md-2">
+		<form ng-submit="getMarkers()">
+
 			<h3>Search </h3>
 			<!-- Search Term -->
 			<div class="row form-inline">
@@ -38,35 +39,42 @@
 					</label>
 				</div>
 				<div class="col-md-9">
-		    		<input type="search" ng-model="search" class="form-control" id="search_term" />
+					<input type="search" ng-model="search" class="form-control" id="search_term" />
 				</div>
-	    	</div>
+	    		</div>
 
 			<!-- Start Date -->
 			<div class="row form-inline">
 				<div class="col-md-3">
 					<label for="start_date">
-						Start Date
+						Start
 					</label>
 				</div>
 				<div class="col-md-9">
-		    		<input type="date" ng-model="startDate" min="1836-01-01" max="1925-01-01" class="form-control" id="start_date" />
+		    			<input type="date" ng-model="startDate" min="1836-01-01" max="1925-01-01" class="form-control" id="start_date" />
 				</div>
-	    	</div>
+	    		</div>
 
 			<!-- End Date -->
 			<div class="row form-inline">
 				<div class="col-md-3">
 					<label for="end_date">
-						End Date
+						End
 					</label>
 				</div>
 				<div class="col-md-9">
 					<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-01" class="form-control" id="end_date" />
 				</div>
-	    	</div>
+			</div>
 
-		<button ng-click="getMarkers()" class="form-control">Search</button>
+			<div class="row">
+				<div class="col-md-3" ng-model="loadingStatus">
+					Loading
+				</div>
+				<div class="col-md-9">
+					<button ng-click="getMarkers()" class="form-control">Search</button>
+				</div>
+			</div>
 		</form>
 
 			<h3>Playback</h3>
