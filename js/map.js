@@ -28,6 +28,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.markers = [];
         $scope.allMarkers = [];
         $scope.finMarkers = [];
+        $scope.eventTable = [];
+        $scope.timelineEvents = [];
+
 
         //Get query data, self explanatory
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
@@ -77,6 +80,17 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     return 1;
                 }
             });
+
+            for (mark in $scope.allMarkers){
+                var curr = $scope.allMarkers[mark];
+                if($scope.eventTable[curr.lat] == null){
+                    $scope.eventTable[curr.lat] = [];
+                }
+                $scope.eventTable[curr.lat].push({"date":curr.message,"content":"<p>"+curr.lat+"</p>"})
+            }
+            console.log($scope.eventTable);
+
+
             //Once we have done searching, we will then call the filter function which will actually print the markers to the screen.
             $scope.filter();
         })
@@ -95,6 +109,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         markers: [],//The markers  array which is actually shown, used in filter()
         finMarkers : [],
         allMarkers : [],//The marker holder array used in getMarkers()
+        eventTable : [],
+        timelineEvents : [{"date":"1915-07-25","content":"<p>lorem ipsum</p>"},{"date":"1845-07-25","content":"<p>lorem ipsum</p>"},{"date":"1865-07-25","content":"<p>lorem ipsum</p>"}],
         startDate: new Date( "1836-01-02"),//The earliest date possible for search queries.
         endDate: new Date("1925-01-01"),//The latest date possible for search queries.
         range : new Date("1925-01-01").getTime(),//The range bar value, set to miliseconds since epoch and changed by the slider.
@@ -119,6 +135,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
                 var l = args.leafletObject.options.nid;
+                $scope.timelineEvents = $scope.eventTable[args.leafletObject.options.lat];
                 var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+l+"%22&wt=json&indent=true"
                 console.log(url);
 				$http.get(url)
@@ -147,6 +164,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 }); 
             }
         });
+    }
+
+    $scope.test = function(){
+        console.log("hihihihihihihihihi");
     }
 
     $scope.popupText = function(){
@@ -202,6 +223,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
              $scope.cityLoc();
         }
     }
+
 
     $scope.cityLoc = function(){
         var finMark = {};

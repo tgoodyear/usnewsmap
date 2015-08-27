@@ -11,3 +11,9 @@ History To DO List:
 letter-level ingrams
 implement a hash table/linked list for spots
 show all events for a city in timeline
+	Pressing a marker brings up the timeline
+	Timeline shows all events for the location up to current date
+	Clicking on an event brings up the text
+
+Show green bar popup on time line
+Have timeline refresh when new date range chosen 

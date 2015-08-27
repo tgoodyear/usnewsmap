@@ -21,6 +21,7 @@ var template =
 '		<li class="timeline-event" ng-repeat="event in events"'+
 '			ng-mouseenter="selectedEvent[$index]=true"'+
 '			ng-mouseleave="selectedEvent[$index]=false"'+
+'			ng-click="test()"'+ 
 '			event-date="event.date"'+
 '			title="{{event.date}}"'+
 '			timeline-event-marker><span></span>'+
@@ -56,11 +57,16 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
     };
 })
 
+
+
 .directive('horizontalTimeline', function(){
 	function controller($scope){
 		$scope.selectedEvent = [];
 		$scope.months= [];
 
+$scope.test = function(){
+        console.log("hihihihihihihihihi");
+    }
 		$scope.getPosition = function(date){
 			date = moment(date);
 			var diff = Math.ceil(date.diff(moment($scope.startDate),moment($scope.endDate), 'year')*365);

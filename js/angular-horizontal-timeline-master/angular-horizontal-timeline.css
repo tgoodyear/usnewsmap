@@ -22,7 +22,6 @@
 }
 
 .front {
-	z-index: 1;
 }
 
 .timeline-left {
@@ -37,7 +36,6 @@
 	padding-top: 20px;
 	width: 90%;
 	float: left;
-	z-index: -1;
 }
 
 .timeline-right {
@@ -48,22 +46,25 @@
 }
 
 .timeline-events {
-	z-index: 1;
 	top: 0px;
 	position: relative;
 	background-color: silver;
 	list-style-type: none;
 	padding: 0px;
 	margin: 0px;
+	z-index: 2;
+
 }
 
 .timeline-event {
 	position: absolute;
 	width: 2px;
-	height: 28px;
+	height: 50px;
 	background: #00BA26;
 	top: -20px;
 	cursor: pointer;
+		z-index: 3;
+
 }
 
 .timeline-event span {
@@ -75,6 +76,8 @@
 	position: absolute;
 	top: -10px;
 	left: -4px;
+		z-index: 4;
+
 }
 
 .progress {
@@ -91,7 +94,6 @@
 	background-image:
 		url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAQCAIAAACgHXkXAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAmklEQVR42n2QoRICMQxE34YiGCQKzZ+g+VoEik9BIlA4BsNkEXdXyjFlRSbdJM1udLr6eL7cl9un1saSMCs/Nq/bYb8LGkiqeWYC0TDMWiVKZn2DAOyRsSkIyJatiCBs/FuZUEJIi+m7ucyutEF5+SrX3CnJJvp7AaKJ4K/1mURvTtJobPD9gYGwLfWnhzvGdLVk7jDRX+WZvAFVGTu3Dqy+5gAAAABJRU5ErkJggg==);
 	position: relative;
-	z-index: 10;
 }
 
 .timeline-bg {
@@ -156,6 +158,7 @@
 	width: 200px;
 	left: -20px;
 	padding: 5px;
+
 }
 .timeline-event-box:after, .timeline-event-box:before {
 	bottom: 100%;
@@ -173,6 +176,8 @@
 	border-bottom-color: #ffffff;
 	border-width: 8px;
 	margin-left: -8px;
+		position: relative;
+	z-index: 10;
 }
 .timeline-event-box:before {
 	border-color: rgba(199, 199, 199, 0);
