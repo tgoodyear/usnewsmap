@@ -86,9 +86,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 if($scope.eventTable[curr.lat] == null){
                     $scope.eventTable[curr.lat] = [];
                 }
-                $scope.eventTable[curr.lat].push({"date":curr.message,"content":"<p>"+curr.lat+"</p>"})
+                $scope.eventTable[curr.lat].push({"date":curr.message,"content":"<p>"+curr.lat+"</p>","id":curr.nid})
             }
-            console.log($scope.eventTable);
 
 
             //Once we have done searching, we will then call the filter function which will actually print the markers to the screen.
@@ -166,9 +165,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         });
     }
 
-    $scope.test = function(){
-        console.log("hihihihihihihihihi");
-    }
+
 
     $scope.popupText = function(){
         var myWindow = window.open("", "FullPage");

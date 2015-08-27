@@ -21,7 +21,7 @@ var template =
 '		<li class="timeline-event" ng-repeat="event in events"'+
 '			ng-mouseenter="selectedEvent[$index]=true"'+
 '			ng-mouseleave="selectedEvent[$index]=false"'+
-'			ng-click="test()"'+ 
+'			ng-click="test(event)"'+ 
 '			event-date="event.date"'+
 '			title="{{event.date}}"'+
 '			timeline-event-marker><span></span>'+
@@ -59,14 +59,44 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 
 
 
-.directive('horizontalTimeline', function(){
+.directive('horizontalTimeline', function($http){
 	function controller($scope){
 		$scope.selectedEvent = [];
 		$scope.months= [];
 
-$scope.test = function(){
-        console.log("hihihihihihihihihi");
+	$scope.test = function(data){
+        var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+data.id+"%22&wt=json&indent=true"
+		$http.get(url)
+		.success(function (response){
+			var datum = response.response.docs[0].text;
+			console.log(datum);
+            var regex = new RegExp($scope.search, 'gi');
+            var myArray;
+            var holdArray = [];
+
+            //breaks here, infinite loop
+            while ((myArray = regex.exec(datum)) !== null) {
+                holdArray.push(regex.lastIndex);
+            }
+
+            /*var senArr = [];
+            while(holdArray.length > 0){
+                var spot = holdArray.pop();
+                var sting = datum.slice(spot-200,spot+200);
+                senArr.push('<div>'+sting+"</div>");
+            }
+            senArr.reverse();
+            var ans = senArr.join();
+
+      		ans = ans.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>');//Goes through the text document, searches for teh search term and highlights it.
+       		
+      		console.log(ans);
+       		//$scope.popupTextData = $sce.trustAsHtml(datum.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>'));
+            //$scope.text = $sce.trustAsHtml(ans);//replaces the text variable with the chosen marker text.
+            //$scope.textShown = true;*/
+        })
     }
+
 		$scope.getPosition = function(date){
 			date = moment(date);
 			var diff = Math.ceil(date.diff(moment($scope.startDate),moment($scope.endDate), 'year')*365);
