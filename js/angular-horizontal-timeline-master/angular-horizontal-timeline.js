@@ -74,7 +74,7 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
             var myArray;
             var holdArray = [];
 
-            //breaks here, infinite loop
+            //breaks here, infinite loop trying to find all instances of search term. $scope.search might not be the actual search term. 
             while ((myArray = regex.exec(datum)) !== null) {
                 holdArray.push(regex.lastIndex);
             }
