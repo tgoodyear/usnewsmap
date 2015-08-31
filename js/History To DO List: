@@ -1,7 +1,19 @@
 History To DO List:
 
 1. Get rid of clustering and reimplement spots for cities
-	a. Color indicates how recent
-	b. Number shows how many hits.
-2. If a text doesnt have an exact hit, dont show it. 
+	a. Only one dot per city - done
+	b. Color indicates how recent
+	c. Number shows how many hits.
+2. If a text doesnt have an exact hit, dont show it. - Need to be through server?
 3. Implement timelime tool
+
+
+letter-level ingrams
+implement a hash table/linked list for spots
+show all events for a city in timeline
+	Pressing a marker brings up the timeline
+	Timeline shows all events for the location up to current date
+	Clicking on an event brings up the text
+
+Show green bar popup on time line
+Have timeline refresh when new date range chosen 

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Toggle marker color on click</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+</style>
+</head>
+<body>
+
+
+<div id='map'></div>
+
+<script>
+L.mapbox.accessToken = 'pk.eyJ1IjoienN1ZmZlcm4wNjE0IiwiYSI6IjVlNWFkYjQwZDc0ZTY0OTZmMDQyMzM4NmVmMjFmNWNiIn0.oZhSA6w9Pgv3ISwLjP7vTQ';
+var map = L.mapbox.map('map', 'mapbox.streets')
+    .setView([37.9, -77], 6);
+
+var geoJson = [{
+      type: 'Feature',
+      geometry: {
+          type: 'Point',
+          coordinates: [-77, 37.9]
+      },
+      properties: {
+          title: 'Marker One',
+          'marker-color': '#bbb'
+      }
+  },
+  {
+      type: 'Feature',
+      geometry: {
+          type: 'Point',
+          coordinates: [-78, 36.5]
+      },
+      properties: {
+          title: 'Marker Two',
+          'marker-color': '#bbb'
+  }
+}];
+
+var myLayer = L.mapbox.featureLayer().addTo(map);
+
+myLayer.setGeoJSON(geoJson);
+
+function resetColors() {
+    for (var i = 0; i < geoJson.length; i++) {
+        geoJson[i].properties['marker-color'] = geoJson[i].properties['old-color'] ||
+            geoJson[i].properties['marker-color'];
+    }
+    myLayer.setGeoJSON(geoJson);
+}
+
+myLayer.on('click', function(e) {
+    resetColors();
+    e.layer.feature.properties['old-color'] = e.layer.feature.properties['marker-color'];
+    e.layer.feature.properties['marker-color'] = '#ff8888';
+    myLayer.setGeoJSON(geoJson);
+});
+
+map.on('click', resetColors);
+</script>
+
+
+</body>
+</html>
