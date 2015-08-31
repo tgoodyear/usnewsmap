@@ -37,7 +37,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
         var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=1000&indent=true";
-        var fields = '&fl=loc,date_field,id';
+        var fields = '&fl=loc,date_field,id,city,state';
         url += fields;
         console.log(url);
 
@@ -56,7 +56,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     lat:parseFloat(loc[0]),
                     lng:parseFloat(loc[1]),
                     //This is the popup msg when you click on a marker on the map.
-                    message: dats[1]+"/"+dats[2]+"/"+dats[0],
+                    timeDate: dats[1]+"/"+dats[2]+"/"+dats[0],//need city
+                    message: datum.city + "," + datum.state,//need city
+
                    	//These next two are for icons for when we can switch between two different icons, currently not in use.
                     /*icon: {
                         iconSize:  [19, 46], // size of the icon
@@ -87,7 +89,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 if($scope.eventTable[curr.lat] == null){
                     $scope.eventTable[curr.lat] = [];
                 }
-                $scope.eventTable[curr.lat].push({"date":curr.message,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search})
+                $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search})
             }
 
 
@@ -220,7 +222,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 }
 
             }
-             $scope.cityLoc();
+            $scope.cityLoc();
         }
     }
 
@@ -268,3 +270,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 }]);
 
 //http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22834903f4-55f4-40eb-9608-7aadbf41d6c2%22&wt=json&indent=true 
+
+
+//http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B1836-01-02T00%3A00%3A00%3A000Z+TO+1925-01-01T00%3A00%3A00%3A000Z%5D+%0Atext%3A%22lincoln%22&wt=json&rows=1000&indent=true&fl=loc,date_field,id,city,state
