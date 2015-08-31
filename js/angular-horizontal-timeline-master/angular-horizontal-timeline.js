@@ -46,8 +46,11 @@ var template =
 '</div>'+
 '<div class="timeline-right">'+
 '	<label>{{endDate}}</label>'+
+'</div>'+                                              
 '</div>'+
-'</div>';
+'<div class="row">'+
+			'<div ng-model="text" ng-bind-html="text"></div>'+
+		'</div>';
 
 angular.module('angular-horizontal-timeline', ['ngSanitize'])
 
@@ -57,29 +60,31 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
     };
 })
 
+  
 
-
-.directive('horizontalTimeline', function($http){
+.directive('horizontalTimeline', function($http,$sce){
 	function controller($scope){
 		$scope.selectedEvent = [];
 		$scope.months= [];
+		$scope.text = "";
 
-	$scope.test = function(data){
+	$scope.test = function(data, search){
         var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+data.id+"%22&wt=json&indent=true"
 		$http.get(url)
 		.success(function (response){
 			var datum = response.response.docs[0].text;
-			console.log(datum);
-            var regex = new RegExp($scope.search, 'gi');
+			console.log(data.search);
+            var regex = new RegExp(data.search, 'gi');
             var myArray;
             var holdArray = [];
 
             //breaks here, infinite loop trying to find all instances of search term. $scope.search might not be the actual search term. 
             while ((myArray = regex.exec(datum)) !== null) {
+            	console.log(regex.lastIndex);
                 holdArray.push(regex.lastIndex);
             }
 
-            /*var senArr = [];
+            var senArr = [];
             while(holdArray.length > 0){
                 var spot = holdArray.pop();
                 var sting = datum.slice(spot-200,spot+200);
@@ -88,11 +93,11 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
             senArr.reverse();
             var ans = senArr.join();
 
-      		ans = ans.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>');//Goes through the text document, searches for teh search term and highlights it.
+      		ans = ans.replace(new RegExp(data.search, 'gi'), '<span class="highlighted">'+data.search+'</span>');//Goes through the text document, searches for teh search term and highlights it.
        		
       		console.log(ans);
        		//$scope.popupTextData = $sce.trustAsHtml(datum.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>'));
-            //$scope.text = $sce.trustAsHtml(ans);//replaces the text variable with the chosen marker text.
+            $scope.text = $sce.trustAsHtml(ans);//replaces the text variable with the chosen marker text.
             //$scope.textShown = true;*/
         })
     }

@@ -68,6 +68,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     text_msg : 'text', //datum.text,
                     //date of the newspaper
                     date: date,
+                    search: $scope.search
                 });
 				//Push the marker to the allMarkers array which hold all the markers for the search. This is just a holding array and its contents are never shown to the screen.
                 $scope.allMarkers.push(mark);
@@ -86,7 +87,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 if($scope.eventTable[curr.lat] == null){
                     $scope.eventTable[curr.lat] = [];
                 }
-                $scope.eventTable[curr.lat].push({"date":curr.message,"content":"<p>"+curr.lat+"</p>","id":curr.nid})
+                $scope.eventTable[curr.lat].push({"date":curr.message,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search})
             }
 
 
@@ -122,6 +123,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         isPlaying : false,//For the play button. Switches between true and false when play button is pressed.
         isOn : false,
         textShown : false,
+        showTimeLine : false,
         popupTextData : "",
         text: $sce.trustAsHtml(" ")//The actual text shown on the screen. Is taken in as HTML so one can highlight text. Causes problems when the documents are so messed up that they inadventernatly make html statements.
     });
@@ -134,8 +136,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
                 var l = args.leafletObject.options.nid;
+                $scope.showTimeLine = true;
                 $scope.timelineEvents = $scope.eventTable[args.leafletObject.options.lat];
-                var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+l+"%22&wt=json&indent=true"
+                /*var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+l+"%22&wt=json&indent=true"
                 console.log(url);
 				$http.get(url)
         		.success(function (response){
@@ -160,7 +163,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                		$scope.popupTextData = $sce.trustAsHtml(datum.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>'));
                     $scope.text = $sce.trustAsHtml(ans);//replaces the text variable with the chosen marker text.
                     $scope.textShown = true;
-                }); 
+                }); */
             }
         });
     }
