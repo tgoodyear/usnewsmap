@@ -42,12 +42,17 @@ var template =
 '				</li>'+
 '			</ul></li>'+
 '	</ul>'+
-*/'</div>'+
+
+*/
+'</div>'+
 '</div>'+
 '<div class="timeline-right">'+
 '	<label>{{endDate}}</label>'+
-'</div>'+                                              
+'</div>'+                                       
 '</div>'+
+'<div class="row">'+
+					'<button button ng-click="popupText()" ng-show="textShown" class="form-control">Show Full Text</button>'+
+				'</div>'+       
 '<div class="row">'+
 			'<div ng-model="text" ng-bind-html="text"></div>'+
 		'</div>';
@@ -65,14 +70,23 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 .directive('horizontalTimeline', function($http,$sce){
 	function controller($scope){
 		$scope.selectedEvent = [];
-		$scope.months= [];
+		$scope.months = [];
 		$scope.text = "";
+		$scope.textShown = false;
+		$scope.popupTextData = "";
+
+
+	 $scope.popupText = function(){
+        var myWindow = window.open("", "FullPage");
+        myWindow.document.write($scope.popupTextData);   
+    }
 
 	$scope.test = function(data, search){
         var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+data.id+"%22&wt=json&indent=true"
 		$http.get(url)
 		.success(function (response){
 			var datum = response.response.docs[0].text;
+			$scope.popupTextData = datum;
 			console.log(data.search);
             var regex = new RegExp(data.search, 'gi');
             var myArray;
@@ -97,6 +111,7 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
        		
       		console.log(ans);
        		//$scope.popupTextData = $sce.trustAsHtml(datum.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>'));
+            $scope.textShown = true;
             $scope.text = $sce.trustAsHtml(ans);//replaces the text variable with the chosen marker text.
             //$scope.textShown = true;*/
         })
