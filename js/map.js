@@ -37,9 +37,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
         var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=1000&indent=true";
-        var fields = '&fl=loc,date_field,id,city,state';
+        var fields = '&fl=loc,date_field,id,city,state,ed,seq,seq_num';
         url += fields;
-        console.log(url);
 
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         $http.get(url)
@@ -48,8 +47,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 var datum = response.response.docs[i];
                 var loc = datum.loc.split(',');
                 var dats = datum.date_field.split("T")[0].split("-");
-                var date = new Date(dats[0],dats[2],dats[1])
-
+                var date = new Date(dats[0],dats[2],dats[1]);
                 //Creating individual makers for the map.
                 var mark = ({
                 	//All markers have a lat and long which are slightly offset in order to show multiple newspapers from the same place.
@@ -57,8 +55,15 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     lng:parseFloat(loc[1]),
                     //This is the popup msg when you click on a marker on the map.
                     timeDate: dats[1]+"/"+dats[2]+"/"+dats[0],//need city
-                    message: datum.city + "," + datum.state,//need city
-
+                    message: datum.city + "," + datum.state + "\n" ,//need city
+                    city: datum.city,
+                    state: datum.state,
+                    year:dats[0],
+                    month:dats[1],
+                    day:dats[2],
+                    ed:datum.ed,
+                    seq:datum.seq,
+                    seq_num:datum.seq_num,
                    	//These next two are for icons for when we can switch between two different icons, currently not in use.
                     /*icon: {
                         iconSize:  [19, 46], // size of the icon
@@ -89,9 +94,13 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 if($scope.eventTable[curr.lat] == null){
                     $scope.eventTable[curr.lat] = [];
                 }
-                $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search})
+                $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
             }
 
+            for (mark in $scope.allMarkers){
+                var curr = $scope.allMarkers[mark];
+                curr.message =  curr.city + "," + curr.state + "\n" + $scope.eventTable[curr.lat].length
+            }
 
             //Once we have done searching, we will then call the filter function which will actually print the markers to the screen.
             $scope.filter();
@@ -112,7 +121,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         finMarkers : [],
         allMarkers : [],//The marker holder array used in getMarkers()
         eventTable : [],
-        timelineEvents : [{"date":"1915-07-25","content":"<p>lorem ipsum</p>"},{"date":"1845-07-25","content":"<p>lorem ipsum</p>"},{"date":"1865-07-25","content":"<p>lorem ipsum</p>"}],
+        timelineEvents : [],
         startDate: new Date( "1836-01-02"),//The earliest date possible for search queries.
         endDate: new Date("1925-01-01"),//The latest date possible for search queries.
         range : new Date("1925-01-01").getTime(),//The range bar value, set to miliseconds since epoch and changed by the slider.
@@ -140,32 +149,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 var l = args.leafletObject.options.nid;
                 $scope.showTimeLine = true;
                 $scope.timelineEvents = $scope.eventTable[args.leafletObject.options.lat];
-                /*var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+l+"%22&wt=json&indent=true"
-                console.log(url);
-				$http.get(url)
-        		.success(function (response){
-        			var datum = response.response.docs[0].text;
-                    var regex = new RegExp($scope.search, 'gi');
-                    var myArray;
-                    var holdArray = [];
-                    while ((myArray = regex.exec(datum)) !== null) {
-                        holdArray.push(regex.lastIndex);
-                    }
-
-                    var senArr = [];
-                    while(holdArray.length > 0){
-                        var spot = holdArray.pop();
-                        var sting = datum.slice(spot-200,spot+200);
-                        senArr.push('<div>'+sting+"</div>");
-                    }
-                    senArr.reverse();
-                    var ans = senArr.join();
-
-              		ans = ans.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>')//Goes through the text document, searches for teh search term and highlights it.
-               		$scope.popupTextData = $sce.trustAsHtml(datum.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>'));
-                    $scope.text = $sce.trustAsHtml(ans);//replaces the text variable with the chosen marker text.
-                    $scope.textShown = true;
-                }); */
             }
         });
     }

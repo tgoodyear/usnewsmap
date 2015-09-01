@@ -77,24 +77,21 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 
 
 	 $scope.popupText = function(){
-        var myWindow = window.open("", "FullPage");
-        myWindow.document.write($scope.popupTextData);   
+        var myWindow = window.open($scope.popupTextData, "FullPage");
     }
 
 	$scope.test = function(data, search){
         var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+data.id+"%22&wt=json&indent=true"
 		$http.get(url)
 		.success(function (response){
-			var datum = response.response.docs[0].text;
-			$scope.popupTextData = datum;
-			console.log(data.search);
+			var datum = response.response.docs[0].text
+			$scope.popupTextData = data.url;
             var regex = new RegExp(data.search, 'gi');
             var myArray;
             var holdArray = [];
 
             //breaks here, infinite loop trying to find all instances of search term. $scope.search might not be the actual search term. 
             while ((myArray = regex.exec(datum)) !== null) {
-            	console.log(regex.lastIndex);
                 holdArray.push(regex.lastIndex);
             }
 
@@ -109,7 +106,6 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 
       		ans = ans.replace(new RegExp(data.search, 'gi'), '<span class="highlighted">'+data.search+'</span>');//Goes through the text document, searches for teh search term and highlights it.
        		
-      		console.log(ans);
        		//$scope.popupTextData = $sce.trustAsHtml(datum.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>'));
             $scope.textShown = true;
             $scope.text = $sce.trustAsHtml(ans);//replaces the text variable with the chosen marker text.
@@ -121,7 +117,6 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 			date = moment(date);
 			var diff = Math.ceil(date.diff(moment($scope.startDate),moment($scope.endDate), 'year')*365);
 			var diff2 = Math.ceil(date.diff(moment($scope.startDate),moment(date), 'year')*365);
-			console.log((diff2/diff)*100);
 			//range between 0 - 100
 			return (diff2/diff)*100;
 		};
