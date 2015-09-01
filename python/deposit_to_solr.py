@@ -6,7 +6,7 @@ import datetime
 HOME = sys.argv[1]#this must be directory holding all sn folders and only works for this type of data due to difficulty in getting dates. 
 LOC_DATA = 'town_ref.csv'
 DATA = {}
-solr = 'http://130.207.211.77:8983/solr/loc/update/json?commit=true'
+solr = 'http://130.207.211.77:8983/solr/dev/update/json?commit=true'
 #http://130.207.211.77:8983/solr/loc/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E&commit=true
 # curl -X POST -H 'Content-type:application/json' --data-binary '{"replace-field":{"name":"date_field","type":"date","stored":true }}' http://localhost:8983/solr/loc/schema
 # curl -X POST -H 'Content-type:application/json' --data-binary '{"replace-field":{"name":"loc","type":"location","stored":true }}' http://localhost:8983/solr/loc/schema
@@ -31,19 +31,21 @@ def loop(path):
 			if len(date) > 8:
 				directory = date[5]#might have to redo these to match pastec
 				date = datetime.datetime(int(date[6]),int(date[7]),int(date[8])).isoformat()
+				ed = date[9]
+				seq = date[10]
 				#date = date[6] +"-"+ date[7] +"-"+ date[8]+"T00:00:00Z"#might have to redo these to match pastec
-				load_data(folder,date,directory)
+				load_data(folder,date,directory,ed,seq)
 			
 				
 	return
 
-def load_data(filename,date,folder):
+def load_data(filename,date,folder,ed,seq):
 	with open(filename, 'rb') as afile:
 	 	data = DATA[folder]
-	 	# print {'seq_num':data[0],'city':data[1],'state':data[2],'long':data[3],'lat':type(data[4]),'date':date}
+	 	 print {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date}
 	 	#k = dicttoxml.dicttoxml
-	 	k = json.dumps([{'seq_num':data[0],'city':data[1],'state':data[2],'loc':str(data[3]) + "," + str(data[4]),'date_field':date,'text':afile.read()}])
-	 	g = requests.post(solr,data=k)
+	 	#k = json.dumps([{'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date,'text':afile.read()}])
+	 	#g = requests.post(solr,data=k)
 
 		#print g.text
 	 
