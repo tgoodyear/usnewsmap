@@ -30,11 +30,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
 
     	//We want to clear any visible markers when doing a new search.
-        $scope.markers = [];
-        $scope.allMarkers = [];
-        $scope.finMarkers = [];
-        $scope.eventTable = [];
-        $scope.timelineEvents = [];
 
 
         //Get query data, self explanatory
@@ -48,6 +43,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         $http.get(url)
         .success(function (response){
+            $scope.markers = [];
+            $scope.allMarkers = [];
+            $scope.finMarkers = [];
+            $scope.eventTable = [];
+            $scope.timelineEvents = [];
             for (i = 0; i < response.response.docs.length; i++) {
                 var datum = response.response.docs[i];
                 var loc = datum.loc.split(',');
@@ -80,12 +80,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     text_msg : 'text', //datum.text,
                     //date of the newspaper
                     date: date,
+                    group:'us',
                     search: $scope.search
                 });
 				//Push the marker to the allMarkers array which hold all the markers for the search. This is just a holding array and its contents are never shown to the screen.
                 $scope.allMarkers.push(mark);
             }
               //This sorts the allmarkers array by date. If we can do this in solr by date it might be faster then in client.
+
             $scope.allMarkers.sort(function(a,b){
                 if (a.date < b.date){
                     return -1;
@@ -93,6 +95,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     return 1;
                 }
             });
+
 
             for (mark in $scope.allMarkers){
                 var curr = $scope.allMarkers[mark];
@@ -102,13 +105,17 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
             }
 
+
             for (mark in $scope.allMarkers){
                 var curr = $scope.allMarkers[mark];
                 curr.message =  curr.city + "," + curr.state + "\n" + $scope.eventTable[curr.lat].length
+                console.log($scope.eventTable[curr.lat].length);
             }
 
             //Once we have done searching, we will then call the filter function which will actually print the markers to the screen.
             $scope.filter();
+
+
         })
     }
 
