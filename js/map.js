@@ -24,6 +24,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     //This function actually queries the solr database and create a list of markers.
     $scope.getMarkers = function(){
+        if(!$scope.search){
+            
+            return false;
+        }
+
     	//We want to clear any visible markers when doing a new search.
 
 
@@ -164,7 +169,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     $scope.popupText = function(){
         var myWindow = window.open("", "FullPage");
-        myWindow.document.write($scope.popupTextData);   
+        myWindow.document.write($scope.popupTextData);
     }
 
     $scope.turnOn = function(){
@@ -221,8 +226,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var finMark = {};
         $scope.finMarkers = [];
         for(mark in $scope.markers){
-            finMark[$scope.markers[mark].lat] = $scope.markers[mark];  
-        } 
+            finMark[$scope.markers[mark].lat] = $scope.markers[mark];
+        }
 
         for (x in finMark){
             $scope.finMarkers.push(finMark[x]);
@@ -259,7 +264,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
 }]);
 
-//http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22834903f4-55f4-40eb-9608-7aadbf41d6c2%22&wt=json&indent=true 
+//http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22834903f4-55f4-40eb-9608-7aadbf41d6c2%22&wt=json&indent=true
 
 
 //http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B1836-01-02T00%3A00%3A00%3A000Z+TO+1925-01-01T00%3A00%3A00%3A000Z%5D+%0Atext%3A%22lincoln%22&wt=json&rows=1000&indent=true&fl=loc,date_field,id,city,state
