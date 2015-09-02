@@ -19,69 +19,99 @@
 		<!--- This style is for highlighting text, can propably be placed somewhere else-->
         <style>
     		.highlighted { background: yellow }
+			body {
+				padding: 10px;
+				overflow-x: hidden;
+			}
     	</style>
 		<title>Chronicling America</title>
 	</head>
 	<body ng-controller="MapCtrl">
 	<div class="row">
+
+		<!-- Map, header -->
 		<div class="col-md-10">
-			<leaflet maxbounds="maxbounds" tiles="tiles" markers="finMarkers" icon = "circle" event-broadcast="events" center="center" width="100%" height="480px"></leaflet>
-		</div>
-		
-		<div class="col-md-2">
-		<form ng-submit="getMarkers()">
-
-			<h3>Search </h3>
-			<!-- Search Term -->
-			<div class="row form-inline">
-				<div class="col-md-3">
-					<label for="search_term">
-						Term
-					</label>
+			<div class="row" style="padding: 5px 0 20px 0;">
+				<div class="col-md-3" style="height:100px;">
+					<a href="http://www.gtri.gatech.edu/icl" target="_blank">
+					<img src="images/GTRI_Logo.png" class="img-responsive" />
+					</a>
 				</div>
-				<div class="col-md-9">
-					<input type="search" ng-model="search" class="form-control" id="search_term" />
+				<div class="col-md-3 text-center">
+					<a href="http://history.uga.edu/" target="_blank">
+					<img src="images/UGA_Logo.gif" style="height:100px;" />
+					</a>
 				</div>
-	    		</div>
-
-			<!-- Start Date -->
-			<div class="row form-inline">
-				<div class="col-md-3">
-					<label for="start_date">
-						Start
-					</label>
-				</div>
-				<div class="col-md-9">
-		    			<input type="date" ng-model="startDate" min="1836-01-01" max="1925-01-01" class="form-control" id="start_date" />
-				</div>
-	    		</div>
-
-			<!-- End Date -->
-			<div class="row form-inline">
-				<div class="col-md-3">
-					<label for="end_date">
-						End
-					</label>
-				</div>
-				<div class="col-md-9">
-					<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-01" class="form-control" id="end_date" />
+				<div class="col-md-4">
+					<h2 style="padding-top:0;margin-top:0;">Exploring American History</h2>
+					Enter a search term in the text box on the right to search American
+					newspapers from 1836 &ndash; 1924. Use the Playback feature to see
+					the movement of your term across the country. <br/>
+					This tool uses data from the Library of Congress&apos;
+					<a href="http://chroniclingamerica.loc.gov/" target="_blank">Chronicling
+					America project</a>.
 				</div>
 			</div>
 
 			<div class="row">
-				<div class="col-md-3" ng-model="loadingStatus">
-					Loading
-				</div>
-				<div class="col-md-9">
-					<button ng-click="getMarkers()" class="form-control">Search</button>
+				<div class="col-md-12">
+					<leaflet maxbounds="maxbounds" tiles="tiles" markers="finMarkers" icon = "circle" event-broadcast="events" center="center" width="100%" height="480px"></leaflet>
 				</div>
 			</div>
-		</form>
+		</div>
+		<div class="col-md-2">
+			<form ng-submit="getMarkers()">
+				<h3>Search </h3>
+				<!-- Search Term -->
+				<div class="row form-inline">
+					<div class="col-md-3">
+						<label for="search_term">
+							Term
+						</label>
+					</div>
+					<div class="col-md-9">
+						<input type="search" ng-model="search" class="form-control" id="search_term" />
+					</div>
+				</div>
+
+				<!-- Start Date -->
+				<div class="row form-inline">
+					<div class="col-md-3">
+						<label for="start_date">
+							Start
+						</label>
+					</div>
+					<div class="col-md-9">
+						<input type="date" ng-model="startDate" min="1836-01-01" max="1925-01-01" class="form-control" id="start_date" />
+					</div>
+				</div>
+
+				<!-- End Date -->
+				<div class="row form-inline">
+					<div class="col-md-3">
+						<label for="end_date">
+							End
+						</label>
+					</div>
+					<div class="col-md-9">
+						<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-01" class="form-control" id="end_date" />
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-3" ng-model="loadingStatus">
+						<!-- Loading -->
+					</div>
+					<div class="col-md-9">
+						<button ng-click="getMarkers()" class="form-control">Search</button>
+					</div>
+				</div>
+			</form>
 
 			<h3>Playback</h3>
-	    	<div class="row">
+			<div class="row">
 				<div class="col-md-12 form-inline">
-		            <!--- This date input goes with the range input above-->
+					<!--- This date input goes with the range input above-->
 
 					<div class="row form-inline">
 						<div class="col-md-3">
@@ -90,29 +120,29 @@
 							</label>
 						</div>
 						<div class="col-md-9">
-			    			<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()" class="form-control" id="playback_date" />
+							<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()" class="form-control" id="playback_date" />
 						</div>
 					</div>
-					
 				</div>
-	    	</div>
+			</div>
 			<div class="row">
 				<div class="col-md-12 form-inline">
-		    		<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
-		    		<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
-		    		<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
-				</div>	
-	    	</div>
+					<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
+					<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
+					<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
+				</div>
+			</div>
 		</div>
 	</div>
-		<div class="row">
-			<horizontal-timeline 
-	  			start-date="{{startDate.toLocaleDateString()}}" 
-	  			curr-date="{{rangeDate}}"
-	  			end-date="{{endDate.toLocaleDateString()}}"
-	  			events="timelineEvents"
-	  			ng-show="showTimeLine">
-			</horizontal-timeline>	
-		<div>
+
+	<div class="row">
+		<horizontal-timeline
+			start-date="{{startDate.toLocaleDateString()}}"
+			curr-date="{{rangeDate}}"
+			end-date="{{endDate.toLocaleDateString()}}"
+			events="timelineEvents"
+			ng-show="showTimeLine">
+		</horizontal-timeline>
+	</div>
   </body>
 </html>
