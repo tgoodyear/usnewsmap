@@ -96,24 +96,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 }
             });
 
-
-            for (mark in $scope.allMarkers){
-                var curr = $scope.allMarkers[mark];
-                if($scope.eventTable[curr.lat] == null){
-                    $scope.eventTable[curr.lat] = [];
-                }
-                $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
-            }
-
-
-            for (mark in $scope.allMarkers){
-                var curr = $scope.allMarkers[mark];
-                curr.message =  curr.city + "," + curr.state + "\n" + $scope.eventTable[curr.lat].length
-                console.log($scope.eventTable[curr.lat].length);
-            }
-
             //Once we have done searching, we will then call the filter function which will actually print the markers to the screen.
-            $scope.filter();
+            $scope.filter(true);
 
 
         })
@@ -159,7 +143,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
                 var l = args.leafletObject.options.nid;
-                $scope.showTimeLine = true;
+                $scope.showTimeLine = true;   
                 $scope.timelineEvents = $scope.eventTable[args.leafletObject.options.lat];
             }
         });
@@ -180,8 +164,15 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     //markers are on the stack. So when we have to remove or add markers, we just have to pop or push to the stack instead of rewriting the stack everytime.
     //Still can use refinments, slows down when moving fast over alot of markers, I think one of the problems is that the function is called with ng-move so
     //it is being called alot when the mouse is near it, causing slowdown.
-    $scope.filter = function(){
-    	if (!$scope.isPlaying && $scope.isOn){return};
+    $scope.filter = function(filter){
+       
+    	filter = typeof filter !== 'undefined' ? filter : false;
+
+        if (!$scope.isPlaying && !$scope.isOn && !filter){return;};
+        
+
+
+
 
         $scope.rangeDate = new Date($scope.range/1);//Figureout the date that the range slider is on. Apparently $scope.range is a string and dividing by 1 turns it into a number.
 
@@ -223,15 +214,37 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
 
     $scope.cityLoc = function(){
+        $scope.eventTable = [];
+        $scope.timelineEvents = [];
+
         var finMark = {};
         $scope.finMarkers = [];
         for(mark in $scope.markers){
-            finMark[$scope.markers[mark].lat] = $scope.markers[mark];
+            if($scope.markers[mark].date <= $scope.rangeDate){
+                finMark[$scope.markers[mark].lat] = $scope.markers[mark];
+                var curr = $scope.markers[mark];
+                if($scope.eventTable[curr.lat] == null){
+                    $scope.eventTable[curr.lat] = [];
+                }
+                $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
+        
+            }
+        }
+
+
+        for (mark in $scope.allMarkers){
+            var curr = $scope.allMarkers[mark];
+            if($scope.eventTable[curr.lat] != null){
+                curr.message =  curr.city + "," + curr.state + "\n" + $scope.eventTable[curr.lat].length;
+            }
         }
 
         for (x in finMark){
             $scope.finMarkers.push(finMark[x]);
         }
+
+        
+        
     }
     //This function is called when you press the play/pause button.
     $scope.play = function(){
