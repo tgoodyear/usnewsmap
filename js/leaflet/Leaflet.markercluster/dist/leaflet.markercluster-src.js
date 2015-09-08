@@ -771,7 +771,7 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 		if (this.options.singleMarkerMode) {
 			layer.options.icon = this.options.iconCreateFunction({
 				getChildCount: function () {
-					return 1;
+					return 1;//find me zach!!!
 				},
 				getAllChildMarkers: function () {
 					return [layer];
