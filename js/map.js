@@ -41,8 +41,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         url += fields;
 
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
-        $http.get(url)
+        $http.post('http://bisi1/loc_api/get_data',url)
         .success(function (response){
+            console.log(response);
             $scope.markers = [];
             $scope.allMarkers = [];
             $scope.finMarkers = [];
@@ -169,9 +170,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     	filter = typeof filter !== 'undefined' ? filter : false;
 
         if (!$scope.isPlaying && !$scope.isOn && !filter){return;};
-        
-
-
+    
 
 
         $scope.rangeDate = new Date($scope.range/1);//Figureout the date that the range slider is on. Apparently $scope.range is a string and dividing by 1 turns it into a number.
@@ -219,6 +218,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
         var finMark = {};
         $scope.finMarkers = [];
+
         for(mark in $scope.markers){
             if($scope.markers[mark].date <= $scope.rangeDate){
                 finMark[$scope.markers[mark].lat] = $scope.markers[mark];

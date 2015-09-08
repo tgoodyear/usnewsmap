@@ -122,7 +122,7 @@
 						<div class="col-md-3">
 							<label for="playback_date">
 								Playback Date
-							</label>
+						</label>
 						</div>
 						<div class="col-md-9">
 							<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()" class="form-control" id="playback_date" />
@@ -132,7 +132,7 @@
 			</div>
 			<div class="row">
 				<div class="col-md-12 form-inline">
-					<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
+					<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="`turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
 					<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
 					<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
 				</div>
@@ -151,3 +151,4 @@
 	</div>
   </body>
 </html>
+	
