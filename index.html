@@ -132,7 +132,7 @@
 			</div>
 			<div class="row">
 				<div class="col-md-12 form-inline">
-					<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="`turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
+					<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
 					<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
 					<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
 				</div>
