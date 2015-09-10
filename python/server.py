@@ -52,6 +52,7 @@ def milk():
 				'search':search
 			}
 			marks['marks'].append(mark)
+		marks['marks'] = sorted(marks['marks'],key=lambda mark : mark['date'])
 		return json.dumps(marks)
 	else:
 		return "git milk"
