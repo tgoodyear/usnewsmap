@@ -39,11 +39,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=1000&indent=true";
         var fields = '&fl=loc,date_field,id,city,state,ed,seq,seq_num';
         url += fields;
-	var par = '{'
-		+ '"url" : ' + url
-		+ '}';
+
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
-        $http.post('http://bisi1/loc_api/get_data',url)
+        $http.post('http://bisi1/loc_api/get_data',{"url":url,"search":$scope.search})
         .success(function (response){
             console.log(response);
             $scope.markers = [];
