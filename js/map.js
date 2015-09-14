@@ -41,7 +41,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         url += fields;
 
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
-        $http.post('http://bisi1/loc_api/get_data',{"url":url,"search":$scope.search})
+        $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search})
         .success(function (response){
             $scope.markers = [];
             $scope.allMarkers = [];

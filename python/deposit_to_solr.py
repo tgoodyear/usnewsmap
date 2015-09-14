@@ -30,7 +30,7 @@ def loop(path):
 		if os.path.isdir(folder):
 			loop(path+"/"+folder)
 			os.chdir(path)
-		elif folder[-4:] == '.txt':
+		elif folder[-4:] == '.txt':k
 			date = path.split('/')
 			if len(date) > 8:
 				counter = counter + 1
