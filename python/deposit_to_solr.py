@@ -15,6 +15,7 @@ solr = 'http://130.207.211.77:8983/solr/loc/update/json?commit=true'
 # curl -X POST -H 'Content-type:application/json' --data-binary '{"replace-field":{"name":"city","type":"string","stored":true }}' http://localhost:8983/solr/loc/schema
 # curl -X POST -H 'Content-type:application/json' --data-binary '{"replace-field":{"name":"text","type":"text_en","stored":true }}' http://localhost:8983/solr/loc/schema
 
+#curl http://localhost:8983/solr/update -H 'Content-type:application/json' --data-binary '<add><doc><field name="state">PR</field><field name="loc" update="set">18.406389,-66.063889</field> </doc> </add>'
 
 
 counter = 0
@@ -29,7 +30,7 @@ def loop(path):
 		if os.path.isdir(folder):
 			loop(path+"/"+folder)
 			os.chdir(path)
-		elif folder[-4:] == '.txt':
+		elif folder[-4:] == '.txt':k
 			date = path.split('/')
 			if len(date) > 8:
 				counter = counter + 1
@@ -45,13 +46,14 @@ def loop(path):
 
 def load_data(filename,date,folder,ed,seq):
 	with open(filename, 'rb') as afile:
+		r = requests.get("http://chroniclingamerica.loc.gov/lccn/sn83045555/1889-11-21/ed-1.json")
 	 	data = DATA[folder]
 	 	#print {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date}
 	 
-	 	k = json.dumps([{'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date,'text':afile.read()}])
-	 	g = requests.post(solr,data=k)
+	 	#k = json.dumps([{'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date,'text':afile.read()}])
+	 	#g = requests.post(solr,data=k)
 
-		#print g.text
+		print r
 	 
 
 

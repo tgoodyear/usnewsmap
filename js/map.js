@@ -41,65 +41,20 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         url += fields;
 
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
-        $http.get(url)
+        $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search})
         .success(function (response){
             $scope.markers = [];
             $scope.allMarkers = [];
             $scope.finMarkers = [];
             $scope.eventTable = [];
             $scope.timelineEvents = [];
-            for (i = 0; i < response.response.docs.length; i++) {
-                var datum = response.response.docs[i];
-                var loc = datum.loc.split(',');
-                var dats = datum.date_field.split("T")[0].split("-");
-                var date = new Date(dats[0],dats[2],dats[1]);
-                //Creating individual makers for the map.
-                var mark = ({
-                	//All markers have a lat and long which are slightly offset in order to show multiple newspapers from the same place.
-                    lat:parseFloat(loc[0]),
-                    lng:parseFloat(loc[1]),
-                    //This is the popup msg when you click on a marker on the map.
-                    timeDate: dats[1]+"/"+dats[2]+"/"+dats[0],//need city
-                    message: datum.city + "," + datum.state + "\n" ,//need city
-                    city: datum.city,
-                    state: datum.state,
-                    year:dats[0],
-                    month:dats[1],
-                    day:dats[2],
-                    ed:datum.ed,
-                    seq:datum.seq,
-                    seq_num:datum.seq_num,
-                   	//These next two are for icons for when we can switch between two different icons, currently not in use.
-                    /*icon: {
-                        iconSize:  [19, 46], // size of the icon
-                        iconUrl : "leaflet/images/marker-icon-Grey.png"
-                    },*/
-                    icon:{},
-                    nid : datum.id,
-                    //This holds all the newspaper text.
-                    text_msg : 'text', //datum.text,
-                    //date of the newspaper
-                    date: date,
-                    group:'us',
-                    search: $scope.search
-                });
-				//Push the marker to the allMarkers array which hold all the markers for the search. This is just a holding array and its contents are never shown to the screen.
+            for (i = 0; i < response.marks.length; i++) {
+		mark = response.marks[i];
+		mark['date'] = new Date(mark['date']);
                 $scope.allMarkers.push(mark);
             }
-              //This sorts the allmarkers array by date. If we can do this in solr by date it might be faster then in client.
-
-            $scope.allMarkers.sort(function(a,b){
-                if (a.date < b.date){
-                    return -1;
-                }else{
-                    return 1;
-                }
-            });
-
-            //Once we have done searching, we will then call the filter function which will actually print the markers to the screen.
+	    console.log($scope.allMarkers);
             $scope.filter(true);
-
-
         })
     }
 
@@ -169,12 +124,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     	filter = typeof filter !== 'undefined' ? filter : false;
 
         if (!$scope.isPlaying && !$scope.isOn && !filter){return;};
-        
+    
 
 
-
-
-        $scope.rangeDate = new Date($scope.range/1);//Figureout the date that the range slider is on. Apparently $scope.range is a string and dividing by 1 turns it into a number.
+        $scope.rangeDate = new Date($scope.range/1);//Figureout the ole.log(response.marks);
+//ate that the range slider is on. Apparently $scope.range is a string and dividing by 1 turns it into a number.
 
         var curr;//Our current marker.
         if ($scope.markers.length  == 0){//if there are no markers, go ahead and push the oldest marker onto the stack.
@@ -214,11 +168,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
 
     $scope.cityLoc = function(){
+	console.log("city loc");
+	console.log($scope.markers);
         $scope.eventTable = [];
         $scope.timelineEvents = [];
 
         var finMark = {};
         $scope.finMarkers = [];
+
         for(mark in $scope.markers){
             if($scope.markers[mark].date <= $scope.rangeDate){
                 finMark[$scope.markers[mark].lat] = $scope.markers[mark];

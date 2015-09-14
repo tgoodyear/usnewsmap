@@ -623,7 +623,7 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 		this.fire(e.type, e);
 	},
 
-	//Default functionality
+	//Default functionalityzach
 	_defaultIconCreateFunction: function (cluster) {
 		var childCount = parseInt(cluster.getAllChildMarkers()[0]._popup._content.split("\n")[1])
 		var c = ' marker-cluster-';
@@ -699,7 +699,7 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 			showCoverageOnHover = this.options.showCoverageOnHover,
 			zoomToBoundsOnClick = this.options.zoomToBoundsOnClick,
 			map = this._map;
-
+ 
 		if (spiderfyOnMaxZoom || zoomToBoundsOnClick) {
 			this.off('clusterclick', this._zoomOrSpiderfy, this);
 		}
