@@ -15,6 +15,7 @@ solr = 'http://130.207.211.77:8983/solr/loc/update/json?commit=true'
 # curl -X POST -H 'Content-type:application/json' --data-binary '{"replace-field":{"name":"city","type":"string","stored":true }}' http://localhost:8983/solr/loc/schema
 # curl -X POST -H 'Content-type:application/json' --data-binary '{"replace-field":{"name":"text","type":"text_en","stored":true }}' http://localhost:8983/solr/loc/schema
 
+#curl http://localhost:8983/solr/update -H 'Content-type:application/json' --data-binary '<add><doc><field name="state">PR</field><field name="loc" update="set">18.406389,-66.063889</field> </doc> </add>'
 
 
 counter = 0
