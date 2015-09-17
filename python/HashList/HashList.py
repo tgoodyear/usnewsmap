@@ -72,6 +72,13 @@ class Node:
 			setattr(self,key,marker[key])
 
 	def get_dict_rep(self):
-		return self.marker
+		ans = {}
+		ignore = ["__init__","__doc__","__module__","get_dict_rep","next","prev"]
+		for attr in dir(self):
+			if attr not in ignore:
+				ans[attr] = getattr(self,attr)
+			
+			
+		return ans
  
 
