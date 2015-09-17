@@ -52,12 +52,11 @@ class HashTable:
 		return None
 
 	def get_json_data(self):
-		ans = {}
+		ans = []
 		for key in self.hash_table.keys():
-			city = []
 			for spot in self.hash_table[key]:
-				city.append(spot.get_dict_rep())
-			ans[key] = city
+				ans.append(spot.get_dict_rep())
+			
 		return ans
 			
 

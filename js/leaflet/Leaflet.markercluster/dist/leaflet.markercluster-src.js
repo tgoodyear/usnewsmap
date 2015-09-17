@@ -625,7 +625,7 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 
 	//Default functionalityzach
 	_defaultIconCreateFunction: function (cluster) {
-		var childCount = parseInt(cluster.getAllChildMarkers()[0]._popup._content.split("\n")[1])
+		var childCount =  cluster.getChildCount();
 		var c = ' marker-cluster-';
 		if (childCount < 10) {
 			c += 'small';
