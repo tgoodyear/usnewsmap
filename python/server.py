@@ -9,18 +9,21 @@ from flask import Flask, request, jsonify, Response
 from flask.ext.cors import CORS
 from flask.ext.restplus import Api, Resource, fields, apidoc
 
+sys.path.insert(1,'/var/www/loc/python')
+from HashList.HashList import HashList, HashTable, Node
 
 logging.basicConfig(stream=sys.stderr)
 
 application = Flask(__name__)
 
+r = HashList()
 
 @application.route('/')
 def home():
 	return "hello"
 
 @application.route('/get_data', methods=['GET', 'POST'])
-def milk():
+def get_data():
 	if request.method == 'POST':
 		marks ={'marks': []} 
 		data = json.loads(request.data)
@@ -57,8 +60,13 @@ def milk():
 	else:
 		return "git milk"
 
-
-
-
+@application.route('/get_hash')
+def get_hash():
+	global r
+	#r = HashList()
+	k = Node()
+	r.add_node(k)
+	return r.get_json()
+		
 if __name__ == '__main__':
-    application.run(debug=True,host='0.0.0.0',port=80)
+    application.run(debug=True,host='0.0.0.0',port=8080)
