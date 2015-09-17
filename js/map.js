@@ -43,18 +43,18 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search})
         .success(function (response){
+		console.log(response)
             $scope.markers = [];
             $scope.allMarkers = [];
-            $scope.finMarkers = [];
+            $scope.finMarkers = response;
             $scope.eventTable = [];
             $scope.timelineEvents = [];
-            for (i = 0; i < response.marks.length; i++) {
-		mark = response.marks[i];
-		mark['date'] = new Date(mark['date']);
-                $scope.allMarkers.push(mark);
-            }
-	    console.log($scope.allMarkers);
-            $scope.filter(true);
+           // for (i = 0; i < response.length; i++) {
+	//	mark = response.marks[i];
+          //      $scope.allMarkers.push(mark);
+        //    }
+	   // console.log($scope.allMarkers);
+          //  $scope.filter(true);
         })
     }
 

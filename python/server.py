@@ -16,7 +16,7 @@ logging.basicConfig(stream=sys.stderr)
 
 application = Flask(__name__)
 
-r = HashList()
+h_list = HashList()
 
 @application.route('/')
 def home():
@@ -56,17 +56,16 @@ def get_data():
 			}
 			marks['marks'].append(mark)
 		marks['marks'] = sorted(marks['marks'],key=lambda mark : mark['date'])
-		return json.dumps(marks)
+		for mark in marks['marks']:
+			h_list.add_node(Node(mark))
+		return h_list.get_json()#json.dumps(marks)
 	else:
 		return "git milk"
 
 @application.route('/get_hash')
 def get_hash():
-	global r
-	#r = HashList()
-	k = Node()
-	r.add_node(k)
-	return r.get_json()
+	global h_list
+	return h_list.get_json()
 		
 if __name__ == '__main__':
     application.run(debug=True,host='0.0.0.0',port=8080)
