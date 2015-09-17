@@ -50,9 +50,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             $scope.eventTable = [];
             $scope.timelineEvents = [];
            // for (i = 0; i < response.length; i++) {
-	//	mark = response.marks[i];
+           //	mark = response.marks[i];
           //      $scope.allMarkers.push(mark);
-        //    }
+         //    }
 	   // console.log($scope.allMarkers);
           //  $scope.filter(true);
         })
@@ -118,14 +118,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     //sorted, as we push from the beginning of allMarkers to markers, we guarentee that the oldest markes will be at the bottom of the stack and the "youngest"
     //markers are on the stack. So when we have to remove or add markers, we just have to pop or push to the stack instead of rewriting the stack everytime.
     //Still can use refinments, slows down when moving fast over alot of markers, I think one of the problems is that the function is called with ng-move so
-    //it is being called alot when the mouse is near it, causing slowdown.
+    //i`t is being called alot when the mouse is near it, causing slowdown.
     $scope.filter = function(filter){
        
     	filter = typeof filter !== 'undefined' ? filter : false;
 
         if (!$scope.isPlaying && !$scope.isOn && !filter){return;};
     
-
+	/*
 
         $scope.rangeDate = new Date($scope.range/1);//Figureout the ole.log(response.marks);
 //ate that the range slider is on. Apparently $scope.range is a string and dividing by 1 turns it into a number.
@@ -137,9 +137,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
         if( $scope.markers.length > 0 && $scope.markers.length <= $scope.allMarkers.length){//I dont think this is actually used for anything.
             curr = $scope.markers.pop();//we pop the top marker off the stack we then compare to our ranegDate to see if we need to add or remove markers from the stack.
-            /*if(!curr || !curr.hasOwnProperty('date')){
-                return;
-            }*/
+            //if(!curr || !curr.hasOwnProperty('date')){
+               // return;
+            //}
             if (curr['date'] < new Date($scope.range/1)){//we need to add markers in this scenario
                 $scope.markers.push(curr);
                 while ($scope.markers.length < $scope.allMarkers.length){//make sure that we don't go outside the allMarkers array.
@@ -163,10 +163,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
             }
             $scope.cityLoc();
-        }
+        }*/
     }
 
-
+/*
     $scope.cityLoc = function(){
 	console.log("city loc");
 	console.log($scope.markers);
@@ -202,7 +202,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
         
         
-    }
+    }*/
     //This function is called when you press the play/pause button.
     $scope.play = function(){
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
