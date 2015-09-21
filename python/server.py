@@ -57,7 +57,7 @@ def home():
 			marks['marks'].append(mark)
 		marks['marks'] = sorted(marks['marks'],key=lambda mark : mark['date'])
 		for mark in marks['marks']:
-			h_list.add_node(Node(mark))
+			h_list.add_node(mark)
 		return h_list.get_json()#json.dumps(marks)
 	else:
 		return "git milk"
