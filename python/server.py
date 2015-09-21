@@ -11,13 +11,13 @@ from flask.ext.cors import CORS
 from flask.ext.restplus import Api, Resource, fields, apidoc
 
 sys.path.insert(1,'/var/www/loc/python')
-from HashList.HashList import HashList, HashTable, Node
+from HashList.HashList import HashList, HashTable
 
 logging.basicConfig(stream=sys.stderr)
 
 application = Flask(__name__)
 
-h_list = HashList()
+
 client = pymongo.MongoClient()
 db = client["loc"]
 coll = db["users"]
@@ -25,6 +25,7 @@ coll = db["users"]
 @application.route('/get_data',methods=['GET', 'POST'])
 def home():
 	if request.method == 'POST':
+		h_list = HashList()
 		marks ={'marks': []} 
 		data = json.loads(request.data)
 		url = data['url']
@@ -52,13 +53,15 @@ def home():
 				'text_msg':'',
 				'date':date,
 				'group':'us',
+				'hash':d['city']+d['state'],
 				'search':search
 			}
 			marks['marks'].append(mark)
 		marks['marks'] = sorted(marks['marks'],key=lambda mark : mark['date'])
 		for mark in marks['marks']:
 			h_list.add_node(mark)
-		return h_list.get_json()#json.dumps(marks)
+		coll.insert_one(h_list.get_mongo_format())
+		return h_list.get_hash_json()#json.dumps(marks)
 	else:
 		return "git milk"
 
@@ -75,9 +78,8 @@ def update():
 	global h_list
 	if request.method == 'POST':
 		data = json.loads(request.data)
-		print h_list.get_json()
 		h_list.update(data['date'])
-		return h_list.get_json()
+		return h_list.get_hash_json()
 	else:
 		return "no updates at this time"
 

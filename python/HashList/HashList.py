@@ -2,12 +2,13 @@ import json
 import datetime
 
 class HashList:
-	def __init__(self,hash_table={},linked_list = []):
+	def __init__(self,_id=5,hash_table={},linked_list=[],tail=None,head=None):
 		#we are assuming that the nodes are only added once at the begging, in order, and then the list is static until a new search is done. 
+		self._id = _id
 		self.hash_table = HashTable(hash_table)
 		self.linked_list = linked_list
-		self.tail = None
-		self.head = None
+		self.tail = tail
+		self.head = head
 
 	def add_node(self,new_node):
 		self.linked_list.append(new_node)
@@ -20,7 +21,7 @@ class HashList:
 		self.hash_table.add_Node(new_node)
 
 	def update(self,date):
-		if self.tail >= 0
+		if self.tail >= 0:
 			curr_node = self.linked_list[self.tail]
 		else:
 			curr_node = self.linked_list[self.head]
@@ -31,7 +32,7 @@ class HashList:
 				self.hash_table.add_Node(curr_node)
 				self.tail = self.tail + 1
 				curr_node = self.linked_list[self.tail]
-				if self.tail is >= len(self.linked_list) or curr_node['date'] > date:
+				if self.tail >= len(self.linked_list) or curr_node['date'] > date:
 					break
 				
 
@@ -40,16 +41,26 @@ class HashList:
 				self.hash_table.rem_Node(curr_node)
 				self.tail = self.tail - 1
 				curr_node = self.linked_list[self.tail]
-				if 	self.tail < 0 or curr_node['date'] <= date:
+				if self.tail < 0 or curr_node['date'] <= date:
 					break
 				
 
 
 	def get_hash_json(self):
 		return json.dumps(self.hash_table.get_json_data())
+
 	def get_list_json(self):
 		return self.linked_list
 
+	def get_mongo_format(self):
+		ans = {}
+		ans['_id'] = self._id
+		ans['hash'] = json.dumps(self.hash_table.get_json_data())
+		print self.linked_list
+		ans['linked_list'] = self.linked_list
+		ans['head'] = self.head
+		ans['tail'] = self.tail
+		return ans
 
 class HashTable:
 	def __init__(self,hash_table = {}):
@@ -74,24 +85,5 @@ class HashTable:
 		return ans
 			
 
-# class Node:
-# 	def __init__(self,marker=None):
-# 		self.prev = None
-# 		self.next = None
-# 	#	self.marker = marker
-# 		self.hash = marker["city"]
-
-# 		for key in marker:
-# 			setattr(self,key,marker[key])
-
-# 	def get_dict_rep(self):
-# 		ans = {}
-# 		ignore = ["__init__","__doc__","__module__","get_dict_rep","next","prev"]
-# 		for attr in dir(self):
-# 			if attr not in ignore:
-# 				ans[attr] = getattr(self,attr)
-			
-			
-# 		return ans
  
 
