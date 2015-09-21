@@ -14,17 +14,19 @@ class HashList:
 		if old_tail is not None:
 			old_tail.next = new_node
 			new_node.prev = old_tail
+		else:
 			self.head = new_node #incase we lose tail because no nodes meet serach requirments, we can find the list again
 		self.hash_table.add_Node(new_node)
 
 	def update(self,date):
 		curr_node = self.tail
+		print self.get_json()
 		if curr_node is None:
 			curr_node = self.head
 
 		if curr_node.date <= date:#current date, is smaller or equal to, so add more nodes til we cant anymore
 			while curr_node is not None and curr_node.date <= date:
-				self.hash_table.addNode(curr_node)
+				self.hash_table.add_Node(curr_node)
 				self.tail = curr_node
 				curr_node = curr_node.next
 		else:#current date is larger then target date, so remove nodes til we cant anymore

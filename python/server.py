@@ -5,6 +5,7 @@ import sys
 import traceback
 import simplejson as json
 import datetime
+import pymongo
 from flask import Flask, request, jsonify, Response
 from flask.ext.cors import CORS
 from flask.ext.restplus import Api, Resource, fields, apidoc
@@ -17,13 +18,12 @@ logging.basicConfig(stream=sys.stderr)
 application = Flask(__name__)
 
 h_list = HashList()
+client = pymongo.MongoClient()
+db = client["loc"]
+coll = db["users"]
 
-@application.route('/')
+@application.route('/get_data',methods=['GET', 'POST'])
 def home():
-	return "hello"
-
-@application.route('/get_data', methods=['GET', 'POST'])
-def get_data():
 	if request.method == 'POST':
 		marks ={'marks': []} 
 		data = json.loads(request.data)
@@ -62,10 +62,25 @@ def get_data():
 	else:
 		return "git milk"
 
+
+
 @application.route('/get_hash')
 def get_hash():
 	global h_list
 	return h_list.get_json()
-		
+
+
+@application.route('/update',methods=['GET', 'POST'])
+def update():
+	global h_list
+	if request.method == 'POST':
+		data = json.loads(request.data)
+		print h_list.get_json()
+		h_list.update(data['date'])
+		return h_list.get_json()
+	else:
+		return "no updates at this time"
+
 if __name__ == '__main__':
     application.run(debug=True,host='0.0.0.0',port=8080)
+    

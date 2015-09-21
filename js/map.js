@@ -43,7 +43,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search})
         .success(function (response){
-		console.log(response)
             $scope.markers = [];
             $scope.allMarkers = [];
             $scope.finMarkers = response;
@@ -105,7 +104,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     }
 
 
-
     $scope.popupText = function(){
         var myWindow = window.open("", "FullPage");
         myWindow.document.write($scope.popupTextData);
@@ -125,6 +123,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
         if (!$scope.isPlaying && !$scope.isOn && !filter){return;};
     
+	 $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString()})
+        .success(function (response){
+		$scope.finMarkers = response;
+	})	
+
 	/*
 
         $scope.rangeDate = new Date($scope.range/1);//Figureout the ole.log(response.marks);
@@ -140,7 +143,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             //if(!curr || !curr.hasOwnProperty('date')){
                // return;
             //}
-            if (curr['date'] < new Date($scope.range/1)){//we need to add markers in this scenario
+           if (curr['date'] < new Date($scope.range/1)){//we need to add markers in this scenario
                 $scope.markers.push(curr);
                 while ($scope.markers.length < $scope.allMarkers.length){//make sure that we don't go outside the allMarkers array.
                     curr = $scope.allMarkers[$scope.markers.length];//get the next marker that we are going to check.
