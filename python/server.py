@@ -25,9 +25,9 @@ coll = db["users"]
 @application.route('/get_data',methods=['GET', 'POST'])
 def home():
 	if request.method == 'POST':
-		h_list = HashList()
 		marks ={'marks': []} 
 		data = json.loads(request.data)
+                h_list = HashList(id=data['mongo_id'])
 		url = data['url']
 		search = data['search']
         	r = requests.get(url)
@@ -39,7 +39,7 @@ def home():
 			mark = {'lat':float(loc[0]),
 				'lng':float(loc[1]),
 				'timeDate':str(dats[1])+'/'+str(dats[2])+'/'+str(dats[0]),
-				'message':d['city']+','+d['state']+"\n",
+			#	'message':d['city']+','+d['state']+"\n",
 				'city':d['city'],
 				'state':d['state'],
 				'year':dats[0],
@@ -48,9 +48,9 @@ def home():
 				'ed':d['ed'],
 				'seq':d['seq'],
 				'seq_num':d['seq_num'],
-				'icon':{},
+			#	'icon':{},
 				'nid':d['id'],
-				'text_msg':'',
+			#	'text_msg':'',
 				'date':date,
 				'group':'us',
 				'hash':d['city']+d['state'],
@@ -67,27 +67,28 @@ def home():
 		return "git milk"
 
 def insert_to_mongo(h_list):
-#	prev = coll.find_one({"id": h_list.id}).count()
-#	if prev is 0:
-#		coll.insert_one(h_list.get_mongo_format())
-#	else:
-		coll.update({"id": h_list.get_id()},h_list.get_mongo_format(),True)
+	coll.update({"id": h_list.get_id()},h_list.get_mongo_format(),True)
+        data = coll.find_one({"id": h_list.get_id()})
+	print "inserting tail is at " + str(data['tail'])
 
-@application.route('/get_hash')
-def get_hash():
-	global h_list
-	return h_list.get_json()
 
+def get_from_mongo(id):
+	data = coll.find_one({"id":id})
+	print "from mongo tail is at " + str(data['tail'])
+	h_list = HashList(data['id'],data['hash'],data['linked_list'],data['tail'],data['head'])
+	return h_list
 
 @application.route('/update',methods=['GET', 'POST'])
 def update():
-	global h_list
 	if request.method == 'POST':
 		data = json.loads(request.data)
+		h_list = get_from_mongo(data['mongo_id'])
 		h_list.update(data['date'])
+		insert_to_mongo(h_list)
 		return h_list.get_hash_json()
 	else:
 		return "no updates at this time"
+
 
 if __name__ == '__main__':
     application.run(debug=True,host='0.0.0.0',port=8080)

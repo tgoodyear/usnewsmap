@@ -29,26 +29,30 @@ class HashList:
 			curr_node = self.linked_list[self.tail]
 		else:
 			curr_node = self.linked_list[self.head]
- 
-
+		#print "starting point is at: " + str(self.tail) 
+		#print "our date: " +  str(curr_node['date']) + " Their date: " + str(date) + " we show to be true if our date <= " + str(curr_node['date'] <= date)
 		if curr_node['date'] <= date:#current date, is smaller or equal to, so add more nodes til we cant anymore
 			while True:
 				self.hash_table.add_Node(curr_node)
-				self.tail = self.tail + 1
+				if self.tail+1 >= len(self.linked_list):
+                                        return
+				self.tail = self.tail + 1 
 				curr_node = self.linked_list[self.tail]
-				if self.tail >= len(self.linked_list) or curr_node['date'] > date:
-					break
+				if  curr_node['date'] > date:
+					return
 				
 
 		else:#current date is larger then target date, so remove nodes til we cant anymore
 			while True:
 				self.hash_table.rem_Node(curr_node)
+				if self.tail-1 < 0:
+                                        return
 				self.tail = self.tail - 1
 				curr_node = self.linked_list[self.tail]
-				if self.tail < 0 or curr_node['date'] <= date:
-					break
+				if curr_node['date'] <= date:
+					return
 				
-
+		#print "ending at: "+str( self.tail)
 
 	def get_hash_json(self):
 		return json.dumps(self.hash_table.get_json_data())
@@ -59,7 +63,7 @@ class HashList:
 	def get_mongo_format(self):
 		ans = {}
 		ans['id'] = self.id
-		ans['hash'] = json.dumps(self.hash_table.get_json_data())
+		ans['hash'] = self.hash_table.hash_table
 	#	print self.linked_list
 		ans['linked_list'] = self.linked_list
 		ans['head'] = self.head
@@ -76,7 +80,7 @@ class HashTable:
 		self.hash_table[node['hash']].append(node)
 
 	def rem_Node(self,node):
-		if not len(self.hash_table[node['hash']]):
+		if len(self.hash_table[node['hash']]):
 			return self.hash_table[node['hash']].pop()
 		return None
 
