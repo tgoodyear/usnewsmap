@@ -60,12 +60,18 @@ def home():
 		marks['marks'] = sorted(marks['marks'],key=lambda mark : mark['date'])
 		for mark in marks['marks']:
 			h_list.add_node(mark)
-		coll.insert_one(h_list.get_mongo_format())
+		insert_to_mongo(h_list)
+		#coll.insert_one(h_list.get_mongo_format())
 		return h_list.get_hash_json()#json.dumps(marks)
 	else:
 		return "git milk"
 
-
+def insert_to_mongo(h_list):
+#	prev = coll.find_one({"id": h_list.id}).count()
+#	if prev is 0:
+#		coll.insert_one(h_list.get_mongo_format())
+#	else:
+		coll.update({"id": h_list.get_id()},h_list.get_mongo_format(),True)
 
 @application.route('/get_hash')
 def get_hash():

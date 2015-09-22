@@ -2,14 +2,18 @@ import json
 import datetime
 
 class HashList:
-	def __init__(self,_id=5,hash_table={},linked_list=[],tail=None,head=None):
+	def __init__(self,id=6,hash_table={},linked_list=[],tail=None,head=None):
 		#we are assuming that the nodes are only added once at the begging, in order, and then the list is static until a new search is done. 
-		self._id = _id
+		self.id = id
 		self.hash_table = HashTable(hash_table)
 		self.linked_list = linked_list
 		self.tail = tail
 		self.head = head
+	
+	def get_id(self):
+		return self.id
 
+	
 	def add_node(self,new_node):
 		self.linked_list.append(new_node)
 		if self.head is None:
@@ -54,9 +58,9 @@ class HashList:
 
 	def get_mongo_format(self):
 		ans = {}
-		ans['_id'] = self._id
+		ans['id'] = self.id
 		ans['hash'] = json.dumps(self.hash_table.get_json_data())
-		print self.linked_list
+	#	print self.linked_list
 		ans['linked_list'] = self.linked_list
 		ans['head'] = self.head
 		ans['tail'] = self.tail
