@@ -5,28 +5,29 @@ import sys
 import traceback
 import simplejson as json
 import datetime
+import pymongo
 from flask import Flask, request, jsonify, Response
 from flask.ext.cors import CORS
 from flask.ext.restplus import Api, Resource, fields, apidoc
 
 sys.path.insert(1,'/var/www/loc/python')
-from HashList.HashList import HashList, HashTable, Node
+from HashList.HashList import HashList, HashTable
 
 logging.basicConfig(stream=sys.stderr)
 
 application = Flask(__name__)
 
-r = HashList()
 
-@application.route('/')
+client = pymongo.MongoClient()
+db = client["loc"]
+coll = db["users"]
+
+@application.route('/get_data',methods=['GET', 'POST'])
 def home():
-	return "hello"
-
-@application.route('/get_data', methods=['GET', 'POST'])
-def get_data():
 	if request.method == 'POST':
 		marks ={'marks': []} 
 		data = json.loads(request.data)
+                h_list = HashList(id=data['mongo_id'])
 		url = data['url']
 		search = data['search']
         	r = requests.get(url)
@@ -38,7 +39,7 @@ def get_data():
 			mark = {'lat':float(loc[0]),
 				'lng':float(loc[1]),
 				'timeDate':str(dats[1])+'/'+str(dats[2])+'/'+str(dats[0]),
-				'message':d['city']+','+d['state']+"\n",
+			#	'message':d['city']+','+d['state']+"\n",
 				'city':d['city'],
 				'state':d['state'],
 				'year':dats[0],
@@ -47,26 +48,48 @@ def get_data():
 				'ed':d['ed'],
 				'seq':d['seq'],
 				'seq_num':d['seq_num'],
-				'icon':{},
+			#	'icon':{},
 				'nid':d['id'],
-				'text_msg':'',
+			#	'text_msg':'',
 				'date':date,
 				'group':'us',
+				'hash':d['city']+d['state'],
 				'search':search
 			}
 			marks['marks'].append(mark)
 		marks['marks'] = sorted(marks['marks'],key=lambda mark : mark['date'])
-		return json.dumps(marks)
+		for mark in marks['marks']:
+			h_list.add_node(mark)
+		insert_to_mongo(h_list)
+		#coll.insert_one(h_list.get_mongo_format())
+		return h_list.get_hash_json()#json.dumps(marks)
 	else:
 		return "git milk"
 
-@application.route('/get_hash')
-def get_hash():
-	global r
-	#r = HashList()
-	k = Node()
-	r.add_node(k)
-	return r.get_json()
-		
+def insert_to_mongo(h_list):
+	coll.update({"id": h_list.get_id()},h_list.get_mongo_format(),True)
+        data = coll.find_one({"id": h_list.get_id()})
+	print "inserting tail is at " + str(data['tail'])
+
+
+def get_from_mongo(id):
+	data = coll.find_one({"id":id})
+	print "from mongo tail is at " + str(data['tail'])
+	h_list = HashList(data['id'],data['hash'],data['linked_list'],data['tail'],data['head'])
+	return h_list
+
+@application.route('/update',methods=['GET', 'POST'])
+def update():
+	if request.method == 'POST':
+		data = json.loads(request.data)
+		h_list = get_from_mongo(data['mongo_id'])
+		h_list.update(data['date'])
+		insert_to_mongo(h_list)
+		return h_list.get_hash_json()
+	else:
+		return "no updates at this time"
+
+
 if __name__ == '__main__':
     application.run(debug=True,host='0.0.0.0',port=8080)
+    

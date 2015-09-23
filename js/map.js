@@ -25,7 +25,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     //This function actually queries the solr database and create a list of markers.
     $scope.getMarkers = function(){
         if(!$scope.search){
-            
             return false;
         }
 
@@ -36,30 +35,24 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
-        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=1000&indent=true";
+        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10&indent=true";
         var fields = '&fl=loc,date_field,id,city,state,ed,seq,seq_num';
         url += fields;
 
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
-        $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search})
+        $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search,"mongo_id":$scope.mongo_id})
         .success(function (response){
             $scope.markers = [];
             $scope.allMarkers = [];
-            $scope.finMarkers = [];
+            $scope.finMarkers = response;
             $scope.eventTable = [];
             $scope.timelineEvents = [];
-            for (i = 0; i < response.marks.length; i++) {
-		mark = response.marks[i];
-		mark['date'] = new Date(mark['date']);
-                $scope.allMarkers.push(mark);
-            }
-	    console.log($scope.allMarkers);
-            $scope.filter(true);
         })
     }
 
     //All of the $scope variables
     angular.extend($scope, {
+	mongo_id : Math.floor((Math.random() * 100000) + 1),
         search : "",//Our Search term
         maxbounds: bounds,//THe bounds of the map, see the var bounds above.
         center: {//This is the center of our map, which is currently over the geographical center of the continental US.
@@ -105,104 +98,32 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     }
 
 
-
     $scope.popupText = function(){
         var myWindow = window.open("", "FullPage");
         myWindow.document.write($scope.popupTextData);
     }
 
     $scope.turnOn = function(){
+ 	$scope.rangeDate = new Date($scope.range/1);
         $scope.isOn = !$scope.isOn;//Flips $scope.isOnx to its inverse
     }
     //This function is what figures out which markers to show on the map. Uses $scope.markers as a stack. Since the markers in $scope.allMarkers are already
     //sorted, as we push from the beginning of allMarkers to markers, we guarentee that the oldest markes will be at the bottom of the stack and the "youngest"
     //markers are on the stack. So when we have to remove or add markers, we just have to pop or push to the stack instead of rewriting the stack everytime.
     //Still can use refinments, slows down when moving fast over alot of markers, I think one of the problems is that the function is called with ng-move so
-    //it is being called alot when the mouse is near it, causing slowdown.
+    //i`t is being called alot when the mouse is near it, causing slowdown.
     $scope.filter = function(filter){
-       
+      	
     	filter = typeof filter !== 'undefined' ? filter : false;
-
         if (!$scope.isPlaying && !$scope.isOn && !filter){return;};
-    
-
-
-        $scope.rangeDate = new Date($scope.range/1);//Figureout the ole.log(response.marks);
-//ate that the range slider is on. Apparently $scope.range is a string and dividing by 1 turns it into a number.
-
-        var curr;//Our current marker.
-        if ($scope.markers.length  == 0){//if there are no markers, go ahead and push the oldest marker onto the stack.
-            $scope.markers.push($scope.allMarkers[0]);
-        }
-
-        if( $scope.markers.length > 0 && $scope.markers.length <= $scope.allMarkers.length){//I dont think this is actually used for anything.
-            curr = $scope.markers.pop();//we pop the top marker off the stack we then compare to our ranegDate to see if we need to add or remove markers from the stack.
-            /*if(!curr || !curr.hasOwnProperty('date')){
-                return;
-            }*/
-            if (curr['date'] < new Date($scope.range/1)){//we need to add markers in this scenario
-                $scope.markers.push(curr);
-                while ($scope.markers.length < $scope.allMarkers.length){//make sure that we don't go outside the allMarkers array.
-                    curr = $scope.allMarkers[$scope.markers.length];//get the next marker that we are going to check.
-                    if (curr['date'] <= new Date($scope.range/1)){//If that marker is still less then the date we are att, push it onto the stack and go back to the beggining of the while loop.
-                        $scope.markers.push(curr);
-                    }else{
-                        $scope.cityLoc();
-                        return;//we cant add anymore so stop the function
-                    }
-                }
-            }else  if (curr['date'] > new Date($scope.range/1)){ //remove markers
-                while ( $scope.markers.length > 0 ){//as long as there are still markers to remove
-                    curr = $scope.markers.pop();
-                    if (curr['date'] <= new Date($scope.range/1)){//pop off the marker if it is younger then the date redo the loop, else we've reached the date we wanted and so we push the marker back on the stack and end the function.
-                        $scope.markers.push(curr);
-                        $scope.cityLoc()
-                        return;
-                    }
-                }
-
-            }
-            $scope.cityLoc();
-        }
+    	 $scope.rangeDate = new Date($scope.range/1);
+	 $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
+        .success(function (response){
+		console.log(response);
+		$scope.finMarkers = response;
+	})	
     }
 
-
-    $scope.cityLoc = function(){
-	console.log("city loc");
-	console.log($scope.markers);
-        $scope.eventTable = [];
-        $scope.timelineEvents = [];
-
-        var finMark = {};
-        $scope.finMarkers = [];
-
-        for(mark in $scope.markers){
-            if($scope.markers[mark].date <= $scope.rangeDate){
-                finMark[$scope.markers[mark].lat] = $scope.markers[mark];
-                var curr = $scope.markers[mark];
-                if($scope.eventTable[curr.lat] == null){
-                    $scope.eventTable[curr.lat] = [];
-                }
-                $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
-        
-            }
-        }
-
-
-        for (mark in $scope.allMarkers){
-            var curr = $scope.allMarkers[mark];
-            if($scope.eventTable[curr.lat] != null){
-                curr.message =  curr.city + "," + curr.state + "\n" + $scope.eventTable[curr.lat].length;
-            }
-        }
-
-        for (x in finMark){
-            $scope.finMarkers.push(finMark[x]);
-        }
-
-        
-        
-    }
     //This function is called when you press the play/pause button.
     $scope.play = function(){
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
