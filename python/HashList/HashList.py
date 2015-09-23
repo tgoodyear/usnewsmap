@@ -25,34 +25,43 @@ class HashList:
 		self.hash_table.add_Node(new_node)
 
 	def update(self,date):
+	
 		if self.tail >= 0:
 			curr_node = self.linked_list[self.tail]
-		else:
-			curr_node = self.linked_list[self.head]
-		#print "starting point is at: " + str(self.tail) 
-		#print "our date: " +  str(curr_node['date']) + " Their date: " + str(date) + " we show to be true if our date <= " + str(curr_node['date'] <= date)
-		if curr_node['date'] <= date:#current date, is smaller or equal to, so add more nodes til we cant anymore
-			while True:
-				self.hash_table.add_Node(curr_node)
-				if self.tail+1 >= len(self.linked_list):
-                                        return
-				self.tail = self.tail + 1 
-				curr_node = self.linked_list[self.tail]
-				if  curr_node['date'] > date:
-					return
-				
 
-		else:#current date is larger then target date, so remove nodes til we cant anymore
+ 		else:
+                        self.tail = -1
+                        curr_node = self.linked_list[self.head]
+
+
+		if curr_node['date'] > date:#current date is larger then target date, so remove nodes til we cant anymore
+			if self.tail == -1:
+				return
+
 			while True:
 				self.hash_table.rem_Node(curr_node)
-				if self.tail-1 < 0:
-                                        return
 				self.tail = self.tail - 1
+				if self.tail < 0:
+					return
 				curr_node = self.linked_list[self.tail]
 				if curr_node['date'] <= date:
 					return
-				
-		#print "ending at: "+str( self.tail)
+		elif curr_node['date'] < date:#current date, is smaller or equal to, so add more nodes til we cant anymore
+			if self.tail == -1:
+				self.hash_table.add_Node(curr_node)
+                                self.tail = self.tail + 1
+                        if self.tail + 1 >= len(self.linked_list):
+				return  
+
+			curr_node = self.linked_list[self.tail + 1]
+			while True:
+				if curr_node['date'] > date:
+					return
+				self.hash_table.add_Node(curr_node)
+				self.tail = self.tail + 1
+				if self.tail + 1 >= len(self.linked_list):
+                                       	return
+				curr_node = self.linked_list[self.tail + 1]
 
 	def get_hash_json(self):
 		return json.dumps(self.hash_table.get_json_data())
