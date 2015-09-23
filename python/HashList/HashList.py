@@ -31,8 +31,8 @@ class HashList:
 			curr_node = self.linked_list[self.tail]
 
  		else:
-            self.tail = -1
-            curr_node = self.linked_list[self.head]
+	            self.tail = -1
+        	    curr_node = self.linked_list[self.head]
 
 
 		if curr_node['date'] > date:#current date is larger then target date, so remove nodes til we cant anymore
@@ -50,8 +50,8 @@ class HashList:
 		elif curr_node['date'] < date:#current date, is smaller or equal to, so add more nodes til we cant anymore
 			if self.tail == -1:
 				self.hash_table.add_Node(curr_node)
-                self.tail = self.tail + 1
-            if self.tail + 1 >= len(self.linked_list):
+                		self.tail = self.tail + 1
+            		if self.tail + 1 >= len(self.linked_list):
 				return  
 
 			curr_node = self.linked_list[self.tail + 1]
@@ -61,7 +61,7 @@ class HashList:
 				self.hash_table.add_Node(curr_node)
 				self.tail = self.tail + 1
 				if self.tail + 1 >= len(self.linked_list):
-                    return
+                    			return
 				curr_node = self.linked_list[self.tail + 1]
 
 	def get_hash_json(self):

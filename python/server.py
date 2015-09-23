@@ -59,9 +59,11 @@ def home():
 			marks['marks'].append(mark)
 		marks['marks'] = sorted(marks['marks'],key=lambda mark : mark['date'])
 		for mark in marks['marks']:
+			print "added mark"
 			h_list.add_node(mark)
 		insert_to_mongo(h_list)
 		#coll.insert_one(h_list.get_mongo_format())
+		#print h_list.get_hash_json()
 		return h_list.get_hash_json()#json.dumps(marks)
 	else:
 		return "git milk"
