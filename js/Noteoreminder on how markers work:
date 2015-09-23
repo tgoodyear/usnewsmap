@@ -1,0 +1,5 @@
+Note/ reminder on how markers work:
+
+	My cheat to get markers to work was that I would only give the map one marker per city.
+	When someone clicked on the marker, the code would then grab the individual newspapers from a secondary data structure. 
+	That secondary data structure is what the timeline gets and where we get access to the text. 
