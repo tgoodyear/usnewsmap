@@ -10,13 +10,13 @@
 L.MarkerClusterGroup = L.FeatureGroup.extend({
 
 	options: {
-		maxClusterRadius: 1, //A cluster will cover at most this many pixels from its center
+		maxClusterRadius: 80, //A cluster will cover at most this many pixels from its center
 		iconCreateFunction: null,
 
 		spiderfyOnMaxZoom: true,
 		showCoverageOnHover: true,
 		zoomToBoundsOnClick: true,
-		singleMarkerMode: true,
+		singleMarkerMode: false,
 
 		disableClusteringAtZoom: null,
 
@@ -623,9 +623,10 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 		this.fire(e.type, e);
 	},
 
-	//Default functionalityzach
+	//Default functionality
 	_defaultIconCreateFunction: function (cluster) {
-		var childCount =  cluster.getChildCount();
+		var childCount = cluster.getChildCount();
+
 		var c = ' marker-cluster-';
 		if (childCount < 10) {
 			c += 'small';
@@ -699,7 +700,7 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 			showCoverageOnHover = this.options.showCoverageOnHover,
 			zoomToBoundsOnClick = this.options.zoomToBoundsOnClick,
 			map = this._map;
- 
+
 		if (spiderfyOnMaxZoom || zoomToBoundsOnClick) {
 			this.off('clusterclick', this._zoomOrSpiderfy, this);
 		}
@@ -771,7 +772,7 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 		if (this.options.singleMarkerMode) {
 			layer.options.icon = this.options.iconCreateFunction({
 				getChildCount: function () {
-					return 1;//find me zach!!!
+					return 1;
 				},
 				getAllChildMarkers: function () {
 					return [layer];
