@@ -1,5 +1,6 @@
 import json
 import datetime
+import time
 
 class HashList:
 	def __init__(self,id=6,hash_table={},linked_list=[],tail=None,head=None):
@@ -70,13 +71,15 @@ class HashList:
 		return self.linked_list
 
 	def get_mongo_format(self):
+		ts = time.time()
+		isodate = datetime.datetime.fromtimestamp(ts, None)
 		ans = {}
 		ans['id'] = self.id
 		ans['hash'] = self.hash_table.hash_table
-	#	print self.linked_list
 		ans['linked_list'] = self.linked_list
 		ans['head'] = self.head
 		ans['tail'] = self.tail
+		ans['created_at'] = isodate
 		return ans
 
 class HashTable:
