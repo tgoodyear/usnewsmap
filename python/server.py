@@ -80,6 +80,14 @@ def get_from_mongo(id):
 	h_list = HashList(data['id'],data['hash'],data['linked_list'],data['tail'],data['head'])
 	return h_list
 
+@application.route('/news_meta',methods=['GET','POST'])
+def news_meta():
+	if request.method == 'POST':
+		data = json.loads(request.data)
+		r = requests.get("http://chroniclingamerica.loc.gov/lccn/"+data['seq_num'] + "/" + data['year'] + "-" + data['month'] + "-" + data['day'] + "/" + data['ed'] + ".json")
+		print r
+	else:
+		return "NO METADATA GIVEN FOUND"
 @application.route('/update',methods=['GET', 'POST'])
 def update():
 	if request.method == 'POST':

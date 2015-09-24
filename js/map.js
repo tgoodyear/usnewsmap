@@ -94,6 +94,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
                 var l = args.leafletObject.options.nid;
+                $scope.getMetaData(args.leafletObject.options);
                 $scope.showTimeLine = true;   
                 $scope.timelineEvents = $scope.eventTable[args.leafletObject.options.lat];
             }
@@ -154,6 +155,15 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.updateRange = function(){
     	$scope.range = $scope.rangeDate.getTime();
     	$scope.filter();
+    }
+
+    $scope.getMetaData = function(mark){
+        $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['data'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
+        .success(function (response){
+            console.log(respone);
+
+        }
+
     }
 
 }]);
