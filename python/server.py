@@ -79,7 +79,7 @@ def insert_to_mongo(h_list):
         data = coll.find_one({"id": h_list.get_id()})
 
 
-def get_from_mongo(nid):
+def get_from_mongo(id):
 	data = coll.find_one({"id":id})
 	h_list = HashList(data['id'],data['hash'],data['linked_list'],data['tail'],data['head'])
 	h_list.set_list(data['linked_list'])
