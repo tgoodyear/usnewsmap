@@ -158,11 +158,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     }
 
     $scope.getMetaData = function(mark){
-        $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['data'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
+        $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['year'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
         .success(function (response){
-            console.log(respone);
-
-        }
+		//do stuff
+        });
 
     }
 

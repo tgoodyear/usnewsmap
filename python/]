@@ -84,15 +84,10 @@ def get_from_mongo(id):
 def news_meta():
 	if request.method == 'POST':
 		data = json.loads(request.data)
-		if len(str(data['day'])) == 1:
-			data['day'] = '0' + str(data['day'])
-		if len(str(data['month'])) == 1:
-			data['month'] = '0' + str(data['month'])
 		r = requests.get("http://chroniclingamerica.loc.gov/lccn/"+ str(data['seq_num']) + "/" + str(data['year']) + "-" + str(data['month']) + "-" + str(data['day']) + "/" + data['ed'] + ".json")
-		return json.dumps(r.json())
+		return json.loads(r.text)
 	else:
 		return "NO METADATA GIVEN FOUND"
-
 @application.route('/update',methods=['GET', 'POST'])
 def update():
 	if request.method == 'POST':
