@@ -22,6 +22,15 @@ client = pymongo.MongoClient()
 db = client["loc"]
 coll = db["users"]
 
+######
+#There is a bug with flask, python, and HashList where if you click the search button too
+# quickly you will get duplication of your data in the hash table and linked list.
+#What looks like what is happening is that something isn't being collected by the 
+#garbage collector. SO just intilizing though init wont work. The current
+# work around is to use setters for the hash table and linked list. Possibly works
+# becuase it gives more time for GC to work. 
+######
+
 @application.route('/get_data',methods=['GET', 'POST'])
 def home():
 	if request.method == 'POST':
@@ -59,7 +68,6 @@ def home():
 			marks.append(mark)
 		marks = sorted(marks,key=lambda mark : mark['date'])
 		for mark in marks:
-			print "added mark"
 			h_list.add_node(mark)
 		insert_to_mongo(h_list)
 		return h_list.get_hash_json()#json.dumps(marks)
@@ -69,13 +77,13 @@ def home():
 def insert_to_mongo(h_list):
 	coll.update({"id": h_list.get_id()},h_list.get_mongo_format(),True)
         data = coll.find_one({"id": h_list.get_id()})
-	print "inserting tail is at " + str(data['tail'])
 
 
-def get_from_mongo(id):
+def get_from_mongo(nid):
 	data = coll.find_one({"id":id})
-	print "from mongo tail is at " + str(data['tail'])
 	h_list = HashList(data['id'],data['hash'],data['linked_list'],data['tail'],data['head'])
+	h_list.set_list(data['linked_list'])
+	h_list.set_hash(data['hash'])
 	return h_list
 
 @application.route('/news_meta',methods=['GET','POST'])

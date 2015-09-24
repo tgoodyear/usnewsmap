@@ -1,7 +1,7 @@
 
 
 //The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
-var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline']);
+var app = angular.module("loc", ['leaflet-directive','ngRangeSlider']);
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents",function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents) {
 
     //These are the bounds of the map, currently centered on the contenental US.
@@ -49,7 +49,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search,"mongo_id":$scope.mongo_id})
         .success(function (response){
-            console.log(response)
+            
             if (typeof response != 'undefined'){
                 $scope.finMarkers = response;
             }
@@ -98,8 +98,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             if(event.name == "leafletDirectiveMarker.click"){
                 var l = args.leafletObject.options.nid;
                 $scope.getMetaData(args.leafletObject.options);
-                $scope.showTimeLine = true;   
-                $scope.timelineEvents = $scope.eventTable[args.leafletObject.options.lat];
             }
         });
     }
@@ -125,9 +123,13 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         if (!$scope.isPlaying && !$scope.isOn && !filter){return;};
     	 $scope.rangeDate = new Date($scope.range/1);
 	 $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
-        .success(function (response){
-		console.log(response);
-		$scope.finMarkers = response;
+        .success(function (response){		
+		if (typeof response != 'undefined'){
+                	$scope.finMarkers = response;
+            	}	
+		else{
+			$scope.finMarkers = [];
+		}
 	})	
     }
 
