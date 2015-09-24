@@ -18,7 +18,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             attribution: '',
             maxZoom: 18,
             id: 'zsuffern0614.2ed6b495',//my stuff
-            accessToken: 'pk.eyJ1IjoienN1ZmZlcm4wNjE0IiwiYSI6IjVlNWFkYjQwZDc0ZTY0OTZmMDQyMzM4NmVmMjFmNWNiIn0.oZhSA6w9Pgv3ISwLjP7vTQ'//mystuff
+            accessToken: 'pk.eyJ1IjoienN1ZmZlcm4wNjE0IiwiYSI6IjVlNWFkYjQwZDc0ZTY0OTZmMDQyMzM4NmVmMjFmNWNiIn0.oZhSA6w9Pgv3ISwLjP7vTQ',//mystuff
+	    continuousWorld: false,
+        // This option disables loading tiles outside of the world bounds.
+            noWrap: true
         }
     }
 

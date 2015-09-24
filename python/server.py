@@ -25,7 +25,7 @@ coll = db["users"]
 @application.route('/get_data',methods=['GET', 'POST'])
 def home():
 	if request.method == 'POST':
-		marks ={'marks': []} 
+		marks = [] 
 		data = json.loads(request.data)
                 h_list = HashList(id=data['mongo_id'])
 		url = data['url']
@@ -39,7 +39,7 @@ def home():
 			mark = {'lat':float(loc[0]),
 				'lng':float(loc[1]),
 				'timeDate':str(dats[1])+'/'+str(dats[2])+'/'+str(dats[0]),
-			#	'message':d['city']+','+d['state']+"\n",
+				'message':d['city']+','+d['state'],
 				'city':d['city'],
 				'state':d['state'],
 				'year':dats[0],
@@ -56,9 +56,9 @@ def home():
 				'hash':d['city']+d['state'],
 				'search':search
 			}
-			marks['marks'].append(mark)
-		marks['marks'] = sorted(marks['marks'],key=lambda mark : mark['date'])
-		for mark in marks['marks']:
+			marks.append(mark)
+		marks = sorted(marks,key=lambda mark : mark['date'])
+		for mark in marks:
 			print "added mark"
 			h_list.add_node(mark)
 		insert_to_mongo(h_list)
