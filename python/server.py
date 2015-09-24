@@ -62,8 +62,6 @@ def home():
 			print "added mark"
 			h_list.add_node(mark)
 		insert_to_mongo(h_list)
-		#coll.insert_one(h_list.get_mongo_format())
-		#print h_list.get_hash_json()
 		return h_list.get_hash_json()#json.dumps(marks)
 	else:
 		return "git milk"

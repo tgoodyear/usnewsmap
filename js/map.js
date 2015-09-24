@@ -32,7 +32,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
 
     	//We want to clear any visible markers when doing a new search.
-
+        $scope.markers = [];
+        $scope.allMarkers = [];
+        $scope.finMarkers = [];
+        $scope.eventTable = [];
+        $scope.timelineEvents = [];
 
         //Get query data, self explanatory
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
@@ -45,11 +49,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search,"mongo_id":$scope.mongo_id})
         .success(function (response){
-            $scope.markers = [];
-            $scope.allMarkers = [];
-            $scope.finMarkers = response;
-            $scope.eventTable = [];
-            $scope.timelineEvents = [];
+            console.log(response)
+            if (typeof response != 'undefined'){
+                $scope.finMarkers = response;
+            }
         })
     }
 
