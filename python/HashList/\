@@ -18,8 +18,8 @@ class HashList:
 		self.linked_list = llist;
 
 	def set_hash(self,hasht):
-		self.hash_table = HashTable(hasht)
-	
+		self.hash_table = HashTable(hasht
+)	
 	def add_node(self,new_node):
 		self.linked_list.append(new_node)
 		print len(self.linked_list)
@@ -108,4 +108,4 @@ class HashTable:
 			for spot in self.hash_table[key]:
 				ans.append(spot)
 		print len(ans)	
-		return self.hash_table
+		return ans

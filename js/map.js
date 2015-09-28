@@ -34,24 +34,21 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     	//We want to clear any visible markers when doing a new search.
         $scope.markers = [];
         $scope.allMarkers = [];
-        $scope.finMarkers = [];
-        $scope.eventTable = [];
-        $scope.timelineEvents = [];
 
         //Get query data, self explanatory
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
-        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10&indent=true";
+        var url = "http://130.207.211.77:8983/solr/loc_cloud/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10&indent=true";
         var fields = '&fl=loc,date_field,id,city,state,ed,seq,seq_num';
         url += fields;
-
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search,"mongo_id":$scope.mongo_id})
         .success(function (response){
             
             if (typeof response != 'undefined'){
-                $scope.finMarkers = response;
+                $scope.allMarkers = response;
+		$scope.setMarkers();
             }
         })
     }
@@ -68,10 +65,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         },
         tiles: tiles,//This is the var tiles from above.
         markers: [],//The markers  array which is actually shown, used in filter()
-        finMarkers : [],
         allMarkers : [],//The marker holder array used in getMarkers()
-        eventTable : [],
-        timelineEvents : [],
         startDate: new Date( "1836-01-02"),//The earliest date possible for search queries.
         endDate: new Date("1925-01-01"),//The latest date possible for search queries.
         range : new Date("1925-01-01").getTime(),//The range bar value, set to miliseconds since epoch and changed by the slider.
@@ -125,12 +119,29 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 	 $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
         .success(function (response){		
 		if (typeof response != 'undefined'){
-                	$scope.finMarkers = response;
+                	$scope.allMarkers = response;
+        	        $scope.setMarkers();
             	}	
 		else{
-			$scope.finMarkers = [];
+			$scope.allMarkers = [];
+			$scope.markers = [];
 		}
 	})	
+    }
+
+    $scope.setMarkers = function(){
+	var keys = [];
+	$scope.markers = [];
+	for(var k in $scope.allMarkers) keys.push(k);
+	//console.log($scope.allMarkers)
+	console.log(keys);
+	for(var k in keys){
+		var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
+		if (typeof marker != 'undefined'){
+			console.log(marker);
+			$scope.markers.push(marker);
+		}
+	}
     }
 
     //This function is called when you press the play/pause button.
