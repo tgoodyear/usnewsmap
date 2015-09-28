@@ -61,7 +61,6 @@ def home():
 				'nid':d['id'],
 			#	'text_msg':'',
 				'date':date,
-				'group':'us',
 				'hash':d['city']+d['state'],
 				'search':search
 			}

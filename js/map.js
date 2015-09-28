@@ -39,7 +39,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
-        var url = "http://130.207.211.77:8983/solr/loc_cloud/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10&indent=true";
+        var url = "http://130.207.211.77:8983/solr/loc_cloud/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=100&indent=true";
         var fields = '&fl=loc,date_field,id,city,state,ed,seq,seq_num';
         url += fields;
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
@@ -133,14 +133,34 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 	var keys = [];
 	$scope.markers = [];
 	for(var k in $scope.allMarkers) keys.push(k);
-	//console.log($scope.allMarkers)
-	console.log(keys);
 	for(var k in keys){
 		var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
 		if (typeof marker != 'undefined'){
-			console.log(marker);
+			var num = $scope.allMarkers[keys[k]].length
+               		var size = $scope.figure_color(marker.date,$scope.range);
+			marker.icon =  {
+           			type: 'div',
+				className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
+            			iconSize: [40,40],
+            			html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
+                           	popupAnchor:  [0, 0]
+       			},
+			console.log(marker.icon);
 			$scope.markers.push(marker);
 		}
+	}
+    }
+
+    $scope.figure_color = function(date,curr_date){
+	date = new Date(date).getTime();
+	if ((curr_date - date) < (86400000 * 365.25)){
+		return "small"
+	}	
+	else if ((curr_date - date) < (86400000 * 365.25 * 10)){
+		return "medium"
+	}
+	else{
+		return "large"
 	}
     }
 
