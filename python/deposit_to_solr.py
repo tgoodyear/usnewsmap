@@ -3,13 +3,13 @@ import simplejson as json
 from multiprocessing import Pool
 
 from time import gmtime, strftime
-import datetime
+import datetime, time
 import random
 
 HOME = sys.argv[1]#this must be directory holding all sn folders and only works for this type of data due to difficulty in getting dates. 
 LOC_DATA = '/home/tgoodyear/town_ref.csv'
 DATA = {}
-solr = ['http://130.207.211.77:8983/solr/loc_cloud/update/json','http://130.207.211.78:8983/solr/loc_cloud/update/json','http://130.207.211.79:8983/solr/loc_cloud/update/json']
+solr = ['130.207.211.77','130.207.211.78','130.207.211.79']
 #http://130.207.211.77:8983/solr/loc/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E&commit=true
 # curl -X POST -H 'Content-type:application/json' --data-binary '{"replace-field":{"name":"date_field","type":"date","stored":true }}' http://localhost:8983/solr/loc/schema
 # curl -X POST -H 'Content-type:application/json' --data-binary '{"replace-field":{"name":"loc","type":"location","stored":true }}' http://localhost:8983/solr/loc/schema
@@ -30,23 +30,31 @@ def loop(path):
 	dat = []
 	for folder in folder_list:
 		dat.append(load_folder(folder,path,counter))
-
+	if len(dat) == 0:
+		return
+	elif not dat[0]:
+		return
 	randint = random.randint(0,99)
-	if randint == 55:
-		print strftime("%Y-%m-%d %H:%M:%S"),"Sending", len(dat), "documents"
 	solrNode = 0
-	if randint<5:
+	if randint<15:
 		solrNode = 2
-	elif randint < 10:
+	elif randint < 30:
 		solrNode = 1
+	
+	if random.randint(0,1000) == 1:
+		print strftime("%Y-%m-%d %H:%M:%S"),"Sending", len(dat), "documents to",solrNode
+	
 	payload = json.dumps(dat)
-	commit = "?commit=true" if random.randint(0,1000) == 100 else ""
+	commit = "?commit=true" if random.randint(0,5000) == 1 else ""
 	try:
-		g = requests.post(solr[solrNode]+ commit,data=payload)
+		url = ''.join(['http://',solr[solrNode],':8983/solr/loc_cloud/update',commit])
+		h = {'Content-type':'application/json'}
+		g = requests.post(url,data=payload,headers=h)
 		if commit:
-			print "\n\n\n\n\n\nCommitted\n\n\n\n\n\n"
-	except requests.exceptions.RequestException as e:
-		print e,"retrying"
+			print "\n\n\n\nCommitted\n\n\n\n"
+	except Exception as e:
+		print e,"retrying. Node", solrNode,"failed"
+		time.sleep(5)
 		loop(path)
 
 	return
@@ -73,7 +81,8 @@ def load_data(filename,date,folder,ed,seq):
 	 	data = DATA[folder]
 	 	#print {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date}
 	 
-	 	k = {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date,'text':afile.read()}
+	 	k = {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'date_field':date,'text':afile.read()}
+	 	# k = {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date,'text':afile.read()}
 	 	#g = requests.post(solr,data=k)
 		return k
 
@@ -97,7 +106,7 @@ def import_data(data):
 if __name__ == '__main__':
 	os.chdir(HOME)
 	import_data(LOC_DATA)
-	pools = 128
+	pools = 256
         folder_list = [HOME + d for d in os.listdir(os.getcwd())]
 	if pools > 1:
 	        pool = Pool(pools)

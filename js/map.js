@@ -145,7 +145,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             			html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
                            	popupAnchor:  [0, 0]
        			},
-			console.log(marker.icon);
 			$scope.markers.push(marker);
 		}
 	}
@@ -153,7 +152,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     $scope.figure_color = function(date,curr_date){
 	date = new Date(date).getTime();
-	if ((curr_date - date) < (86400000 * 365.25)){
+	if ((curr_date - date) < (86400000 * 365.25 * 1.5)){
 		return "small"
 	}	
 	else if ((curr_date - date) < (86400000 * 365.25 * 10)){
