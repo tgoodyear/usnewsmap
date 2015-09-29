@@ -21,6 +21,7 @@ application = Flask(__name__)
 client = pymongo.MongoClient()
 db = client["loc"]
 coll = db["users"]
+coll2 = db["locations"]
 
 ######
 #There is a bug with flask, python, and HashList where if you click the search button too
@@ -42,26 +43,24 @@ def home():
         	r = requests.get(url)
 		data = json.loads(r.text)
 		for d in data['response']['docs']:
-			loc = d['loc'].split(",")
+			loc_data = coll2.find_one({"sn":d['seq_num']})
 			dats = map(int, d['date_field'].split("T")[0].split("-"))
 			date = datetime.date(dats[0],dats[1],dats[2]).isoformat()
-			mark = {'lat':float(loc[0]),
-				'lng':float(loc[1]),
+			mark = {'lat':float(loc_data['lat']),
+				'lng':float(loc_data['long']),
 				'timeDate':str(dats[1])+'/'+str(dats[2])+'/'+str(dats[0]),
-				'message':d['city']+','+d['state'],
-				'city':d['city'],
-				'state':d['state'],
+				'message':loc_data['city']+','+loc_data['state'],
+				'city':loc_data['city'],
+				'state':loc_data['state'],
 				'year':dats[0],
 				'month':dats[1],
 				'day':dats[2],
 				'ed':d['ed'],
 				'seq':d['seq'],
 				'seq_num':d['seq_num'],
-			#	'icon':{},
 				'nid':d['id'],
-			#	'text_msg':'',
 				'date':date,
-				'hash':d['city']+d['state'],
+				'hash':loc_data['city']+loc_data['state'],
 				'search':search
 			}
 			marks.append(mark)
