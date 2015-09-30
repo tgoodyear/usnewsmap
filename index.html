@@ -94,7 +94,7 @@
 						</label>
 					</div>
 					<div class="col-md-9">
-						<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-01" class="form-control" id="end_date" />
+						<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-02" class="form-control" id="end_date" />
 					</div>
 				</div>
 
@@ -107,29 +107,29 @@
 					</div>
 				</div>
 			</form>
+			<div ng-show="search_started">
+				<h3>Playback</h3>
+				<div class="row">
+					<div class="col-md-12 form-inline">
 
-			<h3>Playback</h3>
-			<div class="row">
-				<div class="col-md-12 form-inline">
-					<!--- This date input goes with the range input above-->
-
-					<div class="row form-inline">
-						<div class="col-md-3">
-							<label for="playback_date">
-								Playback Date
-						</label>
-						</div>
-						<div class="col-md-9">
-							<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()" class="form-control" id="playback_date" />
+						<div class="row form-inline">
+							<div class="col-md-3">
+								<label for="playback_date">
+									Playback Date
+							</label>
+							</div>
+							<div class="col-md-9">
+								<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()" class="form-control" id="playback_date" />
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-12 form-inline">
-					<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
-					<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
-					<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
+				</div> 
+				<div class="row">
+					<div class="col-md-12 form-inline">
+						<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
+						<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
+						<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
+					</div>
 				</div>
 			</div>
 		</div>

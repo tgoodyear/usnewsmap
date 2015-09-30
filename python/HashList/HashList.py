@@ -22,7 +22,6 @@ class HashList:
 	
 	def add_node(self,new_node):
 		self.linked_list.append(new_node)
-		print len(self.linked_list)
 		if self.head is None:
 			self.head = 0
 			self.tail = 0

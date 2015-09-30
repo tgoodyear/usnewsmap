@@ -39,7 +39,9 @@ def home():
 		data = json.loads(request.data)
                 h_list = HashList(id=data['mongo_id'])
 		url = data['url']
+		print url
 		search = data['search']
+		time = data['date']
         	r = requests.get(url)
 		data = json.loads(r.text)
 		for d in data['response']['docs']:
@@ -67,6 +69,7 @@ def home():
 		marks = sorted(marks,key=lambda mark : mark['date'])
 		for mark in marks:
 			h_list.add_node(mark)
+		h_list.update(time)
 		insert_to_mongo(h_list)
 		return h_list.get_hash_json()#json.dumps(marks)
 	else:
@@ -92,6 +95,7 @@ def news_meta():
 			data['day'] = '0' + str(data['day'])
 		if len(str(data['month'])) == 1:
 			data['month'] = '0' + str(data['month'])
+		print data
 		r = requests.get("http://chroniclingamerica.loc.gov/lccn/"+ str(data['seq_num']) + "/" + str(data['year']) + "-" + str(data['month']) + "-" + str(data['day']) + "/" + data['ed'] + ".json")
 		return json.dumps(r.json())
 	else:
