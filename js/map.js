@@ -39,7 +39,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
-        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=100&indent=true";
+        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10000&indent=true";
         var fields = '&fl=,date_field,id,ed,seq,seq_num';
         url += fields;
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
@@ -81,6 +81,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         showTimeLine : false,
         popupTextData : "",
 	search_started : false,
+	interval_var : 1,
         text: $sce.trustAsHtml(" ")//The actual text shown on the screen. Is taken in as HTML so one can highlight text. Causes problems when the documents are so messed up that they inadventernatly make html statements.
     });
 
@@ -168,7 +169,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.play = function(){
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
         if ($scope.isPlaying){//if true we will have play range function be called every 100 seconds.
-            $interval($scope.playRange,1000);
+           $scope.interval_var = $interval($scope.playRange,1000);
+		console.log($scope.interval_var["$$intervalId"]);
         }
     }
 
@@ -181,8 +183,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             $scope.rangeDate = new Date($scope.range/1);//update $scope.range and $scope.rangeDate to make sure they are the same since they are linked.
             $scope.filter();//call filter with new $scope.rangeDate
         }else if (!$scope.isPlaying){//When we press pause, stop moving ranger and cancel calling this function.
-           $interval.cancel($scope.playRange);
-        }else{//we've pressed the pause button, we will call this function one more time.
+            clearInterval($scope.interval_var["$$intervalId"]);
+	}else{//we've pressed the pause button, we will call this function one more time.
             $scope.isPlaying = !$scope.isPlaying;
         }
     }
