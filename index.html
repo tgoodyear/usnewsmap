@@ -104,9 +104,50 @@
 					</div>
 					<div class="col-md-9">
 						<input type="submit" id="submit" value="Search" />
-					</div>
+
+                                                <label>{{lit_or_fuzz}}
+                                                        <input type="checkbox" ng-model="lit_or_fuzz" ng-true-value="'Fuzzy'" ng-false-value="'Literal'">
+                                                </label>
+                                        </div>
+
 				</div>
 			</form>
+
+
+ 			<div class="row form-inline">
+                                <div class="col-md-9">
+					<header><h2 style="margin-left: -13px">Key</h2></header>
+					<div class="row form-inline">
+						<div class="col-md-3">	
+                                			<div class="leaflet-marker-icon leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated leaflet-clickable" tabindex="0" style="margin-left: -10px; width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+						</div>
+						<div class="col-md-9">
+							<p>Green means that there has been a paper found within a year of the selected date</p>
+						</div>
+					</div>
+
+					<div class="row form-inline">
+                                                <div class="col-md-3">  
+                                                	<div class="leaflet-marker-icon leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated leaflet-clickable" tabindex="0" style="margin-left: -10px; width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+                                                </div>
+                                                <div class="col-md-9">
+                                                	<p>Yellow means that there has been a paper found within ten years of the selected date</p>
+                                                </div>
+                                        </div>
+
+ 					 <div class="row form-inline">
+                                                <div class="col-md-3">  
+                                                	<div class="leaflet-marker-icon leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated leaflet-clickable" tabindex="0" style="margin-left: -10px; width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+                                                </div>
+                                                <div class="col-md-9">
+                                                	<p>Red means that there has been a paper found after ten years of the selected date</p>
+                                                </div>
+                                        </div>
+
+				</div>
+                        </div>
+
+
 			<div ng-show="search_started">
 				<h3>Playback</h3>
 				<div class="row">

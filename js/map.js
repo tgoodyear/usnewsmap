@@ -39,6 +39,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ").join("+");
+	if ($scope.lit_or_fuzz == "Fuzzy"){
+		search = '"' + search + '"~';
+	}
         var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10000&indent=true";
         var fields = '&fl=,date_field,id,ed,seq,seq_num';
         url += fields;
@@ -63,6 +66,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             lng: -98.5795,
             zoom: 4
         },
+	lit_or_fuzz : "Literal",
         tiles: tiles,//This is the var tiles from above.
         markers: [],//The markers  array which is actually shown, used in filter()
         allMarkers : [],//The marker holder array used in getMarkers()
