@@ -38,9 +38,15 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //Get query data, self explanatory
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
-        var search = $scope.search.split(" ").join("+");
+        var search = $scope.search.split(" ");
 	if ($scope.lit_or_fuzz == "Fuzzy"){
-		search = '"' + search + '"~';
+		for (pos in search){
+			search[pos] = search[pos] + "~"
+		}
+		search = '%7B!complexphrase+inOrder%3Dtrue%7Dtext%3A"'+search.join("+")+'"';
+	
+	}else{
+		search = search.join("+");
 	}
         var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10000&indent=true";
         var fields = '&fl=,date_field,id,ed,seq,seq_num';
@@ -158,7 +164,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     $scope.figure_color = function(date,curr_date){
 	date = new Date(date).getTime();
-	if ((curr_date - date) < (86400000 * 365.25 * 1.5)){
+	if ((curr_date - date) < (86400000 * 365.25 * 2)){
 		return "small"
 	}	
 	else if ((curr_date - date) < (86400000 * 365.25 * 10)){
