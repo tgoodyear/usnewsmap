@@ -31,7 +31,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             return false;
         }
 
-    	//We want to clear any visible markers when doing a new search.
+        //We want to clear any visible markers when doing a new search.
         $scope.markers = [];
         $scope.allMarkers = [];
 
@@ -39,25 +39,25 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var search = $scope.search.split(" ");
-	if ($scope.lit_or_fuzz == "Fuzzy"){
-		for (pos in search){
-			search[pos] = search[pos] + "~"
-		}
-		search = '%7B!complexphrase+inOrder%3Dtrue%7Dtext%3A"'+search.join("+")+'"';
-	
-	}else{
-		search = search.join("+");
-	}
+        if ($scope.lit_or_fuzz == "Fuzzy"){
+            for (pos in search){
+                search[pos] = search[pos] + "~"
+            }
+            search = '%7B!complexphrase+inOrder%3Dtrue%7Dtext%3A"'+search.join("+")+'"';
+
+        } else{
+            search = search.join("+");
+        }
         var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10000&indent=true";
         var fields = '&fl=,date_field,id,ed,seq,seq_num';
         url += fields;
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search,"mongo_id":$scope.mongo_id,"date":$scope.rangeDate.toISOString()})
         .success(function (response){
-           $scope.search_started = true;
+            $scope.search_started = true;
             if (typeof response != 'undefined'){
                 $scope.allMarkers = response;
-		$scope.setMarkers();
+                $scope.setMarkers();
             }
         })
     }
@@ -124,63 +124,68 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     //Still can use refinments, slows down when moving fast over alot of markers, I think one of the problems is that the function is called with ng-move so
     //i`t is being called alot when the mouse is near it, causing slowdown.
     $scope.filter = function(filter){
-      	
-    	filter = typeof filter !== 'undefined' ? filter : false;
-        if (!$scope.isPlaying && !$scope.isOn && !filter){return;};
-    	 $scope.rangeDate = new Date($scope.range/1);
-	 $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
-        .success(function (response){		
-		if (typeof response != 'undefined'){
-                	$scope.allMarkers = response;
-        	        $scope.setMarkers();
-            	}	
-		else{
-			$scope.allMarkers = [];
-			$scope.markers = [];
-		}
-	})	
-    }
+
+        filter = typeof filter !== 'undefined' ? filter : false;
+        if (!$scope.isPlaying && !$scope.isOn && !filter){
+            return;
+        }
+
+        $scope.rangeDate = new Date($scope.range/1);
+        $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
+            .success(function (response){
+                if (typeof response != 'undefined'){
+                    $scope.allMarkers = response;
+                    $scope.setMarkers();
+                }
+                else{
+                    $scope.allMarkers = [];
+                    $scope.markers = [];
+                }
+            })
+    };
 
     $scope.setMarkers = function(){
-	var keys = [];
-	$scope.markers = [];
-	for(var k in $scope.allMarkers) keys.push(k);
-	for(var k in keys){
-		var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
-		if (typeof marker != 'undefined'){
-			var num = $scope.allMarkers[keys[k]].length
-               		var size = $scope.figure_color(marker.date,$scope.range);
-			marker.icon =  {
+    	var keys = [];
+    	$scope.markers = [];
+    	for(var k in $scope.allMarkers) {
+            keys.push(k);
+        }
+    	for(var k in keys){
+    		var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
+    		if (typeof marker != 'undefined'){
+    			var num = $scope.allMarkers[keys[k]].length
+                var size = $scope.figure_color(marker.date,$scope.range);
+    			marker.icon =  {
            			type: 'div',
-				className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
-            			iconSize: [40,40],
-            			html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
-                           	popupAnchor:  [0, 0]
-       			},
-			$scope.markers.push(marker);
-		}
-	}
-}
+    				className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
+        			iconSize: [40,40],
+        			html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
+                   	popupAnchor:  [0, 0]
+           		},
+    			$scope.markers.push(marker);
+    		}
+    	}
+    };
 
     $scope.figure_color = function(date,curr_date){
-	date = new Date(date).getTime();
-	if ((curr_date - date) < (86400000 * 365.25 * 2)){
-		return "small"
-	}	
-	else if ((curr_date - date) < (86400000 * 365.25 * 10)){
-		return "medium"
-	}
-	else{
-		return "large"
-	}
+    	date = new Date(date).getTime();
+    	if ((curr_date - date) < (86400000 * 365.25 * 2)){
+    		return "small"
+    	}
+    	else if ((curr_date - date) < (86400000 * 365.25 * 10)){
+    		return "medium"
+    	}
+    	else {
+    		return "large"
+    	}
     }
 
     //This function is called when you press the play/pause button.
     $scope.play = function(){
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
         if ($scope.isPlaying){//if true we will have play range function be called every 100 seconds.
-           $scope.interval_var = $interval($scope.playRange,1000);
-		console.log($scope.interval_var["$$intervalId"]);
+            $scope.interval_var = $interval($scope.playRange,1000);
+            console.log($scope.interval_var["$$intervalId"]);
         }
     }
 
@@ -192,10 +197,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             $scope.range = new Date(($scope.range/1) + ONE_YEAR).getTime();
             $scope.rangeDate = new Date($scope.range/1);//update $scope.range and $scope.rangeDate to make sure they are the same since they are linked.
             $scope.filter();//call filter with new $scope.rangeDate
-        }else if (!$scope.isPlaying){//When we press pause, stop moving ranger and cancel calling this function.
+        }
+        // When we press pause, stop moving ranger and cancel calling this function.
+        else if (!$scope.isPlaying){
             clearInterval($scope.interval_var["$$intervalId"]);
-	}else{//we've pressed the pause button, we will call this function one more time.
-            $scope.isPlaying = !$scope.isPlaying;
+        }
+        // we've pressed the pause button, we will call this function one more time.
+        else {
+        $scope.isPlaying = !$scope.isPlaying;
         }
     }
 
@@ -211,10 +220,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.getMetaData = function(mark){
         $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['year'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
         .success(function (response){
-		//do stuff
-    });
+    		//do stuff
+        });
 
-    }
+    };
 
 }]);
 

@@ -4,13 +4,13 @@ import time
 
 class HashList:
 	def __init__(self,id,hash_table={},linked_list=[],tail=None,head=None):
-		#we are assuming that the nodes are only added once at the begging, in order, and then the list is static until a new search is done. 
+		#we are assuming that the nodes are only added once at the beginning, in order, and then the list is static until a new search is done.
 		self.id = id
 		self.hash_table = HashTable({})
-		self.linked_list = []	
+		self.linked_list = []
 		self.tail = tail
 		self.head = head
-	
+
 	def get_id(self):
 		return self.id
 
@@ -19,7 +19,7 @@ class HashList:
 
 	def set_hash(self,hasht):
 		self.hash_table = HashTable(hasht)
-	
+
 	def add_node(self,new_node):
 		self.linked_list.append(new_node)
 		if self.head is None:
@@ -31,7 +31,7 @@ class HashList:
 		self.hash_table.add_Node(new_node)
 
 	def update(self,date):
-	
+
 		if self.tail >= 0:
 			curr_node = self.linked_list[self.tail]
 
@@ -57,7 +57,7 @@ class HashList:
 				self.hash_table.add_Node(curr_node)
                 		self.tail = self.tail + 1
             		if self.tail + 1 >= len(self.linked_list):
-				return  
+				return
 
 			curr_node = self.linked_list[self.tail + 1]
 			while True:
@@ -106,5 +106,5 @@ class HashTable:
 		for key in self.hash_table.keys():
 			for spot in self.hash_table[key]:
 				ans.append(spot)
-		print len(ans)	
+		print len(ans)
 		return self.hash_table

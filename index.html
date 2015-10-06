@@ -14,7 +14,7 @@
 		<link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
                 <link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.css" />
 
- 		
+
 
 		<!--- This style is for highlighting text, can propably be placed somewhere else-->
         <style>
@@ -100,7 +100,7 @@
 
 				<div class="row">
 					<div class="col-md-3" ng-model="loadingStatus">
-					
+
 					</div>
 					<div class="col-md-9">
 						<input type="submit" id="submit" value="Search" />
@@ -118,7 +118,7 @@
                                 <div class="col-md-9">
 					<header><h2 style="margin-left: -13px">Key</h2></header>
 					<div class="row form-inline">
-						<div class="col-md-3">	
+						<div class="col-md-3">
                                 			<div class="leaflet-marker-icon leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated leaflet-clickable" tabindex="0" style="margin-left: -10px; width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
 						</div>
 						<div class="col-md-9">
@@ -127,7 +127,7 @@
 					</div>
 
 					<div class="row form-inline">
-                                                <div class="col-md-3">  
+                                                <div class="col-md-3">
                                                 	<div class="leaflet-marker-icon leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated leaflet-clickable" tabindex="0" style="margin-left: -10px; width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
                                                 </div>
                                                 <div class="col-md-9">
@@ -136,7 +136,7 @@
                                         </div>
 
  					 <div class="row form-inline">
-                                                <div class="col-md-3">  
+                                                <div class="col-md-3">
                                                 	<div class="leaflet-marker-icon leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated leaflet-clickable" tabindex="0" style="margin-left: -10px; width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
                                                 </div>
                                                 <div class="col-md-9">
@@ -164,7 +164,7 @@
 							</div>
 						</div>
 					</div>
-				</div> 
+				</div>
 				<div class="row">
 					<div class="col-md-12 form-inline">
 						<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
@@ -175,8 +175,10 @@
 			</div>
 		</div>
 	</div>
-
+	<div class="row">
+		<div class="col-md-10 col-md-offset-1">
+			TIMELINE
+		</div>
 	</div>
   </body>
 </html>
-	
