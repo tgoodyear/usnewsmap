@@ -2,7 +2,8 @@
 
 //The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
 var app = angular.module("loc", ['leaflet-directive','ngRangeSlider']);
-app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents",function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents) {
+app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents",
+                function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents) {
 
     //These are the bounds of the map, currently centered on the contenental US.
     var bounds = leafletBoundsHelpers.createBoundsFromArray([
@@ -19,8 +20,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             maxZoom: 18,
             id: 'zsuffern0614.2ed6b495',//my stuff
             accessToken: 'pk.eyJ1IjoienN1ZmZlcm4wNjE0IiwiYSI6IjVlNWFkYjQwZDc0ZTY0OTZmMDQyMzM4NmVmMjFmNWNiIn0.oZhSA6w9Pgv3ISwLjP7vTQ',//mystuff
-	    continuousWorld: false,
-        // This option disables loading tiles outside of the world bounds.
+    	    continuousWorld: false,
+            // This option disables loading tiles outside of the world bounds.
             noWrap: true
         }
     }
@@ -48,11 +49,13 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         } else{
             search = search.join("+");
         }
-        var url = "http://130.207.211.77:8983/solr/loc/select?q=date_field%3A%5B" + startDate + "+TO+" + endDate + "%5D+%0Atext%3A%22" + search + "%22&wt=json&rows=10000&indent=true";
-        var fields = '&fl=,date_field,id,ed,seq,seq_num';
-        url += fields;
+
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
-        $http.post('http://130.207.211.77/loc_api/get_data',{"url":url,"search":$scope.search,"mongo_id":$scope.mongo_id,"date":$scope.rangeDate.toISOString()})
+        var payload = { "startDate":startDate,"search":$scope.search,
+                        "mongo_id":$scope.mongo_id,"date":$scope.rangeDate.toISOString(),
+                        "endDate":endDate, "searchTerms":search
+                        };
+        $http.post('http://130.207.211.77/loc_api/get_data',payload)
         .success(function (response){
             $scope.search_started = true;
             if (typeof response != 'undefined'){
@@ -64,7 +67,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     //All of the $scope variables
     angular.extend($scope, {
-	mongo_id : Math.floor((Math.random() * 100000) + 1),
+        mongo_id : Math.floor((Math.random() * 100000) + 1),
         search : "",//Our Search term
         maxbounds: bounds,//THe bounds of the map, see the var bounds above.
         center: {//This is the center of our map, which is currently over the geographical center of the continental US.
@@ -72,7 +75,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             lng: -98.5795,
             zoom: 4
         },
-	lit_or_fuzz : "Literal",
+        lit_or_fuzz : "Literal",
         tiles: tiles,//This is the var tiles from above.
         markers: [],//The markers  array which is actually shown, used in filter()
         allMarkers : [],//The marker holder array used in getMarkers()
@@ -90,8 +93,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         textShown : false,
         showTimeLine : false,
         popupTextData : "",
-	search_started : false,
-	interval_var : 1,
+        search_started : false,
+        interval_var : 1,
         text: $sce.trustAsHtml(" ")//The actual text shown on the screen. Is taken in as HTML so one can highlight text. Causes problems when the documents are so messed up that they inadventernatly make html statements.
     });
 
@@ -184,8 +187,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.play = function(){
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
         if ($scope.isPlaying){//if true we will have play range function be called every 100 seconds.
-            $scope.interval_var = $interval($scope.playRange,1000);
-            console.log($scope.interval_var["$$intervalId"]);
+            $scope.interval_var = $interval($scope.playRange,400);
+            // console.log($scope.interval_var["$$intervalId"]);
         }
     }
 
@@ -220,7 +223,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.getMetaData = function(mark){
         $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['year'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
         .success(function (response){
-    		//do stuff
+
         });
 
     };

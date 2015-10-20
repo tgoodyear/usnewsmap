@@ -1,19 +1,20 @@
 <html ng-app = "loc">
 	<head>
-		<script type="text/javascript" src="js/angular.js"></script>
-		<script type="text/javascript" src="js/leaflet/leaflet.js"></script>
-		<script type="text/javascript" src="js/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
-		<script type="text/javascript" src="js/ngRangeSlider-master/dist/ng-range-slider.js"></script>
-		<script type="text/javascript" src="js/map.js"></script>
+		<title>Chronicling America</title>
 
-
+		<link rel="icon" href="favicon.ico" />
 		<link rel="stylesheet" type="text/css" href="js/leaflet/leaflet.css" />
 		<link rel="stylesheet" type="text/css" href="js/ngRangeSlider-master/example/css/Default.css" />
 		<link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css" />
 		<link rel="stylesheet" href="bootstrap/dist/css/bootstrap-theme.min.css" />
 		<link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
-                <link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.css" />
+        <link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.css" />
 
+		<script type="text/javascript" src="js/angular.js"></script>
+		<script type="text/javascript" src="js/leaflet/leaflet.js"></script>
+		<script type="text/javascript" src="js/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+		<script type="text/javascript" src="js/ngRangeSlider-master/dist/ng-range-slider.js"></script>
+		<script type="text/javascript" src="js/map.js"></script>
 
 
 		<!--- This style is for highlighting text, can propably be placed somewhere else-->
@@ -24,7 +25,6 @@
 				overflow-x: hidden;
 			}
     	</style>
-		<title>Chronicling America</title>
 	</head>
 	<body ng-controller="MapCtrl">
 	<div class="row">
@@ -177,7 +177,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
-			TIMELINE
+			<div ng-repeat="events in allMarkers[marker]"
 		</div>
 	</div>
   </body>
