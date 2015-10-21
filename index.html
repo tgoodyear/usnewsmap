@@ -9,12 +9,17 @@
 		<link rel="stylesheet" href="bootstrap/dist/css/bootstrap-theme.min.css" />
 		<link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
         <link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.css" />
+		<link rel="stylesheet" href="js/angular-horizontal-timeline-master/angular-horizontal-timeline.css">
 
 		<script type="text/javascript" src="js/angular.js"></script>
 		<script type="text/javascript" src="js/leaflet/leaflet.js"></script>
 		<script type="text/javascript" src="js/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
 		<script type="text/javascript" src="js/ngRangeSlider-master/dist/ng-range-slider.js"></script>
 		<script type="text/javascript" src="js/map.js"></script>
+		<script type="text/javascript" src="js/angular-horizontal-timeline-master/angular-horizontal-timeline.js"></script>
+		<script type="text/javascript" src="js/moment.js"></script>
+		<script type="text/javascript" src="js/moment-range/lib/moment-range.js"></script>
+		<script type="text/javascript" src="js/bower-angular-sanitize/angular-sanitize.js"></script>
 
 
 		<!--- This style is for highlighting text, can propably be placed somewhere else-->
@@ -30,19 +35,19 @@
 	<div class="row">
 
 		<!-- Map, header -->
-		<div class="col-md-10">
+		<div class="col-lg-10 col-md-8">
 			<div class="row" style="padding: 5px 0 20px 0;">
-				<div class="col-md-4" style="height:100px;">
+				<div class="col-lg-4 col-md-3" style="height:100px;">
 					<a href="http://www.gtri.gatech.edu/icl" target="_blank">
 						<img src="images/GTRI_Logo.png" class="img-responsive" />
 					</a>
 				</div>
-				<div class="col-md-4 text-center">
+				<div class="col-lg-3 col-md-3 text-center">
 					<a href="http://history.uga.edu/" target="_blank">
-						<img src="images/UGA_Logo.gif" style="height:100px;" />
+						<img src="images/UGA_Logo.gif" class="img-responsive" />
 					</a>
 				</div>
-				<div class="col-md-4">
+				<div class="col-lg-5 col-md-6">
 					<h2 style="padding-top:0;margin-top:0;">Exploring American History</h2>
 					Enter a search term in the text box on the right to search American
 					newspapers from 1836 &ndash; 1924. Use the Playback feature to see
@@ -59,7 +64,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-2">
+		<div class="col-lg-2 col-md-4">
 			<form ng-submit="getMarkers()">
 				<h3>Search </h3>
 				<!-- Search Term -->
@@ -70,7 +75,7 @@
 						</label>
 					</div>
 					<div class="col-md-9">
-						<input type="search" ng-model="search" class="form-control" id="search_term" />
+						<input type="search" ng-model="search" class="form-control" id="search_term" value="cross of gold" />
 					</div>
 				</div>
 
@@ -99,60 +104,60 @@
 				</div>
 
 				<div class="row">
-					<div class="col-md-3" ng-model="loadingStatus">
-
+					<div class="col-md-3">
+						<span ng-show="loadingStatus">Loading</span>
 					</div>
 					<div class="col-md-9">
 						<input type="submit" id="submit" value="Search" />
 
-                                                <label>{{lit_or_fuzz}}
-                                                        <input type="checkbox" ng-model="lit_or_fuzz" ng-true-value="'Fuzzy'" ng-false-value="'Literal'">
-                                                </label>
-                                        </div>
+                        <label>{{lit_or_fuzz}}
+                                <input type="checkbox" ng-model="lit_or_fuzz" ng-true-value="'Fuzzy'" ng-false-value="'Literal'">
+                        </label>
+                	</div>
 
 				</div>
 			</form>
 
 
- 			<div class="row form-inline">
-                                <div class="col-md-9">
-					<header><h2 style="margin-left: -13px">Key</h2></header>
+			<div class="row form-inline">
+				<div class="col-md-9">
+					<h3>Key</h3>
+					Colors indicate the recency of the latest newspaper in that location
 					<div class="row form-inline">
 						<div class="col-md-3">
-                                			<div class="leaflet-marker-icon leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated leaflet-clickable" tabindex="0" style="margin-left: -10px; width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
 						</div>
 						<div class="col-md-9">
-							<p>Green means that there has been a paper found within a year of the selected date</p>
+							<p>Within one year of the selected date</p>
 						</div>
 					</div>
 
 					<div class="row form-inline">
-                                                <div class="col-md-3">
-                                                	<div class="leaflet-marker-icon leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated leaflet-clickable" tabindex="0" style="margin-left: -10px; width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
-                                                </div>
-                                                <div class="col-md-9">
-                                                	<p>Yellow means that there has been a paper found within ten years of the selected date</p>
-                                                </div>
-                                        </div>
+						<div class="col-md-3">
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+						</div>
+						<div class="col-md-9">
+							<p>Within ten years of the selected date</p>
+						</div>
+					</div>
 
- 					 <div class="row form-inline">
-                                                <div class="col-md-3">
-                                                	<div class="leaflet-marker-icon leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated leaflet-clickable" tabindex="0" style="margin-left: -10px; width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
-                                                </div>
-                                                <div class="col-md-9">
-                                                	<p>Red means that there has been a paper found after ten years of the selected date</p>
-                                                </div>
-                                        </div>
+					<div class="row form-inline">
+						<div class="col-md-3">
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+						</div>
+						<div class="col-md-9">
+							<p>Greater than ten years of the selected date</p>
+						</div>
+					</div>
 
 				</div>
-                        </div>
+			</div>
 
 
 			<div ng-show="search_started">
 				<h3>Playback</h3>
 				<div class="row">
 					<div class="col-md-12 form-inline">
-
 						<div class="row form-inline">
 							<div class="col-md-3">
 								<label for="playback_date">
@@ -176,9 +181,13 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
-			<div ng-repeat="events in allMarkers[marker]"
-		</div>
+		<horizontal-timeline
+			start-date="{{startDate.toLocaleDateString()}}"
+			curr-date="{{rangeDate}}"
+			end-date="{{endDate.toLocaleDateString()}}"
+			events="timelineEvents"
+			ng-show="showTimeLine">
+		</horizontal-timeline>
 	</div>
   </body>
 </html>

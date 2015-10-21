@@ -1,9 +1,8 @@
-
-
 //The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
-var app = angular.module("loc", ['leaflet-directive','ngRangeSlider']);
+var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline']);
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents",
                 function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents) {
+
 
     //These are the bounds of the map, currently centered on the contenental US.
     var bounds = leafletBoundsHelpers.createBoundsFromArray([
@@ -18,13 +17,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
             attribution: '',
             maxZoom: 18,
-            id: 'zsuffern0614.2ed6b495',//my stuff
-            accessToken: 'pk.eyJ1IjoienN1ZmZlcm4wNjE0IiwiYSI6IjVlNWFkYjQwZDc0ZTY0OTZmMDQyMzM4NmVmMjFmNWNiIn0.oZhSA6w9Pgv3ISwLjP7vTQ',//mystuff
+            id: 'tgoodyear.cifypr5uo5bccuzkszn0emy7c', // API Key
+            accessToken: 'pk.eyJ1IjoidGdvb2R5ZWFyIiwiYSI6ImNpZnlwcjZ6MzViYTB1dWtzN2dnN2x4b2QifQ.3UtPEf_PlHMgqWDX7t1TOA',// API Access Token
     	    continuousWorld: false,
             // This option disables loading tiles outside of the world bounds.
             noWrap: true
         }
-    }
+    };
+    $scope.loadingStatus = false;
 
     //This function actually queries the solr database and create a list of markers.
     $scope.getMarkers = function(){
@@ -33,8 +33,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
 
         //We want to clear any visible markers when doing a new search.
+        $scope.loadingStatus = true;
         $scope.markers = [];
         $scope.allMarkers = [];
+        $scope.eventTable = [];
+        $scope.timelineEvents = [];
 
         //Get query data, self explanatory
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
@@ -62,6 +65,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 $scope.allMarkers = response;
                 $scope.setMarkers();
             }
+            $scope.loadingStatus = false;
         })
     }
 
@@ -79,6 +83,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         tiles: tiles,//This is the var tiles from above.
         markers: [],//The markers  array which is actually shown, used in filter()
         allMarkers : [],//The marker holder array used in getMarkers()
+        eventTable : [],
+        timelineEvents : [],
         startDate: new Date( "1836-01-02"),//The earliest date possible for search queries.
         endDate: new Date("1925-01-01"),//The latest date possible for search queries.
         range : new Date("1925-01-01").getTime(),//The range bar value, set to miliseconds since epoch and changed by the slider.
@@ -95,6 +101,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         popupTextData : "",
         search_started : false,
         interval_var : 1,
+        loadingStatus : false,
         text: $sce.trustAsHtml(" ")//The actual text shown on the screen. Is taken in as HTML so one can highlight text. Causes problems when the documents are so messed up that they inadventernatly make html statements.
     });
 
@@ -107,6 +114,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             if(event.name == "leafletDirectiveMarker.click"){
                 var l = args.leafletObject.options.nid;
                 $scope.getMetaData(args.leafletObject.options);
+                $scope.showTimeLine = true;
             }
         });
     }
@@ -152,6 +160,12 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     	$scope.markers = [];
     	for(var k in $scope.allMarkers) {
             keys.push(k);
+            var curr = $scope.allMarkers[k];
+            if($scope.eventTable[curr.lat] == null){
+                $scope.eventTable[curr.lat] = [];
+            }
+            $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
+
         }
     	for(var k in keys){
     		var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
@@ -207,7 +221,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
         // we've pressed the pause button, we will call this function one more time.
         else {
-        $scope.isPlaying = !$scope.isPlaying;
+            $scope.isPlaying = !$scope.isPlaying;
         }
     }
 
@@ -221,6 +235,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     }
 
     $scope.getMetaData = function(mark){
+        for (e in $scope.allMarkers[mark.hash]){
+            var ev = $scope.allMarkers[mark.hash][e];
+            var tDate = ev.timeDate.split('/');
+            var timelineDate = tDate[2] + '-' + tDate[0] + '-' + tDate[1];
+            var timelineEvent = {"date":timelineDate,"content":'content'};
+            $scope.timelineEvents.push(timelineEvent);
+        }
+
         $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['year'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
         .success(function (response){
 

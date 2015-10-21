@@ -41,7 +41,7 @@ def home():
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     dateSearch = '' #''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
-        '"&wt=json&rows=10000&indent=false','&fl=date_field,id,ed,seq,seq_num',
+        '"&wt=json&rows=100&indent=false','&fl=date_field,id,ed,seq,seq_num',
         shards
         ]
     url = ''.join(url)
