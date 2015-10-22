@@ -23,7 +23,7 @@ var template =
 		'			ng-mouseleave="selectedEvent[$index]=false"'+
 		'			ng-click="eventClicked(event)"'+
 		'			event-date="event.date"'+
-		'			title="{{event.date}}"'+
+		// '			title="{{event.date}}"'+
 		'			timeline-event-marker><span></span>'+
 		'			<div class="timeline-event-box"'+
 		'				ng-show="selectedEvent[$index]"'+
@@ -50,12 +50,9 @@ var template =
 	'	<label>{{endDate}}</label>'+
 	'</div>'+
 '</div>'+
-'<div class="row">'+
-	'<button button ng-click="popupText()" ng-show="textShown" class="form-control">Show Full Text</button>'+
-'</div>'+
-'<div class="row">'+
-	'<div ng-model="text" ng-bind-html="text"></div>'+
-'</div>';
+'<div class="row"><div class="col-md-12">'+
+	'<div ng-model="eventText" ng-bind-html="eventText"></div>'+
+'</div></div>';
 
 angular.module('angular-horizontal-timeline', ['ngSanitize'])
 
@@ -75,43 +72,21 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 		$scope.textShown = false;
 		$scope.popupTextData = "";
 
-
-	 $scope.popupText = function(){
-        var myWindow = window.open($scope.popupTextData, "FullPage");
-    }
-
-	$scope.eventClicked = function(data, search){
-        var url = " http://130.207.211.77:8983/solr/loc/select?q=id%3A+%22"+data.id+"%22&wt=json&indent=true"
-		$http.get(url)
-		.success(function (response){
-			var datum = response.response.docs[0].text
-			$scope.popupTextData = data.url;
-            var regex = new RegExp(data.search, 'gi');
-            var myArray;
-            var holdArray = [];
-
-            //breaks here, infinite loop trying to find all instances of search term. $scope.search might not be the actual search term.
-            while ((myArray = regex.exec(datum)) !== null) {
-                holdArray.push(regex.lastIndex);
-            }
-
-            var senArr = [];
-            while(holdArray.length > 0){
-                var spot = holdArray.pop();
-                var sting = datum.slice(spot-200,spot+200);
-                senArr.push('<div>'+sting+"</div>");
-            }
-            senArr.reverse();
-            var ans = senArr.join();
-
-      		ans = ans.replace(new RegExp(data.search, 'gi'), '<span class="highlighted">'+data.search+'</span>');//Goes through the text document, searches for teh search term and highlights it.
-
-       		//$scope.popupTextData = $sce.trustAsHtml(datum.replace(new RegExp($scope.search, 'gi'), '<span class="highlighted">'+$scope.search+'</span>'));
-            $scope.textShown = true;
-            $scope.text = $sce.trustAsHtml(ans);//replaces the text variable with the chosen marker text.
-            //$scope.textShown = true;*/
-        })
-    }
+		$scope.eventClicked = function(data, search){
+			console.log(data);
+			var eventText = '<h4>'+ data.data.city +', '+ data.data.state +'</h4>';
+			var dateStr = new Date(data.date).toISOString().substr(0, 10);
+			var urlData = [data.data.seq_num,dateStr,data.data.ed,data.data.seq];
+	        var url = "http://chroniclingamerica.loc.gov/lccn/"+ urlData.join('/') + ".json";
+			$scope.eventText = '<h4>Loading...</h4>';
+			$http.get(url)
+			.success(function (response){
+				console.log(response);
+				eventText += '<a href="'+response.pdf+'" target="_blank">'+response.title.name+'</a>';
+				$scope.eventText = $sce.trustAsHtml(eventText);
+				$scope.eventTextShown = true;
+	        });
+	    };
 
 		$scope.getPosition = function(date){
 			date = moment(date);

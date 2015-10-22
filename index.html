@@ -172,7 +172,7 @@
 				</div>
 				<div class="row">
 					<div class="col-md-12 form-inline">
-						<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-mousemove="filter()" />
+						<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-change="filter()" />
 						<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
 						<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
 					</div>
@@ -181,13 +181,15 @@
 		</div>
 	</div>
 	<div class="row">
-		<horizontal-timeline
-			start-date="{{startDate.toLocaleDateString()}}"
-			curr-date="{{rangeDate}}"
-			end-date="{{endDate.toLocaleDateString()}}"
-			events="timelineEvents"
-			ng-show="showTimeLine">
-		</horizontal-timeline>
+		<div class="col-md-12">
+			<horizontal-timeline
+				start-date="{{startDate.toLocaleDateString()}}"
+				curr-date="{{rangeDate}}"
+				end-date="{{endDate.toLocaleDateString()}}"
+				events="timelineEvents"
+				ng-show="showTimeLine">
+			</horizontal-timeline>
+		</div>
 	</div>
   </body>
 </html>

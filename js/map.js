@@ -42,6 +42,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //Get query data, self explanatory
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
         var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
+
         var search = $scope.search.split(" ");
         if ($scope.lit_or_fuzz == "Fuzzy"){
             for (pos in search){
@@ -55,7 +56,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         var payload = { "startDate":startDate,"search":$scope.search,
-                        "mongo_id":$scope.mongo_id,"date":$scope.rangeDate.toISOString(),
+                        "mongo_id":$scope.mongo_id,"date":endDate,
                         "endDate":endDate, "searchTerms":search
                         };
         $http.post('http://130.207.211.77/loc_api/get_data',payload)
@@ -140,7 +141,12 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         if (!$scope.isPlaying && !$scope.isOn && !filter){
             return;
         }
-
+        //
+        // console.log(Math.abs($scope.range - $scope.rangeDate.getTime()));
+        // if(Math.abs($scope.range - $scope.rangeDate.getTime()) < 1000*60*60*24*30*6 ){
+        //     console.log('Skipped');
+        //     return;
+        // }
         $scope.rangeDate = new Date($scope.range/1);
         $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
             .success(function (response){
@@ -228,6 +234,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     //Function that updates the slider when the user manually changes the current date, then filters.
     $scope.updateRange = function(){
         if($scope.rangeDate >= $scope.startDate && $scope.rangeDate <= $scope.endDate){
+            console.log($scope.range - $scope.rangeDate.getTime());
+            if($scope.range - $scope.rangeDate.getTime() < 1000*60*60*24*30*6 ){
+                console.log('Skipped');
+                return;
+            }
     		$scope.range = $scope.rangeDate.getTime();
     		$scope.filter(true);
         }
@@ -235,18 +246,20 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     }
 
     $scope.getMetaData = function(mark){
+        console.log(mark);
+        $scope.timelineEvents = [];
         for (e in $scope.allMarkers[mark.hash]){
             var ev = $scope.allMarkers[mark.hash][e];
             var tDate = ev.timeDate.split('/');
             var timelineDate = tDate[2] + '-' + tDate[0] + '-' + tDate[1];
-            var timelineEvent = {"date":timelineDate,"content":'content'};
+            var timelineEvent = {"date":timelineDate,"content":timelineDate,"data":ev};
             $scope.timelineEvents.push(timelineEvent);
         }
 
-        $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['year'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
-        .success(function (response){
-
-        });
+        // $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['year'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
+        // .success(function (response){
+        //
+        // });
 
     };
 
