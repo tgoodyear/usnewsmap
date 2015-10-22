@@ -113,8 +113,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         var eventName = 'leafletDirectiveMarker.' + markerEvents[k];
         $scope.$on(eventName, function(event, args){
             if(event.name == "leafletDirectiveMarker.click"){
-                var l = args.leafletObject.options.nid;
-                $scope.getMetaData(args.leafletObject.options);
+                var l = parseInt(args.modelName);
+                $scope.getMetaData($scope.markers[l]);
                 $scope.showTimeLine = true;
             }
         });
@@ -246,6 +246,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     }
 
     $scope.getMetaData = function(mark){
+        console.log("hihi");
         console.log(mark);
         $scope.timelineEvents = [];
         for (e in $scope.allMarkers[mark.hash]){
