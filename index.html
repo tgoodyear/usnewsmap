@@ -122,31 +122,31 @@
 			<div class="row form-inline">
 				<div class="col-md-9">
 					<h3>Key</h3>
-					Colors indicate the recency of the latest newspaper in that location
+					Colors indicate how many search hits compared to the mean
 					<div class="row form-inline">
 						<div class="col-md-3">
 							<div class="leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
 						</div>
 						<div class="col-md-9">
-							<p>Within one year of the selected date</p>
+							<p>Less then one standard deviation from the mean</p>
 						</div>
 					</div>
 
 					<div class="row form-inline">
 						<div class="col-md-3">
-							<div class="leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>12</span></div></div>
 						</div>
 						<div class="col-md-9">
-							<p>Within ten years of the selected date</p>
+							<p>Within one standard deviation from the mean</p>
 						</div>
 					</div>
 
 					<div class="row form-inline">
 						<div class="col-md-3">
-							<div class="leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>50</span></div></div>
 						</div>
 						<div class="col-md-9">
-							<p>Greater than ten years of the selected date</p>
+							<p>More than one standard deviation from the mean</p>
 						</div>
 					</div>
 
@@ -156,6 +156,10 @@
 
 			<div ng-show="search_started">
 				<h3>Playback</h3>
+				<label>{{markersConstant}}
+                                	<input type="checkbox" ng-model="markersConstant" ng-true-value="true" ng-false-value="false">
+                        	</label>
+
 				<div class="row">
 					<div class="col-md-12 form-inline">
 						<div class="row form-inline">

@@ -97,6 +97,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         },
         isPlaying : false,//For the play button. Switches between true and false when play button is pressed.
         isOn : false,
+	markersConstant : true,
         textShown : false,
         showTimeLine : false,
         popupTextData : "",
@@ -148,7 +149,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //     return;
         // }
         $scope.rangeDate = new Date($scope.range/1);
-        $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
+        $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
             .success(function (response){
                 if (typeof response != 'undefined'){
                     $scope.allMarkers = response;
@@ -164,42 +165,48 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.setMarkers = function(){
     	var keys = [];
     	$scope.markers = [];
+	var mean = 0;
     	for(var k in $scope.allMarkers) {
             keys.push(k);
             var curr = $scope.allMarkers[k];
+	    mean = mean + curr.length;
             if($scope.eventTable[curr.lat] == null){
                 $scope.eventTable[curr.lat] = [];
             }
             $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
 
         }
+	mean = mean/keys.length;
     	for(var k in keys){
     		var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
     		if (typeof marker != 'undefined'){
     			var num = $scope.allMarkers[keys[k]].length
-                var size = $scope.figure_color(marker.date,$scope.range);
-    			marker.icon =  {
-           			type: 'div',
-    				className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
-        			iconSize: [40,40],
-        			html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
-                   	popupAnchor:  [0, 0]
-           		},
-    			$scope.markers.push(marker);
+			date = new Date(marker.date).getTime();
+			if ($scope.markersConstant || ($scope.range - date) < (86400000 * 365.25 * 10)){
+	
+                		var size = $scope.figure_color(num,mean);
+    				marker.icon =  {
+           				type: 'div',
+    					className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
+        				iconSize: [40,40],
+        				html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
+                   			popupAnchor:  [0, 0]
+           			},
+    				$scope.markers.push(marker);
+			}
     		}
     	}
     };
 
-    $scope.figure_color = function(date,curr_date){
-    	date = new Date(date).getTime();
-    	if ((curr_date - date) < (86400000 * 365.25 * 2)){
+    $scope.figure_color = function(num,mean){
+    	if (mean - num > 2){
     		return "small"
     	}
-    	else if ((curr_date - date) < (86400000 * 365.25 * 10)){
-    		return "medium"
+    	else if (mean - num < -5){
+    		return "large"
     	}
     	else {
-    		return "large"
+    		return "medium"
     	}
     }
 
