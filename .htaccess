@@ -2,3 +2,7 @@
 #Deny from all
 #Allow from 10.0.0.0/8
 #Allow from 130.207.0.0/16
+#<DirectoryMatch "^/python">
+#	Order deny,allow
+#	Deny from all
+#</DirectoryMatch>
