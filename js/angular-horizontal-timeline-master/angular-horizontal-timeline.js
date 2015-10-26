@@ -73,7 +73,7 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 		$scope.popupTextData = "";
 
 		$scope.eventClicked = function(data, search){
-			console.log(data);
+			// console.log(data);
 			var eventText = '<h4>'+ data.data.city +', '+ data.data.state +'</h4>';
 			var dateStr = new Date(data.date).toISOString().substr(0, 10);
 			var urlData = [data.data.seq_num,dateStr,data.data.ed,data.data.seq];
@@ -81,7 +81,7 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 			$scope.eventText = '<h4>Loading...</h4>';
 			$http.get(url)
 			.success(function (response){
-				console.log(response);
+				// console.log(response);
 				eventText += '<a href="'+response.pdf+'" target="_blank">'+response.title.name+'</a>';
 				$scope.eventText = $sce.trustAsHtml(eventText);
 				$scope.eventTextShown = true;
