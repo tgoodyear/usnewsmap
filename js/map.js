@@ -181,22 +181,22 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         mean = mean/keys.length;
         for(var k in keys){
             var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
-            if (typeof marker == 'undefined'){
-                return;
-            }
-
-            var num = $scope.allMarkers[keys[k]].length
-            date = new Date(marker.date).getTime();
-            if ($scope.markersConstant || ($scope.range - date) < (86400000 * 365.25 * 10)){
-                var size = $scope.figure_color(num,mean);
-                marker.icon =  {
-                    type: 'div',
-                    className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
-                    iconSize: [40,40],
-                    html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
-                    popupAnchor:  [0, 0]
-                };
-                $scope.markers.push(marker);
+            if (typeof marker != 'undefined'){
+                
+            
+            	var num = $scope.allMarkers[keys[k]].length
+            	date = new Date(marker.date).getTime();
+            	if ($scope.markersConstant || ($scope.range - date) < (86400000 * 365.25*1.5 )){
+                	var size = $scope.figure_color(num,mean);
+                	marker.icon =  {
+                    		type: 'div',
+                    		className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
+                    		iconSize: [25,25],
+                    		html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
+                    		popupAnchor:  [0, 0]
+               		};
+                	$scope.markers.push(marker);
+		}
             }
         }
     };

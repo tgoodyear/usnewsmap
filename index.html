@@ -76,7 +76,7 @@
 						</label>
 					</div>
 					<div class="col-md-9">
-						<input type="search" ng-model="search" class="form-control" id="search_term" value="cross of gold" />
+						<input type="search" ng-model="search" class="form-control" id="search_term" value="" />
 					</div>
 				</div>
 
@@ -111,9 +111,8 @@
 					<div class="col-md-9">
 						<input type="submit" id="submit" value="Search" />
 
-                        <label>{{lit_or_fuzz}}
                                 <input type="checkbox" ng-model="lit_or_fuzz" ng-true-value="'Fuzzy'" ng-false-value="'Literal'">
-                        </label>
+                        <label>{{lit_or_fuzz}} </label>
                 	</div>
 
 				</div>
@@ -126,7 +125,7 @@
 					Colors indicate how many search hits compared to the mean
 					<div class="row form-inline">
 						<div class="col-md-3">
-							<div class="leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated" style="width: 25px; height: 25px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
 						</div>
 						<div class="col-md-9">
 							<p>Less then one standard deviation from the mean</p>
@@ -135,7 +134,7 @@
 
 					<div class="row form-inline">
 						<div class="col-md-3">
-							<div class="leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>12</span></div></div>
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated" style="width: 25px; height: 25px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>12</span></div></div>
 						</div>
 						<div class="col-md-9">
 							<p>Within one standard deviation from the mean</p>
@@ -144,7 +143,7 @@
 
 					<div class="row form-inline">
 						<div class="col-md-3">
-							<div class="leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated" style="width: 40px; height: 40px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>50</span></div></div>
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated" style="width: 25px; height: 25px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>50</span></div></div>
 						</div>
 						<div class="col-md-9">
 							<p>More than one standard deviation from the mean</p>
@@ -157,12 +156,12 @@
 
 			<div ng-show="search_started">
 				<h3>Playback</h3>
-				<label for="markersConstant-checkbox">
-					<span ng-show="markersConstant">Showing all hits</span>
-					<span ng-show="!markersConstant">Showing hits within 5 years</span>
-				</label>
-            	<input type="checkbox" ng-model="markersConstant" ng-true-value="true" ng-false-value="false" id="markersConstant-checkbox" />
+            	<input type="checkbox" ng-model="markersConstant" ng-true-value="true" ng-false-value="false" id="markersConstant-checkbox" ng-change="setMarkers()"/>
 
+				<label for="markersConstant-checkbox">
+                                        <span ng-show="markersConstant">Showing all hits</span>
+                                        <span ng-show="!markersConstant">Showing hits within 1 year</span>
+                                </label>
 				<div class="row">
 					<div class="col-md-12 form-inline">
 						<div class="row form-inline">

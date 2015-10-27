@@ -46,17 +46,17 @@
 	border-radius: 20px;
 	}
 .marker-cluster div {
-	width: 30px;
-	height: 30px;
-	margin-left: 5px;
-	margin-top: 5px;
+	width: 17px;
+	height: 17px;
+	margin-left: 4px;
+	margin-top: 4px;
 
 	text-align: center;
-	border-radius: 15px;
+	border-radius: 10px;
 	color: #ffffff;
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 10px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	font-weight: 900;
 	}
 .marker-cluster span {
-	line-height: 30px;
+	line-height: 18px;
 	}
