@@ -6,8 +6,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     //These are the bounds of the map, currently centered on the contenental US.
     var bounds = leafletBoundsHelpers.createBoundsFromArray([
-        [24.11567, -125.73004 ],//Northeast
-        [50.38407, -65.94975 ],//Southwest
+        [64.583489, -59.778114 ],//Northeast
+        [16.278214, -171.071335 ],//Southwest
     ]);
 
     //This gets the actual tiles that form the map. Currently we are using my account and access token, we probably want to change that.
@@ -59,7 +59,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                         "mongo_id":$scope.mongo_id,"date":endDate,
                         "endDate":endDate, "searchTerms":search
                         };
-        $http.post('/loc_api/get_data',payload)
+        $http.post('http://130.207.211.77/loc_api/get_data',payload)
         .success(function (response){
             $scope.search_started = true;
             if (typeof response != 'undefined'){
@@ -79,7 +79,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         center: {//This is the center of our map, which is currently over the geographical center of the continental US.
             lat: 39.82825,
             lng: -98.5795,
-            zoom: 4
+            zoom: 3
         },
         lit_or_fuzz : "Literal",
         tiles: tiles,//This is the var tiles from above.
@@ -105,6 +105,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         search_started : false,
         interval_var : 1,
         loadingStatus : false,
+        markerYears: 1,
         text: $sce.trustAsHtml(" ")//The actual text shown on the screen. Is taken in as HTML so one can highlight text. Causes problems when the documents are so messed up that they inadventernatly make html statements.
     });
 
@@ -150,7 +151,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //     return;
         // }
         $scope.rangeDate = new Date($scope.range/1);
-        $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
+        $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
             .success(function (response){
                 if (typeof response != 'undefined'){
                     $scope.allMarkers = response;
@@ -166,28 +167,69 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.setMarkers = function(){
         var keys = [];
         $scope.markers = [];
+        var valence = [];
         var mean = 0;
+        n = 0
         for(var k in $scope.allMarkers) {
             keys.push(k);
             var curr = $scope.allMarkers[k];
-            mean = mean + curr.length;
-            if($scope.eventTable[curr.lat] == null){
-                $scope.eventTable[curr.lat] = [];
-            }
-            $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
+            if (curr.length > 0){
 
+                if ($scope.markersConstant){
+                    n = n+1;
+                    mean = mean + curr.length;
+                    valence.push(curr.length);
+                }else{
+                    var val = 0;
+                    for (var ma in curr){
+                        var m = curr[ma];
+                        date = new Date(m.date).getTime();
+                        if(($scope.range - date)< (86400000 * 365.25*$scope.markerYears )){
+                            val = val + 1;
+                        }
+                    }
+                    if (val > 0){
+                        n = n+1;
+                        mean = mean + val;
+                        valence.push(val);
+                    }
+                }
+            }
         }
+        mean  = mean/n
+        std = 0
+        for (x in valence){
+            std = std + (valence[x] - mean)*(valence[x] - mean);
+        }
+        std = Math.sqrt(std/(n));
+
+
+            // if($scope.eventTable[curr.lat] == null){
+            //     $scope.eventTable[curr.lat] = [];
+            // }
+            // $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
+
+        
         $scope.timelineEvents = [];
-        mean = mean/keys.length;
         for(var k in keys){
             var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
             if (typeof marker != 'undefined'){
-                
-            
-            	var num = $scope.allMarkers[keys[k]].length
+                if ($scope.markersConstant){
+            	   var num = $scope.allMarkers[keys[k]].length
+                }else{
+                    var num = 0; 
+                    for (var ma in $scope.allMarkers[keys[k]]){
+                        var m = $scope.allMarkers[keys[k]][ma];
+                        date = new Date(m.date).getTime();
+                        if(($scope.range - date)< (86400000 * 365.25*$scope.markerYears )){
+                            num = num + 1;
+                        }
+                    }
+                }
+
             	date = new Date(marker.date).getTime();
-            	if ($scope.markersConstant || ($scope.range - date) < (86400000 * 365.25*1.5 )){
-                	var size = $scope.figure_color(num,mean);
+            	if ($scope.markersConstant || ($scope.range - date) < (86400000 * 365.25*$scope.markerYears)){
+                	var size = $scope.figure_color(num,mean,std);
                 	marker.icon =  {
                     		type: 'div',
                     		className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
@@ -201,11 +243,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
     };
 
-    $scope.figure_color = function(num,mean){
-    	if (mean - num > 2){
+    $scope.figure_color = function(num,mean,std){
+    	if (num < (mean + std)){
     		return "small";
     	}
-    	if (mean - num < -5){
+    	if (num > (mean + std*2)){
     		return "large";
     	}
     	return "medium";
@@ -244,7 +286,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         if($scope.rangeDate >= $scope.startDate && $scope.rangeDate <= $scope.endDate){
             console.log($scope.range - $scope.rangeDate.getTime());
             if($scope.range - $scope.rangeDate.getTime() < 1000*60*60*24*30*6 ){
-                console.log('Skipped');
                 return;
             }
     		$scope.range = $scope.rangeDate.getTime();

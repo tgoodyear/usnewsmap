@@ -122,13 +122,13 @@
 			<div class="row form-inline">
 				<div class="col-md-9">
 					<h3>Key</h3>
-					Colors indicate how many search hits compared to the mean
+					Colors indicate how many search hits compared to one standard deviation after the mean.
 					<div class="row form-inline">
 						<div class="col-md-3">
 							<div class="leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated" style="width: 25px; height: 25px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
 						</div>
 						<div class="col-md-9">
-							<p>Less then one standard deviation from the mean</p>
+							<p>less then one standard deviation from the mean</p>
 						</div>
 					</div>
 
@@ -157,10 +157,11 @@
 			<div ng-show="search_started">
 				<h3>Playback</h3>
             	<input type="checkbox" ng-model="markersConstant" ng-true-value="true" ng-false-value="false" id="markersConstant-checkbox" ng-change="setMarkers()"/>
-
+            		
 				<label for="markersConstant-checkbox">
                                         <span ng-show="markersConstant">Showing all hits</span>
-                                        <span ng-show="!markersConstant">Showing hits within 1 year</span>
+                                        <span ng-show="!markersConstant">Showing hits within <input type="number" name="points", ng-model="markerYears", ng-change="setMarkers()",
+   											min="1" max="100" step="1" value="1"> year</span>
                                 </label>
 				<div class="row">
 					<div class="col-md-12 form-inline">
