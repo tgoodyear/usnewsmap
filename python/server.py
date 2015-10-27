@@ -16,7 +16,7 @@ from HashList.HashList import HashList, HashTable
 logging.basicConfig(stream=sys.stderr)
 
 application = Flask(__name__)
-
+cors = CORS(application)
 
 client = pymongo.MongoClient()
 db = client["loc"]
@@ -41,7 +41,7 @@ def home():
     search = ''.join(['text:"',data['search']])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
-    numRows = 500
+    numRows = 1000
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
         '"&wt=json&rows=',str(numRows),'&indent=false','&fl=date_field,id,ed,seq,seq_num',
         shards
