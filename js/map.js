@@ -59,7 +59,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                         "mongo_id":$scope.mongo_id,"date":endDate,
                         "endDate":endDate, "searchTerms":search
                         };
-        $http.post('http://130.207.211.77/loc_api/get_data',payload)
+        $http.post('/loc_api/get_data',payload)
         .success(function (response){
             $scope.search_started = true;
             if (typeof response != 'undefined'){
@@ -151,7 +151,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //     return;
         // }
         $scope.rangeDate = new Date($scope.range/1);
-        $http.post('http://130.207.211.77/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
+        $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
             .success(function (response){
                 if (typeof response != 'undefined'){
                     $scope.allMarkers = response;
