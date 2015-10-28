@@ -156,9 +156,13 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
             .success(function (response){
                 if (typeof response != 'undefined'){
-                    $scope.allMarkers = response['data'];
-                    $scope.availableResults = response['meta']['available'];
-                    $scope.shownResults = response['meta']['shown'];
+                    if(response.hasOwnProperty('data')){
+                        $scope.allMarkers = response['data'];
+                        $scope.availableResults = response['meta']['available'];
+                        $scope.shownResults = response['meta']['shown'];
+                    } else {
+                        $scope.allMarkers = response;
+                    }
                     $scope.setMarkers();
                 }
                 else{
