@@ -10,11 +10,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         [16.278214, -171.071335 ],//Southwest
     ]);
 
-    //This gets the actual tiles that form the map. Currently we are using my account and access token, we probably want to change that.
+    //This gets the actual tiles that form the map
     var tiles = {
         url: "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
         options: {
-            // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
             attribution: '',
             maxZoom: 18,
             id: 'tgoodyear.cifypr5uo5bccuzkszn0emy7c', // API Key
@@ -25,6 +24,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
     };
     $scope.loadingStatus = false;
+    $scope.meta = {};
 
     //This function actually queries the solr database and create a list of markers.
     $scope.getMarkers = function(){
@@ -38,6 +38,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.allMarkers = [];
         $scope.eventTable = [];
         $scope.timelineEvents = [];
+        $scope.meta = {};
 
         //Get query data, self explanatory
         var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
@@ -57,13 +58,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         var payload = { "startDate":startDate,"search":$scope.search,
                         "mongo_id":$scope.mongo_id,"date":endDate,
-                        "endDate":endDate, "searchTerms":search
+                        "endDate":endDate, "searchTerms":search,"start":0
                         };
         $http.post('/loc_api/get_data',payload)
         .success(function (response){
             $scope.search_started = true;
             if (typeof response != 'undefined'){
-                $scope.allMarkers = response;
+                $scope.allMarkers = response['data'];
+                $scope.meta = response['meta'];
                 $scope.setMarkers();
                 $scope.setTimeline(_.flatten(_.values($scope.allMarkers)));
             }
@@ -154,7 +156,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
             .success(function (response){
                 if (typeof response != 'undefined'){
-                    $scope.allMarkers = response;
+                    $scope.allMarkers = response['data'];
+                    $scope.availableResults = response['meta']['available'];
+                    $scope.shownResults = response['meta']['shown'];
                     $scope.setMarkers();
                 }
                 else{
@@ -209,7 +213,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             // }
             // $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
 
-        
+
         $scope.timelineEvents = [];
         for(var k in keys){
             var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
@@ -217,7 +221,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 if ($scope.markersConstant){
             	   var num = $scope.allMarkers[keys[k]].length
                 }else{
-                    var num = 0; 
+                    var num = 0;
                     for (var ma in $scope.allMarkers[keys[k]]){
                         var m = $scope.allMarkers[keys[k]][ma];
                         date = new Date(m.date).getTime();
@@ -307,14 +311,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     $scope.getMetaData = function(mark){
         // console.log(mark);
-        $scope.timelineEvents = [];
-        for (e in $scope.allMarkers[mark.hash]){
-            var ev = $scope.allMarkers[mark.hash][e];
-            var tDate = ev.timeDate.split('/');
-            var timelineDate = tDate[2] + '-' + tDate[0] + '-' + tDate[1];
-            var timelineEvent = {"date":timelineDate,"content":timelineDate,"data":ev};
-            $scope.timelineEvents.push(timelineEvent);
-        }
+        // $scope.timelineEvents = [];
+        // for (e in $scope.allMarkers[mark.hash]){
+        //     var ev = $scope.allMarkers[mark.hash][e];
+        //     var tDate = ev.timeDate.split('/');
+        //     var timelineDate = tDate[2] + '-' + tDate[0] + '-' + tDate[1];
+        //     var timelineEvent = {"date":timelineDate,"content":timelineDate,"data":ev};
+        //     $scope.timelineEvents.push(timelineEvent);
+        // }
 
         // $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['year'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
         // .success(function (response){

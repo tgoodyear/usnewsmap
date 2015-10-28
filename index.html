@@ -106,15 +106,20 @@
 
 				<div class="row">
 					<div class="col-md-3">
-						<span ng-show="loadingStatus">Loading</span>
+						<span ng-show="loadingStatus"><i class="fa fa-spinner fa-spin"></i></span>
 					</div>
 					<div class="col-md-9">
-						<input type="submit" id="submit" value="Search" />
+						<input type="submit" id="submit" class="btn btn-default" value="Search" />
 
                                 <input type="checkbox" ng-model="lit_or_fuzz" ng-true-value="'Fuzzy'" ng-false-value="'Literal'">
                         <label>{{lit_or_fuzz}} </label>
                 	</div>
-
+				</div>
+				<div class="row">
+					<div class="col-md-12" ng-show="meta.hasOwnProperty('rows')">
+						<br/>
+						Showing {{meta['rows'] | number}} of {{meta['available'] | number}} results
+					</div>
 				</div>
 			</form>
 
@@ -157,7 +162,7 @@
 			<div ng-show="search_started">
 				<h3>Playback</h3>
             	<input type="checkbox" ng-model="markersConstant" ng-true-value="true" ng-false-value="false" id="markersConstant-checkbox" ng-change="setMarkers()"/>
-            		
+
 				<label for="markersConstant-checkbox">
                                         <span ng-show="markersConstant">Showing all hits</span>
                                         <span ng-show="!markersConstant">Showing hits within <input type="number" name="points", ng-model="markerYears", ng-change="setMarkers()",
@@ -188,13 +193,13 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-12">
+		<div class="col-md-12" ng-show="timelineEvents.length > 0">
+			<h3>Timeline of Results</h3>
 			<horizontal-timeline
 				start-date="{{startDate.toLocaleDateString()}}"
 				curr-date="{{rangeDate}}"
 				end-date="{{endDate.toLocaleDateString()}}"
-				events="timelineEvents"
-				ng-show="timelineEvents.length > 0">
+				events="timelineEvents">
 			</horizontal-timeline>
 		</div>
 	</div>

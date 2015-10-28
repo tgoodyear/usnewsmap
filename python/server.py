@@ -42,12 +42,13 @@ def home():
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
     numRows = 1000
+    pagination = '&rows=' + str(numRows) + '&start=' + str(data['start'])
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
-        '"&wt=json&rows=',str(numRows),'&indent=false','&fl=date_field,id,ed,seq,seq_num',
+        '"&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination,
         shards
         ]
     url = ''.join(url)
-    print url
+    # print url
 
     time = data['date']
     r = requests.get(url)
@@ -80,7 +81,13 @@ def home():
         h_list.add_node(mark)
     h_list.update(time)
     insert_to_mongo(h_list)
-    return h_list.get_hash_json()#json.dumps(marks)
+    meta = {    "available":data['response']['numFound'],
+                "start":data['responseHeader']['params']['start'],
+                "rows":data['responseHeader']['params']['rows'],
+                # "q":url
+            }
+    retObj = {"data":json.loads(h_list.get_hash_json()),"meta":meta}
+    return json.dumps(retObj) #json.dumps(marks)
 
 def insert_to_mongo(h_list):
     coll.update({"id": h_list.get_id()},h_list.get_mongo_format(),True)
