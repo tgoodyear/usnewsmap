@@ -22,6 +22,7 @@ client = pymongo.MongoClient()
 db = client["loc"]
 coll = db["users"]
 coll2 = db["locations"]
+logCollection = db["log"]
 
 ######
 #There is a bug with flask, python, and HashList where if you click the search button too
@@ -38,7 +39,8 @@ def home():
     data = json.loads(request.data)
     h_list = HashList(id=data['mongo_id'])
 
-    search = ''.join(['text:"',data['search']])
+    searchString = data['search']
+    search = ''.join(['text:"',searchString])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
     numRows = 1500
@@ -61,6 +63,9 @@ def home():
                 # "q":url
             }
     retObj = {"data":[],"meta":meta}
+
+    log_metadata(meta,searchString,url)
+
     if meta['available'] == 0:
         return json.dumps(retObj)
     for d in data['response']['docs']:
@@ -96,6 +101,19 @@ def home():
 def insert_to_mongo(h_list):
     coll.update({"id": h_list.get_id()},h_list.get_mongo_format(),True)
     data = coll.find_one({"id": h_list.get_id()})
+
+def log_metadata(meta,search,url):
+    obj = meta.copy()
+    obj['search'] = search
+    obj['solrURL'] = url
+    obj['ip'] = request.remote_addr
+    obj['cookies'] = request.cookies
+    obj['requestedURL'] = request.url
+    obj['isXHR'] = request.is_xhr
+    obj['requestData'] = request.get_json()
+    obj['dateCreated'] = datetime.datetime.utcnow()
+    obj.update(request.headers)
+    logCollection.insert(obj)
 
 
 def get_from_mongo(id):

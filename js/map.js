@@ -295,15 +295,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     //Function that updates the slider when the user manually changes the current date, then filters.
     $scope.updateRange = function(){
-        if($scope.rangeDate >= $scope.startDate && $scope.rangeDate <= $scope.endDate){
-            // console.log($scope.range - $scope.rangeDate.getTime());
-            if($scope.range - $scope.rangeDate.getTime() < 1000*60*60*24*30*6 ){
-                return;
-            }
-    		$scope.range = $scope.rangeDate.getTime();
-    		$scope.filter(true);
-        }
-
+		$scope.range = $scope.rangeDate.getTime();
+		$scope.filter(true);
     }
 
     $scope.setTimeline = function(marks){
