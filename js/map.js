@@ -78,7 +78,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     //All of the $scope variables
     angular.extend($scope, {
-        mongo_id : Math.floor((Math.random() * 100000) + 1),
+        mongo_id : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}),
         search : "",//Our Search term
         maxbounds: bounds,//THe bounds of the map, see the var bounds above.
         center: {//This is the center of our map, which is currently over the geographical center of the continental US.

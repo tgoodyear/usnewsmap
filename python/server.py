@@ -38,7 +38,7 @@ def home():
     data = json.loads(request.data)
     h_list = HashList(id=data['mongo_id'])
 
-    search = ''.join(['text:"',data['search']])
+    search = ''.join(['text:"',data['search'].replace(' ','+')])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
     numRows = 1500

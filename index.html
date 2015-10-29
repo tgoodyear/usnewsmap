@@ -122,7 +122,7 @@
 						<input type="submit" id="submit" class="btn btn-default" value="Search" />
                 	</div>
 				</div>
-				<div class="row">
+				<div class="row" ng-show="false">
 					<div class="col-md-12" ng-show="meta.hasOwnProperty('rows')">
 						<br/>
 						Showing {{meta['rows'] | number}} of {{meta['available'] | number}} results
@@ -177,12 +177,12 @@
 				<div class="btn-group btn-group-sm" data-toggle="buttons">
 					<label class="btn btn-info" ng-class="{active:markersConstant}">
 						<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="true" autocomplete="off" checked ng-change="setMarkers()" />
-						Show all hits
+						Show Cumulative Hits
 					</label>
 					<label class="btn btn-info" ng-class="{active:!markersConstant}">
 						<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="false" autocomplete="off" ng-change="setMarkers()" />
-						Show hits within {{markerYears}}
-						<ng-pluralize count="markerYears" when="{'1': 'year', 'other': 'years'}"></ng-pluralize>
+						Show Hits Within {{markerYears}}
+						<ng-pluralize count="markerYears" when="{'1': 'Year', 'other': 'Years'}"></ng-pluralize>
 					</label>
 				</div>
 
