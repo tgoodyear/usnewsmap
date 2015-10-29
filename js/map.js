@@ -65,10 +65,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                         };
         $http.post('/loc_api/get_data',payload)
         .success(function (response){
-            $scope.search_started = true;
             if (typeof response != 'undefined'){
                 $scope.allMarkers = response['data'];
                 $scope.meta = response['meta'];
+                $scope.resultsShowing = Math.min(response['meta']['available'],response['meta']['rows']);
+                $scope.search_started = $scope.resultsShowing > 0;
                 $scope.setMarkers();
                 $scope.setTimeline(_.flatten(_.values($scope.allMarkers)));
             }

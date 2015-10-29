@@ -38,13 +38,14 @@ def home():
     data = json.loads(request.data)
     h_list = HashList(id=data['mongo_id'])
 
-    search = ''.join(['text:"',data['search'].replace(' ','+')])
+    search = ''.join(['text:"',data['search']])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
     numRows = 1500
     pagination = '&rows=' + str(numRows) + '&start=' + str(data['start'])
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
         '"&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
+        ,'&q.op=AND'
         #,shards
         ]
     url = ''.join(url)
@@ -53,7 +54,15 @@ def home():
     time = data['date']
     r = requests.get(url)
     data = r.json()
-#    print data
+    # print data
+    meta = {    "available":data['response']['numFound'],
+                "start":data['responseHeader']['params']['start'],
+                "rows":data['responseHeader']['params']['rows'],
+                # "q":url
+            }
+    retObj = {"data":[],"meta":meta}
+    if meta['available'] == 0:
+        return json.dumps(retObj)
     for d in data['response']['docs']:
         loc_data = coll2.find_one({"sn":d['seq_num']})
         dats = map(int, d['date_field'].split("T")[0].split("-"))
@@ -81,12 +90,7 @@ def home():
         h_list.add_node(mark)
     h_list.update(time)
     insert_to_mongo(h_list)
-    meta = {    "available":data['response']['numFound'],
-                "start":data['responseHeader']['params']['start'],
-                "rows":data['responseHeader']['params']['rows'],
-                # "q":url
-            }
-    retObj = {"data":json.loads(h_list.get_hash_json()),"meta":meta}
+    retObj['data'] = json.loads(h_list.get_hash_json())
     return json.dumps(retObj) #json.dumps(marks)
 
 def insert_to_mongo(h_list):
@@ -109,7 +113,7 @@ def news_meta():
             data['day'] = '0' + str(data['day'])
         if len(str(data['month'])) == 1:
             data['month'] = '0' + str(data['month'])
-        print data
+        # print data
         r = requests.get("http://chroniclingamerica.loc.gov/lccn/"+ str(data['seq_num']) + "/" + str(data['year']) + "-" + str(data['month']) + "-" + str(data['day']) + "/" + data['ed'] + ".json")
         return json.dumps(r.json())
     else:
