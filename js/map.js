@@ -25,6 +25,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     };
     $scope.loadingStatus = false;
     $scope.meta = {};
+    $scope.markerKeyValues = [3,12,50];
+    $scope.selectedCity = false;
 
     //This function actually queries the solr database and create a list of markers.
     $scope.getMarkers = function(){
@@ -34,6 +36,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
         //We want to clear any visible markers when doing a new search.
         $scope.loadingStatus = true;
+        $scope.selectedCity = false;
         $scope.markers = [];
         $scope.allMarkers = [];
         $scope.eventTable = [];
@@ -182,7 +185,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             keys.push(k);
             var curr = $scope.allMarkers[k];
             if (curr.length > 0){
-
                 if ($scope.markersConstant){
                     n = n+1;
                     mean = mean + curr.length;
@@ -210,20 +212,21 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             std = std + (valence[x] - mean)*(valence[x] - mean);
         }
         std = Math.sqrt(std/(n));
+        $scope.markerKeyValues = [Math.floor(mean+std),Math.floor(mean+std*1.5),Math.floor(mean+std*2)];
 
 
-            // if($scope.eventTable[curr.lat] == null){
-            //     $scope.eventTable[curr.lat] = [];
-            // }
-            // $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
+        // if($scope.eventTable[curr.lat] == null){
+        //     $scope.eventTable[curr.lat] = [];
+        // }
+        // $scope.eventTable[curr.lat].push({"date":curr.timeDate,"content":"<p>"+curr.lat+"</p>","id":curr.nid, "search":curr.search, "url": "http://chroniclingamerica.loc.gov/lccn/"+curr.seq_num+"/"+curr.year+"-"+curr.month+"-"+curr.day+"/"+curr.ed+"/"+curr.seq+".pdf"})
 
 
-        $scope.timelineEvents = [];
+        // $scope.timelineEvents = [];
         for(var k in keys){
             var marker = $scope.allMarkers[keys[k]].slice(-1)[0];
             if (typeof marker != 'undefined'){
                 if ($scope.markersConstant){
-            	   var num = $scope.allMarkers[keys[k]].length
+                    var num = $scope.allMarkers[keys[k]].length
                 }else{
                     var num = 0;
                     for (var ma in $scope.allMarkers[keys[k]]){
@@ -235,18 +238,18 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     }
                 }
 
-            	date = new Date(marker.date).getTime();
-            	if ($scope.markersConstant || ($scope.range - date) < (86400000 * 365.25*$scope.markerYears)){
-                	var size = $scope.figure_color(num,mean,std);
-                	marker.icon =  {
-                    		type: 'div',
-                    		className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
-                    		iconSize: [25,25],
-                    		html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
-                    		popupAnchor:  [0, 0]
-               		};
-                	$scope.markers.push(marker);
-		}
+                date = new Date(marker.date).getTime();
+                if ($scope.markersConstant || ($scope.range - date) < (86400000 * 365.25*$scope.markerYears)){
+                    var size = $scope.figure_color(num,mean,std);
+                    marker.icon =  {
+                        type: 'div',
+                        className:"leaflet-marker-icon marker-cluster marker-cluster-"+size+" leaflet-zoom-animated leaflet-clickable",
+                        iconSize: [25,25],
+                        html: '<div class = "marker-cluster"><span>'+num+'</span></div>',
+                        popupAnchor:  [0, 0]
+                    };
+                    $scope.markers.push(marker);
+                }
             }
         }
     };
@@ -292,7 +295,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     //Function that updates the slider when the user manually changes the current date, then filters.
     $scope.updateRange = function(){
         if($scope.rangeDate >= $scope.startDate && $scope.rangeDate <= $scope.endDate){
-            console.log($scope.range - $scope.rangeDate.getTime());
+            // console.log($scope.range - $scope.rangeDate.getTime());
             if($scope.range - $scope.rangeDate.getTime() < 1000*60*60*24*30*6 ){
                 return;
             }
@@ -314,6 +317,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     }
 
     $scope.getMetaData = function(mark){
+        $scope.selectedCity = mark.hash;
         // console.log(mark);
         // $scope.timelineEvents = [];
         // for (e in $scope.allMarkers[mark.hash]){

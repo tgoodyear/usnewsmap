@@ -41,7 +41,7 @@ def home():
     search = ''.join(['text:"',data['search']])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
-    numRows = 2500
+    numRows = 1500
     pagination = '&rows=' + str(numRows) + '&start=' + str(data['start'])
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
         '"&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination

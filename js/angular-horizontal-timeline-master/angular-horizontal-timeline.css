@@ -186,3 +186,12 @@
 	border-width: 9px;
 	margin-left: -9px;
 }
+
+
+.marker-key {
+	width: 25px;
+	height: 25px;
+	position: relative;
+	padding-top: 1px;
+	z-index: 202;
+}

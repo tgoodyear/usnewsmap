@@ -52,7 +52,8 @@ var template =
 '</div>'+
 '<div class="row"><div class="col-md-12">'+
 	'<div ng-model="eventText" ng-bind-html="eventText"></div>'+
-'</div></div>';
+'</div></div>'
+;
 
 angular.module('angular-horizontal-timeline', ['ngSanitize'])
 
@@ -74,18 +75,18 @@ angular.module('angular-horizontal-timeline', ['ngSanitize'])
 
 		$scope.eventClicked = function(data, search){
 			// console.log(data);
-			var eventText = '<h4>'+ data.data.city +', '+ data.data.state +'</h4>';
-			var dateStr = new Date(data.date).toISOString().substr(0, 10);
-			var urlData = [data.data.seq_num,dateStr,data.data.ed,data.data.seq];
-	        var url = "http://chroniclingamerica.loc.gov/lccn/"+ urlData.join('/') + ".json";
-			$scope.eventText = '<h4>Loading...</h4>';
-			$http.get(url)
-			.success(function (response){
+			// var eventText = '<h4>'+ data.data.city +', '+ data.data.state +'</h4>';
+			// var dateStr = new Date(data.date).toISOString().substr(0, 10);
+			// var urlData = [data.data.seq_num,dateStr,data.data.ed,data.data.seq];
+	        // var url = "http://chroniclingamerica.loc.gov/lccn/"+ urlData.join('/') + ".json";
+			$scope.eventText = '';// '<h4>Loading...</h4>';
+			// $http.get(url)
+			// .success(function (response){
 				// console.log(response);
-				eventText += '<a href="'+response.pdf+'" target="_blank">'+response.title.name+'</a>';
-				$scope.eventText = $sce.trustAsHtml(eventText);
-				$scope.eventTextShown = true;
-	        });
+				// eventText += '<a href="'+response.pdf+'" target="_blank">'+response.title.name+'</a>';
+				// $scope.eventText = $sce.trustAsHtml(eventText);
+				// $scope.eventTextShown = true;
+	        // });
 	    };
 
 		$scope.getPosition = function(date){

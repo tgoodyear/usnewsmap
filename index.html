@@ -6,7 +6,6 @@
 		<link rel="stylesheet" type="text/css" href="js/leaflet/leaflet.css" />
 		<link rel="stylesheet" type="text/css" href="js/ngRangeSlider-master/example/css/Default.css" />
 		<link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css" />
-		<link rel="stylesheet" href="bootstrap/dist/css/bootstrap-theme.min.css" />
 		<link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
         <link rel="stylesheet" href="js/leaflet/Leaflet.markercluster/dist/MarkerCluster.css" />
 		<link rel="stylesheet" href="js/angular-horizontal-timeline-master/angular-horizontal-timeline.css">
@@ -37,7 +36,7 @@
 	<div class="row">
 
 		<!-- Map, header -->
-		<div class="col-lg-10 col-md-8">
+		<div class="col-lg-9 col-md-7">
 			<div class="row" style="padding: 5px 0 20px 0;">
 				<div class="col-lg-4 col-md-3" style="height:100px;">
 					<a href="http://www.gtri.gatech.edu/icl" target="_blank">
@@ -66,7 +65,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-lg-2 col-md-4" ng-cloak>
+		<div class="col-lg-3 col-md-5" ng-cloak>
 			<form ng-submit="getMarkers()">
 				<h3>Search </h3>
 				<!-- Search Term -->
@@ -110,10 +109,17 @@
 						<span ng-show="loadingStatus"><i class="fa fa-spinner fa-spin"></i></span>
 					</div>
 					<div class="col-md-9">
+						<div class="btn-group btn-group-sm" data-toggle="buttons">
+							<label class="btn btn-info" ng-class="{active:lit_or_fuzz=='Literal'}">
+                            	<input type="radio" name="searchType" ng-model="lit_or_fuzz" value="Literal" autocomplete="off" checked />
+								Literal
+							</label>
+							<label class="btn btn-info" ng-class="{active:lit_or_fuzz=='Fuzzy'}">
+                            	<input type="radio" name="searchType" ng-model="lit_or_fuzz" value="Fuzzy" autocomplete="off" />
+								Fuzzy
+							</label>
+						</div>
 						<input type="submit" id="submit" class="btn btn-default" value="Search" />
-
-                                <input type="checkbox" ng-model="lit_or_fuzz" ng-true-value="'Fuzzy'" ng-false-value="'Literal'">
-                        <label>{{lit_or_fuzz}} </label>
                 	</div>
 				</div>
 				<div class="row">
@@ -131,7 +137,9 @@
 					Colors indicate how many search hits compared to one standard deviation after the mean.
 					<div class="row form-inline">
 						<div class="col-md-3">
-							<div class="leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated" style="width: 25px; height: 25px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>3</span></div></div>
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-small leaflet-zoom-animated marker-key">
+								<div class="marker-cluster"><span>{{markerKeyValues[0]}}</span></div>
+							</div>
 						</div>
 						<div class="col-md-9">
 							<p>less then one standard deviation from the mean</p>
@@ -140,7 +148,9 @@
 
 					<div class="row form-inline">
 						<div class="col-md-3">
-							<div class="leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated" style="width: 25px; height: 25px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>12</span></div></div>
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-medium leaflet-zoom-animated marker-key">
+								<div class="marker-cluster"><span>{{markerKeyValues[1]}}</span></div>
+							</div>
 						</div>
 						<div class="col-md-9">
 							<p>Within one standard deviation from the mean</p>
@@ -149,7 +159,9 @@
 
 					<div class="row form-inline">
 						<div class="col-md-3">
-							<div class="leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated" style="width: 25px; height: 25px; position:relative; padding-top: 1px;  z-index: 202;"><div class="marker-cluster"><span>50</span></div></div>
+							<div class="leaflet-marker-icon marker-cluster marker-cluster-large leaflet-zoom-animated marker-key">
+								<div class="marker-cluster"><span>{{markerKeyValues[2]}}</span></div>
+							</div>
 						</div>
 						<div class="col-md-9">
 							<p>More than one standard deviation from the mean</p>
@@ -162,18 +174,30 @@
 
 			<div ng-show="search_started">
 				<h3>Playback</h3>
-            	<input type="checkbox" ng-model="markersConstant" ng-true-value="true" ng-false-value="false" id="markersConstant-checkbox" ng-change="setMarkers()"/>
-
-				<label for="markersConstant-checkbox">
-                        <span ng-show="markersConstant">Showing all hits</span>
-                        <span ng-show="!markersConstant">Showing hits within
-						<input type="number" name="points" ng-model="markerYears" ng-change="setMarkers()" min="1" max="100" step="1" value="1">
-
+				<div class="btn-group btn-group-sm" data-toggle="buttons">
+					<label class="btn btn-info" ng-class="{active:markersConstant}">
+						<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="true" autocomplete="off" checked ng-change="setMarkers()" />
+						Show all hits
+					</label>
+					<label class="btn btn-info" ng-class="{active:!markersConstant}">
+						<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="false" autocomplete="off" ng-change="setMarkers()" />
+						Show hits within {{markerYears}}
 						<ng-pluralize count="markerYears" when="{'1': 'year', 'other': 'years'}"></ng-pluralize>
-					</span>
-                </label>
+					</label>
+				</div>
+
 				<div class="row">
 					<div class="col-md-12 form-inline">
+						<div class="row form-inline" ng-show="!markersConstant">
+							<div class="col-md-3">
+								<label for="markerYears-input">
+									Years
+								</label>
+							</div>
+							<div class="col-md-9">
+								 <input id="markerYears-input" class="form-control" type="number" name="points" ng-model="markerYears" ng-change="setMarkers()" min="1" max="100" step="1" value="10" />
+							</div>
+						</div>
 						<div class="row form-inline">
 							<div class="col-md-3">
 								<label for="playback_date">
@@ -188,7 +212,7 @@
 				</div>
 				<div class="row">
 					<div class="col-md-12 form-inline">
-						<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-change="filter()" />
+						<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-change="filter()" step="31536000000" />
 						<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
 						<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
 					</div>
@@ -201,10 +225,19 @@
 			<h3>Timeline of Results</h3>
 			<horizontal-timeline
 				start-date="{{startDate.toLocaleDateString()}}"
-				curr-date="{{rangeDate}}"
 				end-date="{{endDate.toLocaleDateString()}}"
 				events="timelineEvents">
 			</horizontal-timeline>
+		</div>
+	</div>
+	<div class="row" ng-cloak ng-show="selectedCity != false">
+		<div class="col-md-12">
+			<h4>{{selectedCity}}</h4>
+			<ul>
+				<li ng-repeat="e in allMarkers[selectedCity]">
+					<a href="http://chroniclingamerica.loc.gov/lccn/{{e.seq_num}}/{{e.date}}/{{e.ed}}/{{e.seq}}.pdf" target="_blank">{{e.date}}</a>
+				</li>
+			</ul>
 		</div>
 	</div>
 
