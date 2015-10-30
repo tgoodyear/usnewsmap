@@ -1,7 +1,7 @@
 //The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
 var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline']);
-app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents",
-                function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents) {
+app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents", "$window",
+                function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents, $window) {
 
 
     //These are the bounds of the map, currently centered on the contenental US.
@@ -23,10 +23,12 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             noWrap: true
         }
     };
+    $scope.errorStatus = false;
     $scope.loadingStatus = false;
     $scope.meta = {};
     $scope.markerKeyValues = [3,12,50];
     $scope.selectedCity = false;
+    $scope.userSet = false;
 
     //This function actually queries the solr database and create a list of markers.
     $scope.getMarkers = function(){
@@ -63,19 +65,35 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                         "mongo_id":$scope.mongo_id,"date":endDate,
                         "endDate":endDate, "searchTerms":search,"start":0
                         };
+	var startTime = +new Date();
         $http.post('/loc_api/get_data',payload)
         .success(function (response){
             if (typeof response != 'undefined'){
+		var respTime = +new Date();
                 $scope.allMarkers = response['data'];
                 $scope.meta = response['meta'];
                 $scope.resultsShowing = Math.min(response['meta']['available'],response['meta']['rows']);
                 $scope.search_started = $scope.resultsShowing > 0;
-                $scope.setMarkers();
+                if($scope.resultsShowing > 0){
+                    $scope.setMarkers();
+                } else {
+                    $scope.markers = [];
+                    $scope.allMarkers = [];
+                    $scope.timelineEvents = [];
+                    $scope.markerKeyValues = [3,12,50];
+                }
                 $scope.setTimeline(_.flatten(_.values($scope.allMarkers)));
+                $window.ga('send', 'event','Map','searched',$scope.search,$scope.resultsShowing);
+		$window.ga('send','timing','Search',$scope.search,respTime - startTime);
             }
+            $scope.errorStatus = false;
             $scope.loadingStatus = false;
         })
-    }
+        .error(function(response){
+            $scope.loadingStatus = false;
+            $scope.errorStatus = true;
+        });
+    };
 
     //All of the $scope variables
     angular.extend($scope, {
@@ -115,6 +133,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         text: $sce.trustAsHtml(" ")//The actual text shown on the screen. Is taken in as HTML so one can highlight text. Causes problems when the documents are so messed up that they inadventernatly make html statements.
     });
 
+    if(!$scope.userSet){
+        $window.ga('set', '&uid', $scope.mongo_id);
+        $scope.userSet = true;
+    }
 
     //Event listener for interacting with markers
     var markerEvents = leafletEvents.getAvailableMarkerEvents();
@@ -136,8 +158,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     }
 
     $scope.turnOn = function(){
- 	$scope.rangeDate = new Date($scope.range/1);
+        $scope.rangeDate = new Date($scope.range/1);
         $scope.isOn = !$scope.isOn;//Flips $scope.isOnx to its inverse
+        $window.ga('send', 'event','Map','playback','sliderMoved');
     }
     //This function is what figures out which markers to show on the map. Uses $scope.markers as a stack. Since the markers in $scope.allMarkers are already
     //sorted, as we push from the beginning of allMarkers to markers, we guarentee that the oldest markes will be at the bottom of the stack and the "youngest"
@@ -173,7 +196,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                     $scope.allMarkers = [];
                     $scope.markers = [];
                 }
-            })
+            });
     };
 
     $scope.setMarkers = function(){
@@ -214,6 +237,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
         std = Math.sqrt(std/(n));
         $scope.markerKeyValues = [Math.floor(mean+std),Math.floor(mean+std*1.5),Math.floor(mean+std*2)];
+        if(isNaN($scope.markerKeyValues[0])){
+            $scope.markerKeyValues = [3,12,50];            
+        }
 
 
         // if($scope.eventTable[curr.lat] == null){
@@ -272,6 +298,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             $scope.interval_var = $interval($scope.playRange,400);
             // console.log($scope.interval_var["$$intervalId"]);
         }
+        $window.ga('send', 'event','Map','playback',$scope.isPlaying ? 'play' : 'pause');
     }
 
 
@@ -312,6 +339,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     $scope.getMetaData = function(mark){
         $scope.selectedCity = mark.hash;
+        $window.ga('send', 'event','Map','markerClicked',$scope.selectedCity);
         // console.log(mark);
         // $scope.timelineEvents = [];
         // for (e in $scope.allMarkers[mark.hash]){
@@ -327,6 +355,12 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //
         // });
 
+    };
+
+    $scope.clickedPaper = function(e){
+        // console.log(e);
+        var paperDesc = [e.seq_num,e.date,e.ed,e.seq,e.hash,e.search];
+        $window.ga('send', 'event','Map','paperClicked',paperDesc.join(' '));
     };
 
 }]);

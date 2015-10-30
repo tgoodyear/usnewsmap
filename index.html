@@ -131,6 +131,13 @@
 						<br/>
 						No results found. Please try a broader search term or time period.
 					</div>
+					<div class="col-md-12" ng-show="errorStatus">
+						<br/>
+						<div class="alert alert-warning">
+							<h4>We Apologize</h4>
+							An error has occured while searching. Please try again and send an email to usnewsmap@gtri.gatech.edu if the problem persists.
+						</div>
+					</div>
 				</div>
 			</form>
 
@@ -202,7 +209,7 @@
 								 <input id="markerYears-input" class="form-control" type="number" name="points" ng-model="markerYears" ng-change="setMarkers()" min="1" max="100" step="1" value="10" />
 							</div>
 						</div>
-						<div class="row form-inline">
+						<div class="row form-inline" style="margin-top:5px;">
 							<div class="col-md-3">
 								<label for="playback_date">
 									Playback Date
@@ -239,7 +246,9 @@
 			<h4>{{selectedCity}}</h4>
 			<ul>
 				<li ng-repeat="e in allMarkers[selectedCity]">
-					<a href="http://chroniclingamerica.loc.gov/lccn/{{e.seq_num}}/{{e.date}}/{{e.ed}}/{{e.seq}}.pdf" target="_blank">{{e.date}}</a>
+					<a href="http://chroniclingamerica.loc.gov/lccn/{{e.seq_num}}/{{e.date}}/{{e.ed}}/{{e.seq}}.pdf" target="_blank" ng-click="clickedPaper(e)">
+						{{e.date}}
+					</a>
 				</li>
 			</ul>
 		</div>

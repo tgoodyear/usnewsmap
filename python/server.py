@@ -48,7 +48,7 @@ def home():
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
         '"&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
         ,'&q.op=AND'
-        #,shards
+        ,shards
         ]
     url = ''.join(url)
     # print url
