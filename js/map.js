@@ -281,15 +281,25 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
     };
 
-    $scope.figure_color = function(num,mean,std){
-    	if (num < (mean + std)){
-    		return "small";
-    	}
-    	if (num > (mean + std*2)){
-    		return "large";
-    	}
-    	return "medium";
+  $scope.figure_color = function(num,mean,std){
+        if (num < (mean)){
+            return "tiny";
+        }
+        if (num < (mean+ std/2)){
+            return "small";
+        }
+        if (num < (mean+ std)){
+            return "medium";
+        }
+        if (num < (mean+ std*1.5)){
+            return "large";
+        }
+        if (num > (mean + std*2)){
+            return "huge";
+        }
+        return "medium";
     }
+
 
     //This function is called when you press the play/pause button.
     $scope.play = function(){
