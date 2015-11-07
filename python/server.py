@@ -35,7 +35,7 @@ logCollection = db["log"]
 ######
 
 @application.route('/get_data',methods=['GET', 'POST'])
-def initialSearch():
+def docSearch():
     marks = []
     flaskData = json.loads(request.data)
     user_id = uuid.UUID(flaskData['user_id'])
@@ -45,7 +45,7 @@ def initialSearch():
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     sort = ''.join(['&sort=random_',str(user_id.int),'%20desc'])
     dateSearch = ''.join(['date_field:[',flaskData['startDate'],'+TO+',flaskData['endDate'],']+'])
-    numRows = 100
+    numRows = 1500
     pagination = '&rows=' + str(numRows) + '&start=' + str(flaskData['start'])
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
         '&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
@@ -70,23 +70,40 @@ def initialSearch():
 
     if meta['available'] == 0:
         return json.dumps(retObj)
-    for d in solrResp['response']['docs']:
+
+    resultsList = solrResp['response']['docs']
+    if flaskData['start'] > 0:
+        existingData = coll.find_one({"id":flaskData['user_id']})
+        resultsList = existingData['linked_list'] + resultsList
+    for d in resultsList:
         loc_data = coll2.find_one({"sn":d['seq_num']})
-        dats = map(int, d['date_field'].split("T")[0].split("-"))
-        date = datetime.date(dats[0],dats[1],dats[2]).isoformat()
+        if 'date_field' in d:
+            dats = map(int, d['date_field'].split("T")[0].split("-"))
+            date = datetime.date(dats[0],dats[1],dats[2]).isoformat()
+            year = dats[0]
+            month = dats[1]
+            day = dats[2]
+            idField = d['id']
+        else:
+            year = d['year']
+            month = d['month']
+            day = d['day']
+            date = d['date']
+            idField = d['nid']
+
         mark = {'lat':float(loc_data['lat']),
             'lng':float(loc_data['long']),
-            'timeDate':str(dats[1])+'/'+str(dats[2])+'/'+str(dats[0]),
+            'timeDate':str(month)+'/'+str(day)+'/'+str(year),
             'message':loc_data['city']+','+loc_data['state'],
             'city':loc_data['city'],
             'state':loc_data['state'],
-            'year':dats[0],
-            'month':dats[1],
-            'day':dats[2],
+            'year':year,
+            'month':month,
+            'day':day,
             'ed':d['ed'],
             'seq':d['seq'],
             'seq_num':d['seq_num'],
-            'nid':d['id'],
+            'nid':idField,
             'date':date,
             'hash':loc_data['city']+loc_data['state'],
             'search':search

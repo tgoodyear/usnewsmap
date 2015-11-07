@@ -1,15 +1,15 @@
 //The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
 var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline']);
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents", "$window",
-    function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents, $window) {
+                function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents, $window) {
 
 
     //These are the bounds of the map, currently centered on the contenental US.
     var bounds = leafletBoundsHelpers.createBoundsFromArray([
-//        [64.583489, -59.778114 ],//Northeast
-//        [16.278214, -171.071335 ],//Southwest
-    	[50.142969 ,-59.608484],
-    	[23.687046,-129.118134]
+//        [64.583489, -59.778114 ],//Northeast  Including Alaska
+//        [16.278214, -171.071335 ],//Southwest Including Hawaii
+    	[50.142969 ,-59.608484],   // Northeast
+    	[23.687046,-129.118134]    // Southwest
     ]);
 
     //This gets the actual tiles that form the map
@@ -25,82 +25,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             noWrap: false
         }
     };
-    $scope.errorStatus = false;
-    $scope.loadingStatus = false;
-    $scope.meta = {};
-    $scope.markerKeyValues = [3,12,50];
-    $scope.selectedCity = false;
-    $scope.userSet = false;
-
-    //This function actually queries the solr database and create a list of markers.
-    $scope.getMarkers = function(){
-        if(!$scope.search){
-            return false;
-        }
-
-        //We want to clear any visible markers when doing a new search.
-        $scope.loadingStatus = true;
-        $scope.selectedCity = false;
-        $scope.markers = [];
-        $scope.allMarkers = [];
-        $scope.eventTable = [];
-        $scope.timelineEvents = [];
-        $scope.meta = {};
-
-        //Get query data, self explanatory
-        var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
-        var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
-
-        var search = $scope.search.split(" ");
-        if ($scope.lit_or_fuzz == "Fuzzy"){
-            for (pos in search){
-                search[pos] = search[pos] + "~"
-            }
-            search = '%7B!complexphrase+inOrder%3Dtrue%7Dtext%3A"'+search.join("+")+'"';
-
-        } else{
-            search = search.join("+");
-        }
-
-        //On successful get call we go through the responses, which solr gives back as a json object and parse it.
-        var payload = { "startDate":startDate,"search":$scope.search,
-                        "user_id":$scope.user_id,"date":endDate,
-                        "endDate":endDate, "searchTerms":search,"start":0
-                        };
-        
-	    var startTime = +new Date();
-        $http.post('/loc_api/get_data',payload)
-        .success(function (response){
-            if (typeof response != 'undefined'){
-		var respTime = +new Date();
-                $scope.allMarkers = response['data'];
-                $scope.meta = response['meta'];
-                $scope.resultsShowing = Math.min(response['meta']['available'],response['meta']['rows']);
-                $scope.search_started = $scope.resultsShowing > 0;
-                if($scope.resultsShowing > 0){
-                    $scope.setMarkers();
-                } else {
-                    $scope.markers = [];
-                    $scope.allMarkers = [];
-                    $scope.timelineEvents = [];
-                    $scope.markerKeyValues = [3,12,50];
-                }
-                $scope.setTimeline(_.flatten(_.values($scope.allMarkers)));
-                $window.ga('send', 'event','Map','searched',$scope.search,$scope.resultsShowing);
-		$window.ga('send','timing','Search',$scope.search,respTime - startTime);
-            }
-            $scope.errorStatus = false;
-            $scope.loadingStatus = false;
-        })
-        .error(function(response){
-            $scope.loadingStatus = false;
-            $scope.errorStatus = true;
-        });
-    };
 
     //All of the $scope variables
     angular.extend($scope, {
         user_id : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}),
+        ack : false,
         search : "",//Our Search term
         maxbounds: bounds,//THe bounds of the map, see the var bounds above.
         center: {//This is the center of our map, which is currently over the geographical center of the continental US.
@@ -133,7 +62,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         interval_var : 1,
         loadingStatus : false,
         markerYears: 1,
-        text: $sce.trustAsHtml(" ")//The actual text shown on the screen. Is taken in as HTML so one can highlight text. Causes problems when the documents are so messed up that they inadventernatly make html statements.
+        resultStart: 0,
+        resultsShowing : 0,
+        errorStatus : false,
+        loadingStatus : false,
+        meta : {},
+        markerKeyValues : [3,12,50],
+        selectedCity : false,
+        userSet : false
     });
 
     if(!$scope.userSet){
@@ -154,6 +90,79 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         });
     }
 
+    $scope.newSearch = function(){
+        if(!$scope.search){
+            return false;
+        }
+        $scope.resultsShowing = 0;
+        $scope.startDate_q  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
+        $scope.endDate_q = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
+
+        var search = $scope.search.split(" ");
+        if ($scope.lit_or_fuzz == "Fuzzy"){
+            for (pos in search){
+                search[pos] = search[pos] + "~"
+            }
+            search = '%7B!complexphrase+inOrder%3Dtrue%7Dtext%3A"'+search.join("+")+'"';
+        } else{
+            search = search.join("+");
+        }
+        $scope.searchPhrase = search;
+
+        // On successful get call we go through the responses, which solr gives back as a json object and parse it.
+        $scope.getMarkers();
+    }
+
+    // This function actually queries the solr database and create a list of markers.
+    $scope.getMarkers = function(){
+        var payload = { "startDate":$scope.startDate_q,"search":$scope.search,
+                        "user_id":$scope.user_id,"date":$scope.endDate,
+                        "endDate":$scope.endDate_q, "searchTerms":$scope.searchPhrase,
+                        "start":$scope.resultsShowing
+                        };
+
+        // We want to clear any visible markers when doing a new search.
+        $scope.loadingStatus = true;
+        $scope.selectedCity = false;
+        $scope.markers = [];
+        $scope.allMarkers = [];
+        $scope.eventTable = [];
+        $scope.timelineEvents = [];
+        $scope.meta = {};
+
+        var startTime = +new Date();
+        $http.post('/loc_api/get_data',payload)
+        .success(function (response){
+            var respTime = +new Date();
+            $scope.loadingStatus = false;
+            $scope.errorStatus = false;
+            if (typeof response == 'undefined'){
+                return;
+            }
+
+            $scope.allMarkers = response['data'];
+            $scope.meta = response['meta'];
+            $scope.resultsShowing += Math.min(response['meta']['available'],response['meta']['rows']);
+            $scope.search_started = $scope.resultsShowing > 0;
+
+            if($scope.resultsShowing > 0){
+                $scope.setMarkers();
+            } else {
+                $scope.markers = [];
+                $scope.allMarkers = [];
+                $scope.timelineEvents = [];
+                $scope.markerKeyValues = [3,12,50];
+            }
+            $scope.setTimeline(_.flatten(_.values($scope.allMarkers)));
+            $window.ga('send', 'event','Map','searched',$scope.search,$scope.resultsShowing);
+            $window.ga('send','timing','Search',$scope.search,respTime - startTime);
+
+        })
+        .error(function(response){
+            $scope.loadingStatus = false;
+            $scope.errorStatus = true;
+        });
+    };
 
     $scope.popupText = function(){
         var myWindow = window.open("", "FullPage");
@@ -185,20 +194,21 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.rangeDate = new Date($scope.range/1);
         $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"user_id":$scope.user_id})
             .success(function (response){
-                if (typeof response != 'undefined'){
-                    if(response.hasOwnProperty('data')){
-                        $scope.allMarkers = response['data'];
-                        $scope.availableResults = response['meta']['available'];
-                        $scope.shownResults = response['meta']['shown'];
-                    } else {
-                        $scope.allMarkers = response;
-                    }
-                    $scope.setMarkers();
+                $scope.allMarkers = [];
+                $scope.markers = [];
+                if (typeof response == 'undefined'){
+                    return;
                 }
-                else{
-                    $scope.allMarkers = [];
-                    $scope.markers = [];
+
+                if(response.hasOwnProperty('data')){
+                    $scope.allMarkers = response['data'];
+                    $scope.availableResults = response['meta']['available'];
+                    $scope.shownResults = response['meta']['shown'];
+                } else {
+                    $scope.allMarkers = response;
                 }
+                $scope.setMarkers();
+
             });
     };
 
@@ -374,6 +384,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         // console.log(e);
         var paperDesc = [e.seq_num,e.date,e.ed,e.seq,e.hash,e.search];
         $window.ga('send', 'event','Map','paperClicked',paperDesc.join(' '));
+    };
+
+    $scope.loadMore = function(){
+        $scope.getMarkers();
     };
 
 }]);
