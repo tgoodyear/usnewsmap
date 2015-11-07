@@ -195,3 +195,7 @@
 	padding-top: 1px;
 	z-index: 202;
 }
+
+.clickable {
+	cursor: pointer;
+}

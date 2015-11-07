@@ -16,7 +16,7 @@
 		<script type="text/javascript" src="js/leaflet/leaflet.js"></script>
 		<script type="text/javascript" src="js/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
 		<script type="text/javascript" src="js/ngRangeSlider-master/dist/ng-range-slider.js"></script>
-		<script type="text/javascript" src="js/map.js"></script>
+		<script type="text/javascript" src="js/map.dev.js"></script>
 		<script type="text/javascript" src="js/angular-horizontal-timeline-master/angular-horizontal-timeline.js"></script>
 		<script type="text/javascript" src="js/moment.js"></script>
 		<script type="text/javascript" src="js/moment-range/lib/moment-range.js"></script>
@@ -49,7 +49,7 @@
 					</a>
 				</div>
 				<div class="col-lg-5 col-md-6">
-					<h2 style="padding-top:0;margin-top:0;">Exploring American History</h2>
+					<h2 style="padding-top:0;margin-top:0;">Developing American History</h2>
 					Enter a search term in the text box on the right to search American
 					newspapers from 1836 &ndash; 1924. Use the Playback feature to see
 					the movement of your term across the country. <br/>
@@ -122,20 +122,14 @@
 						<input type="submit" id="submit" class="btn btn-default" value="Search" />
                 	</div>
 				</div>
-				<div class="row">
-					<div class="col-md-12">
-						<br/>
-						<div class="alert alert-warning">
-							<h4>We Apologize</h4>
-							We are currently performing maintenance on the system backend. <br/><br/>
-							Not all results are available and it may take longer than expected to retreive results.
-						</div>
-					</div>
-				</div>
+
 				<div class="row">
 					<div class="col-md-12" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0">
 						<br/>
-						Showing {{resultsShowing | number}} of {{meta['available'] | number}} results
+						Showing {{resultsShowing | number}} of {{meta['available'] | number}} results.<br/>
+						<label class="label label-info clickable" ng-click="loadMore()">
+							Load {{meta.batchSize}} More
+						</label>
 					</div>
 					<div class="col-md-12" ng-show="meta.hasOwnProperty('rows') && meta['available'] == 0">
 						<br/>
@@ -152,7 +146,7 @@
 			</form>
 
 
-			<div class="row form-inline" ng-show="search_started">
+			<div class="row form-inline" ng-show="false">
 				<div class="col-md-12">
 					<h3>Key</h3>
 					Colors indicate how many search hits are in the indicated city compared to others.

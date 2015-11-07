@@ -35,21 +35,20 @@ logCollection = db["log"]
 ######
 
 @application.route('/get_data',methods=['GET', 'POST'])
-def home():
+def initialSearch():
     marks = []
     data = json.loads(request.data)
     user_id = uuid.UUID(data['user_id'])
-    h_list = HashList(id=str(user_id))
 
     searchString = data['search']
-    search = ''.join(['text:"',searchString])
+    search = ''.join(['text:"',searchString,'"'])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     sort = ''.join(['&sort=random_',str(user_id.int),'%20desc'])
     dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
-    numRows = 1500
+    numRows = 100
     pagination = '&rows=' + str(numRows) + '&start=' + str(data['start'])
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
-        '"&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
+        '&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
         ,'&q.op=AND', sort
         ,shards
         ]
@@ -63,6 +62,7 @@ def home():
     meta = {    "available":data['response']['numFound'],
                 "start":data['responseHeader']['params']['start'],
                 "rows":data['responseHeader']['params']['rows'],
+                "batchSize": numRows
                 # "q":url
             }
     retObj = {"data":[],"meta":meta}
@@ -94,6 +94,8 @@ def home():
         }
         marks.append(mark)
     marks = sorted(marks,key=lambda mark : mark['date'])
+    
+    h_list = HashList(id=str(user_id))
     for mark in marks:
         h_list.add_node(mark)
     h_list.update(time)
