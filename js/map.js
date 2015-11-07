@@ -6,8 +6,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     //These are the bounds of the map, currently centered on the contenental US.
     var bounds = leafletBoundsHelpers.createBoundsFromArray([
-        [64.583489, -59.778114 ],//Northeast
-        [16.278214, -171.071335 ],//Southwest
+//        [64.583489, -59.778114 ],//Northeast
+//        [16.278214, -171.071335 ],//Southwest
+	[50.142969 ,-59.608484],
+	[23.687046,-129.118134]
     ]);
 
     //This gets the actual tiles that form the map
@@ -20,7 +22,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             accessToken: 'pk.eyJ1IjoidGdvb2R5ZWFyIiwiYSI6ImNpZnlwcjZ6MzViYTB1dWtzN2dnN2x4b2QifQ.3UtPEf_PlHMgqWDX7t1TOA',// API Access Token
     	    continuousWorld: false,
             // This option disables loading tiles outside of the world bounds.
-            noWrap: true
+            noWrap: false
         }
     };
     $scope.errorStatus = false;
@@ -103,7 +105,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         center: {//This is the center of our map, which is currently over the geographical center of the continental US.
             lat: 39.82825,
             lng: -98.5795,
-            zoom: 3
+            zoom: 4
         },
         lit_or_fuzz : "Literal",
         tiles: tiles,//This is the var tiles from above.

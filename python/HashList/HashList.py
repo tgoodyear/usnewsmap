@@ -106,5 +106,5 @@ class HashTable:
 		for key in self.hash_table.keys():
 			for spot in self.hash_table[key]:
 				ans.append(spot)
-		print len(ans)
+		# print len(ans)
 		return self.hash_table

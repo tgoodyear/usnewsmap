@@ -78,8 +78,9 @@ def load_data(filename,date,folder,ed,seq):
 	 	data = DATA[folder]
 	 	#print {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date}
 	 
-	 	k = {'seq_num':data[0],'ed':ed,'seq':seq,'date_field':date,'text':afile.read()}
-	 	# k = {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date,'text':afile.read()}
+	 	#k = {'seq_num':data[0],'ed':ed,'seq':seq,'date_field':date,'text':afile.read()}
+		textfile = afile.read()      
+	 	k = {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'location':str(data[3]) + "," + str(data[4]),'date_field':date,'text':textfile,'text_loose':textfile}
 	 	#g = requests.post(solr,data=k)
 		return k
 

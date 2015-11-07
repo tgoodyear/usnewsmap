@@ -6,6 +6,7 @@ import traceback
 import simplejson as json
 import datetime
 import pymongo
+import uuid
 from flask import Flask, request, jsonify, Response
 from flask.ext.cors import CORS
 from flask.ext.restplus import Api, Resource, fields, apidoc
@@ -37,17 +38,19 @@ logCollection = db["log"]
 def home():
     marks = []
     data = json.loads(request.data)
-    h_list = HashList(id=data['mongo_id'])
+    mongo_id = uuid.UUID(data['mongo_id'])
+    h_list = HashList(id=str(mongo_id))
 
     searchString = data['search']
     search = ''.join(['text:"',searchString])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
+    sort = ''.join(['&sort=random_',str(mongo_id.int),'%20desc'])
     dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
     numRows = 1500
     pagination = '&rows=' + str(numRows) + '&start=' + str(data['start'])
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
         '"&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
-        ,'&q.op=AND'
+        ,'&q.op=AND', sort
         ,shards
         ]
     url = ''.join(url)
