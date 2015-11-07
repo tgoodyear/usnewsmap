@@ -38,13 +38,13 @@ logCollection = db["log"]
 def home():
     marks = []
     data = json.loads(request.data)
-    mongo_id = uuid.UUID(data['mongo_id'])
-    h_list = HashList(id=str(mongo_id))
+    user_id = uuid.UUID(data['user_id'])
+    h_list = HashList(id=str(user_id))
 
     searchString = data['search']
     search = ''.join(['text:"',searchString])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
-    sort = ''.join(['&sort=random_',str(mongo_id.int),'%20desc'])
+    sort = ''.join(['&sort=random_',str(user_id.int),'%20desc'])
     dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
     numRows = 1500
     pagination = '&rows=' + str(numRows) + '&start=' + str(data['start'])
@@ -144,7 +144,7 @@ def news_meta():
 def update():
     if request.method == 'POST':
         data = json.loads(request.data)
-        h_list = get_from_mongo(data['mongo_id'])
+        h_list = get_from_mongo(data['user_id'])
         h_list.update(data['date'])
         insert_to_mongo(h_list)
         return h_list.get_hash_json()

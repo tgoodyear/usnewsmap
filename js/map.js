@@ -64,7 +64,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
         //On successful get call we go through the responses, which solr gives back as a json object and parse it.
         var payload = { "startDate":startDate,"search":$scope.search,
-                        "mongo_id":$scope.mongo_id,"date":endDate,
+                        "user_id":$scope.user_id,"date":endDate,
                         "endDate":endDate, "searchTerms":search,"start":0
                         };
 	var startTime = +new Date();
@@ -99,7 +99,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     //All of the $scope variables
     angular.extend($scope, {
-        mongo_id : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}),
+        user_id : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}),
         search : "",//Our Search term
         maxbounds: bounds,//THe bounds of the map, see the var bounds above.
         center: {//This is the center of our map, which is currently over the geographical center of the continental US.
@@ -136,7 +136,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     });
 
     if(!$scope.userSet){
-        $window.ga('set', '&uid', $scope.mongo_id);
+        $window.ga('set', '&uid', $scope.user_id);
         $scope.userSet = true;
     }
 
@@ -182,7 +182,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //     return;
         // }
         $scope.rangeDate = new Date($scope.range/1);
-        $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"mongo_id":$scope.mongo_id})
+        $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"user_id":$scope.user_id})
             .success(function (response){
                 if (typeof response != 'undefined'){
                     if(response.hasOwnProperty('data')){
@@ -240,7 +240,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         std = Math.sqrt(std/(n));
         $scope.markerKeyValues = [Math.floor(mean+std),Math.floor(mean+std*1.5),Math.floor(mean+std*2)];
         if(isNaN($scope.markerKeyValues[0])){
-            $scope.markerKeyValues = [3,12,50];            
+            $scope.markerKeyValues = [3,12,50];
         }
 
 
