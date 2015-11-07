@@ -88,15 +88,36 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         });
     }
 
-
-
-    //This function actually queries the solr database and create a list of markers.
-    $scope.getMarkers = function(){
+    $scope.newSearch = function(){
         if(!$scope.search){
             return false;
         }
+        $scope.startDate_q  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
+        $scope.endDate_q = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
 
-        //We want to clear any visible markers when doing a new search.
+        var search = $scope.search.split(" ");
+        if ($scope.lit_or_fuzz == "Fuzzy"){
+            for (pos in search){
+                search[pos] = search[pos] + "~"
+            }
+            search = '%7B!complexphrase+inOrder%3Dtrue%7Dtext%3A"'+search.join("+")+'"';
+        } else{
+            search = search.join("+");
+        }
+        $scope.searchPhrase = search;
+
+        // On successful get call we go through the responses, which solr gives back as a json object and parse it.
+        $scope.getMarkers();
+    }
+
+    // This function actually queries the solr database and create a list of markers.
+    $scope.getMarkers = function(){
+        var payload = { "startDate":$scope.startDate_q,"search":$scope.search,
+                        "user_id":$scope.user_id,"date":$scope.endDate,
+                        "endDate":$scope.endDate_q, "searchTerms":$scope.searchPhrase,"start":$scope.resultStart
+                        };
+
+        // We want to clear any visible markers when doing a new search.
         $scope.loadingStatus = true;
         $scope.selectedCity = false;
         $scope.markers = [];
@@ -105,50 +126,34 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.timelineEvents = [];
         $scope.meta = {};
 
-        //Get query data, self explanatory
-        var startDate  = $scope.startDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
-        var endDate = $scope.endDate.toISOString().replace(':','%3A').replace(':','%3A').replace('.','%3A');
-
-        var search = $scope.search.split(" ");
-        if ($scope.lit_or_fuzz == "Fuzzy"){
-            for (pos in search){
-                search[pos] = search[pos] + "~"
-            }
-            search = '%7B!complexphrase+inOrder%3Dtrue%7Dtext%3A"'+search.join("+")+'"';
-
-        } else{
-            search = search.join("+");
-        }
-
-        //On successful get call we go through the responses, which solr gives back as a json object and parse it.
-        var payload = { "startDate":startDate,"search":$scope.search,
-                        "user_id":$scope.user_id,"date":endDate,
-                        "endDate":endDate, "searchTerms":search,"start":$scope.resultStart
-                        };
-	    var startTime = +new Date();
+        var startTime = +new Date();
         $http.post('/loc_api/get_data',payload)
         .success(function (response){
-            if (typeof response != 'undefined'){
-                var respTime = +new Date();
-                $scope.allMarkers = response['data'];
-                $scope.meta = response['meta'];
-                $scope.resultsShowing = Math.min(response['meta']['available'],response['meta']['rows']);
-                $scope.search_started = $scope.resultsShowing > 0;
-                if($scope.resultsShowing > 0){
-                    $scope.setMarkers();
-                    $scope.resultStart = $scope.resultsShowing;
-                } else {
-                    $scope.markers = [];
-                    $scope.allMarkers = [];
-                    $scope.timelineEvents = [];
-                    $scope.markerKeyValues = [3,12,50];
-                }
-                $scope.setTimeline(_.flatten(_.values($scope.allMarkers)));
-                $window.ga('send', 'event','Map','searched',$scope.search,$scope.resultsShowing);
-                $window.ga('send','timing','Search',$scope.search,respTime - startTime);
-            }
-            $scope.errorStatus = false;
+            var respTime = +new Date();
             $scope.loadingStatus = false;
+            $scope.errorStatus = false;
+            if (typeof response == 'undefined'){
+                return;
+            }
+
+            $scope.allMarkers = response['data'];
+            $scope.meta = response['meta'];
+            $scope.resultsShowing = Math.min(response['meta']['available'],response['meta']['rows']);
+            $scope.search_started = $scope.resultsShowing > 0;
+
+            if($scope.resultsShowing > 0){
+                $scope.setMarkers();
+                $scope.resultStart = $scope.resultsShowing;
+            } else {
+                $scope.markers = [];
+                $scope.allMarkers = [];
+                $scope.timelineEvents = [];
+                $scope.markerKeyValues = [3,12,50];
+            }
+            $scope.setTimeline(_.flatten(_.values($scope.allMarkers)));
+            $window.ga('send', 'event','Map','searched',$scope.search,$scope.resultsShowing);
+            $window.ga('send','timing','Search',$scope.search,respTime - startTime);
+
         })
         .error(function(response){
             $scope.loadingStatus = false;
@@ -186,20 +191,21 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.rangeDate = new Date($scope.range/1);
         $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"user_id":$scope.user_id})
             .success(function (response){
-                if (typeof response != 'undefined'){
-                    if(response.hasOwnProperty('data')){
-                        $scope.allMarkers = response['data'];
-                        $scope.availableResults = response['meta']['available'];
-                        $scope.shownResults = response['meta']['shown'];
-                    } else {
-                        $scope.allMarkers = response;
-                    }
-                    $scope.setMarkers();
+                $scope.allMarkers = [];
+                $scope.markers = [];
+                if (typeof response == 'undefined'){
+                    return;
                 }
-                else{
-                    $scope.allMarkers = [];
-                    $scope.markers = [];
+
+                if(response.hasOwnProperty('data')){
+                    $scope.allMarkers = response['data'];
+                    $scope.availableResults = response['meta']['available'];
+                    $scope.shownResults = response['meta']['shown'];
+                } else {
+                    $scope.allMarkers = response;
                 }
+                $scope.setMarkers();
+
             });
     };
 
@@ -378,7 +384,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     };
 
     $scope.loadMore = function(){
-        console.log("load!");
+        console.log("load!" + $scope.resultStart);
     };
 
 }]);

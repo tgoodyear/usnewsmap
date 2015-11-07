@@ -1,15 +1,15 @@
 //The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
 var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline']);
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents", "$window",
-                function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents, $window) {
+    function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents, $window) {
 
 
     //These are the bounds of the map, currently centered on the contenental US.
     var bounds = leafletBoundsHelpers.createBoundsFromArray([
 //        [64.583489, -59.778114 ],//Northeast
 //        [16.278214, -171.071335 ],//Southwest
-	[50.142969 ,-59.608484],
-	[23.687046,-129.118134]
+    	[50.142969 ,-59.608484],
+    	[23.687046,-129.118134]
     ]);
 
     //This gets the actual tiles that form the map
@@ -67,7 +67,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                         "user_id":$scope.user_id,"date":endDate,
                         "endDate":endDate, "searchTerms":search,"start":0
                         };
-	var startTime = +new Date();
+        
+	    var startTime = +new Date();
         $http.post('/loc_api/get_data',payload)
         .success(function (response){
             if (typeof response != 'undefined'){

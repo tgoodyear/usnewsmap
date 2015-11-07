@@ -37,16 +37,16 @@ logCollection = db["log"]
 @application.route('/get_data',methods=['GET', 'POST'])
 def initialSearch():
     marks = []
-    data = json.loads(request.data)
-    user_id = uuid.UUID(data['user_id'])
+    flaskData = json.loads(request.data)
+    user_id = uuid.UUID(flaskData['user_id'])
 
-    searchString = data['search']
+    searchString = flaskData['search']
     search = ''.join(['text:"',searchString,'"'])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     sort = ''.join(['&sort=random_',str(user_id.int),'%20desc'])
-    dateSearch = ''.join(['date_field:[',data['startDate'],'+TO+',data['endDate'],']+'])
+    dateSearch = ''.join(['date_field:[',flaskData['startDate'],'+TO+',flaskData['endDate'],']+'])
     numRows = 100
-    pagination = '&rows=' + str(numRows) + '&start=' + str(data['start'])
+    pagination = '&rows=' + str(numRows) + '&start=' + str(flaskData['start'])
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
         '&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
         ,'&q.op=AND', sort
@@ -54,14 +54,13 @@ def initialSearch():
         ]
     url = ''.join(url)
     # print url
-
-    time = data['date']
+    time = flaskData['date']
     r = requests.get(url)
-    data = r.json()
+    solrResp = r.json()
     # print data
-    meta = {    "available":data['response']['numFound'],
-                "start":data['responseHeader']['params']['start'],
-                "rows":data['responseHeader']['params']['rows'],
+    meta = {    "available":solrResp['response']['numFound'],
+                "start":solrResp['responseHeader']['params']['start'],
+                "rows":solrResp['responseHeader']['params']['rows'],
                 "batchSize": numRows
                 # "q":url
             }
@@ -71,7 +70,7 @@ def initialSearch():
 
     if meta['available'] == 0:
         return json.dumps(retObj)
-    for d in data['response']['docs']:
+    for d in solrResp['response']['docs']:
         loc_data = coll2.find_one({"sn":d['seq_num']})
         dats = map(int, d['date_field'].split("T")[0].split("-"))
         date = datetime.date(dats[0],dats[1],dats[2]).isoformat()
@@ -94,7 +93,7 @@ def initialSearch():
         }
         marks.append(mark)
     marks = sorted(marks,key=lambda mark : mark['date'])
-    
+
     h_list = HashList(id=str(user_id))
     for mark in marks:
         h_list.add_node(mark)
