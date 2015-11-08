@@ -6,7 +6,7 @@ from time import gmtime, strftime
 import datetime, time
 import random
 
-HOME = sys.argv[1]#this must be directory holding all sn folders and only works for this type of data due to difficulty in getting dates. 
+HOME = sys.argv[1]#this must be directory holding all sn folders and only works for this type of data due to difficulty in getting dates.
 LOC_DATA  = '/var/www/loc/python/town_ref.csv'
 #LOC_DATA = '/home/tgoodyear/town_ref.csv'
 DATA = {}
@@ -34,10 +34,10 @@ def loop(path):
 		solrNode = 2
 	elif randint < 10:
 		solrNode = 1
-	
+
 	if random.randint(0,1000) == 1:
 		print strftime("%Y-%m-%d %H:%M:%S"),"Sending", len(dat), "documents to",solrNode
-	
+
 	payload = json.dumps(dat)
 	commit = "?commit=true" if random.randint(0,500) == 1 else ""
 	try:
@@ -65,7 +65,7 @@ def load_folder(folder,path,counter):
 			directory = dat[5]#might have to redo these to match pastec
 			ed = dat[9]
 			seq = dat[10]
-			
+
 			date = datetime.datetime(int(dat[6]),int(dat[7]),int(dat[8])).isoformat()
 			#date = date[6] +"-"+ date[7] +"-"+ date[8]+"T00:00:00Z"#might have to redo these to match pastec
 			dat = load_data(folder,date,directory,ed,seq)
@@ -77,15 +77,15 @@ def load_data(filename,date,folder,ed,seq):
 	with open(filename, 'rb') as afile:
 	 	data = DATA[folder]
 	 	#print {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'loc':str(data[3]) + "," + str(data[4]),'date_field':date}
-	 
+
 	 	#k = {'seq_num':data[0],'ed':ed,'seq':seq,'date_field':date,'text':afile.read()}
-		textfile = afile.read()      
+		textfile = afile.read()
 	 	k = {'seq_num':data[0],'city':data[1],'state':data[2],'ed':ed,'seq':seq,'location':str(data[3]) + "," + str(data[4]),'date_field':date,'text':textfile,'text_loose':textfile}
 	 	#g = requests.post(solr,data=k)
 		return k
 
 		#print g.text
-	 
+
 
 
 
@@ -107,10 +107,10 @@ if __name__ == '__main__':
 	pools = 150
         folder_list = [HOME + d for d in os.listdir(os.getcwd())]
 	if pools > 1:
-	        pool = Pool(pools)
-	        print "Started map with %d pools" % pools
-	        pool.map(loop, folder_list)
-	        pool.close()
+		pool = Pool(pools)
+		print "Started map with %d pools" % pools
+		pool.map(loop, folder_list)
+		pool.close()
 		print strftime("%Y-%m-%d %H:%M:%S"),"Pool closed"
 		requests.get('http://130.207.211.77:8983/solr/loc/update?commit=true')
 	else:
@@ -120,4 +120,3 @@ if __name__ == '__main__':
 
 
 #loop(HOME)
-

@@ -142,6 +142,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
             $scope.allMarkers = response['data'];
             $scope.meta = response['meta'];
+            var origShowing = $scope.resultsShowing;
             $scope.resultsShowing += Math.min(response['meta']['available'],response['meta']['rows']);
             $scope.search_started = $scope.resultsShowing > 0;
 
@@ -154,8 +155,13 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 $scope.markerKeyValues = [3,12,50];
             }
             $scope.setTimeline(_.flatten(_.values($scope.allMarkers)));
-            $window.ga('send', 'event','Map','searched',$scope.search,$scope.resultsShowing);
-            $window.ga('send','timing','Search',$scope.search,respTime - startTime);
+            if(origShowing == 0){
+                $window.ga('send','event' ,'Search','searched',$scope.search,$scope.resultsShowing);
+                $window.ga('send','timing','Search',$scope.search,respTime - startTime);
+            } else {
+                $window.ga('send', 'event','Search','LoadMore',$scope.search,$scope.resultsShowing);
+                $window.ga('send','timing','LoadMore',$scope.search,respTime - startTime);
+            }
 
         })
         .error(function(response){
