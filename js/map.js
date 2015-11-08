@@ -369,21 +369,15 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.getMetaData = function(mark){
         $scope.selectedCity = mark.hash;
         $window.ga('send', 'event','Map','markerClicked',$scope.selectedCity);
-        // console.log(mark);
-        // $scope.timelineEvents = [];
-        // for (e in $scope.allMarkers[mark.hash]){
-        //     var ev = $scope.allMarkers[mark.hash][e];
-        //     var tDate = ev.timeDate.split('/');
-        //     var timelineDate = tDate[2] + '-' + tDate[0] + '-' + tDate[1];
-        //     var timelineEvent = {"date":timelineDate,"content":timelineDate,"data":ev};
-        //     $scope.timelineEvents.push(timelineEvent);
-        // }
 
-        // $http.post('http://130.207.211.77/loc_api/news_meta',{"seq_num":mark['seq_num'],"year":mark['year'],"month":mark['month'],"day":mark['day'],"ed":mark['ed']})
-        // .success(function (response){
-        //
-        // });
-
+        var SNs = _.uniq(_.pluck($scope.allMarkers[mark['hash']],'seq_num'));
+        $http.post('/loc_api/news_meta',{"sn":SNs})
+            .success(function(response){
+                $scope.newspapers = response;
+            })
+            .error(function(e){
+                console.log(e);
+            });
     };
 
     $scope.clickedPaper = function(e){

@@ -1,12 +1,13 @@
-import requests
+import datetime
 import re
+import requests
 import logging
-import sys
+import pymongo
 import traceback
 import simplejson as json
-import datetime
-import pymongo
+import sys
 import uuid
+from bson import json_util
 from flask import Flask, request, jsonify, Response
 from flask.ext.cors import CORS
 from flask.ext.restplus import Api, Resource, fields, apidoc
@@ -24,6 +25,7 @@ db = client["loc"]
 coll = db["users"]
 coll2 = db["locations"]
 logCollection = db["log"]
+newsCollection = db["newspapers"]
 
 ######
 #There is a bug with flask, python, and HashList where if you click the search button too
@@ -144,19 +146,18 @@ def get_from_mongo(id):
     h_list.set_hash(data['hash'])
     return h_list
 
-@application.route('/news_meta',methods=['GET','POST'])
+@application.route('/news_meta',methods=['POST'])
 def news_meta():
-    if request.method == 'POST':
-        data = json.loads(request.data)
-        if len(str(data['day'])) == 1:
-            data['day'] = '0' + str(data['day'])
-        if len(str(data['month'])) == 1:
-            data['month'] = '0' + str(data['month'])
-        # print data
-        r = requests.get("http://chroniclingamerica.loc.gov/lccn/"+ str(data['seq_num']) + "/" + str(data['year']) + "-" + str(data['month']) + "-" + str(data['day']) + "/" + data['ed'] + ".json")
-        return json.dumps(r.json())
-    else:
-        return "NO METADATA GIVEN FOUND"
+    requestData = request.get_json()
+    if 'sn' not in requestData or len(requestData['sn']) == 0:
+        return json.dumps({}), 404
+    newspapers = newsCollection.find({"lccn":{"$in":requestData['sn']}},{"_id":0,"issues":0})
+    # Return dict of results indexed by sequence num
+    ret = {}
+    for item in newspapers:
+        sn = item['lccn']
+        ret[sn] = item
+    return json_util.dumps(ret)
 
 @application.route('/update',methods=['GET', 'POST'])
 def update():
@@ -168,7 +169,6 @@ def update():
         return h_list.get_hash_json()
     else:
         return "no updates at this time"
-
 
 if __name__ == '__main__':
     application.run(debug=True,host='0.0.0.0',port=8080)
