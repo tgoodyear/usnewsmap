@@ -47,12 +47,12 @@ def docSearch():
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     sort = ''.join(['&sort=random_',str(user_id.int),'%20desc'])
     dateSearch = ''.join(['date_field:[',flaskData['startDate'],'+TO+',flaskData['endDate'],']+'])
-    numRows = 1500
+    numRows = 1000
     pagination = '&rows=' + str(numRows) + '&start=' + str(flaskData['start'])
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
         '&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
         ,'&q.op=AND', sort
-        ,shards
+        # ,shards
         ]
     url = ''.join(url)
     # print url
@@ -63,7 +63,8 @@ def docSearch():
     meta = {    "available":solrResp['response']['numFound'],
                 "start":solrResp['responseHeader']['params']['start'],
                 "rows":solrResp['responseHeader']['params']['rows'],
-                "batchSize": numRows
+                "batchSize": numRows,
+                "solrTime":solrResp['responseHeader']['QTime']
                 # "q":url
             }
     retObj = {"data":[],"meta":meta}
