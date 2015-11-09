@@ -1,38 +1,99 @@
 import pymongo
 import requests
 import sys
+import simplejson as json
 from random import randint
 from multiprocessing import Pool
 import time
 
-# url = 'http://chroniclingamerica.loc.gov/lccn/sn91066782/1907-10-01/ed-1/seq-1/ocr.txt'
-
 headers = {'User-Agent': 'Georgia Tech Research Institute | trevor.goodyear@gtri.gatech.edu | usnewsmap.com'}
 
+def getText(url):
+    # URL Example: http://chroniclingamerica.loc.gov/lccn/sn91066782/1910-06-18/ed-1/seq-1/ocr.txt
+    sleepTime = randint(0,3)
+    time.sleep(sleepTime)
+
+    urlParts = url.split('/')
+    seq_num = urlParts[4]
+    dateField = urlParts[5]
+    ed = urlParts[6]
+    seq = urlParts[7].split('.')[0]
+    locURL = '/'.join(['http://chroniclingamerica.loc.gov/lccn',seq_num,dateField,ed,seq,'ocr.txt'])
+
+    try:
+        r = requests.get(locURL,headers=headers)
+    except requests.exceptions.ConnectionError as e:
+        sleepTime = (sleepTime+1)*2
+        print 'ConnectionError to',locURL ,' Retrying after',sleepTime,'seconds. ', e
+        time.sleep(sleepTime)
+        return getText(url)
+
+    solrNode = '130.207.211.' + str(randint(77,79))
+    commit = "?commit=true" if randint(0,500) == 1 else ""
+    solrUrl = ''.join(['http://',solrNode,':8983/solr/loc/update',commit])
+    payload = {
+            'seq_num':seq_num,
+            # 'city':data[1],
+            # 'state':data[2],
+            'ed':ed,
+            'seq':seq,
+            # 'location':str(data[3]) + "," + str(data[4]),
+            'date_field':dateField,
+            'text':r.text,
+            'text_loose':r.text
+        }
+    payload = json.dumps([payload])
+    # print solrUrl
+    # print seq_num,ed,seq,dateField
+    # print r.text
+    # return 0
+    try:
+        h = {'Content-type':'application/json'}
+        g = requests.post(solrUrl,data=payload,headers=h)
+        return 1
+    except Exception as e:
+        sleepTime = (sleepTime+1)*2
+        print 'ConnectionError to',solrUrl ,' Retrying after',sleepTime,'seconds. ',e
+        time.sleep(sleepTime)
+        getText(url)
+
 def getIssue(issue):
-    time.sleep(randint(0,5))
+    sleepTime = randint(0,5)
+    time.sleep(sleepTime)
     # Issue URL Example http://chroniclingamerica.loc.gov/lccn/sn91066782/1910-06-18/ed-1.json
     issueURL = issue['url']
     issueURLs = set()
-    r = requests.get(issueURL,headers=headers)
-    # print issueURL
+    try:
+        r = requests.get(issueURL,headers=headers)
+    except requests.exceptions.ConnectionError as e:
+        time.sleep(sleepTime)
+        print issueURL, 'ConnectionError. Retrying.', e
+        getIssue(issue)
     try:
         resp = r.json()
     except:
         print issueURL, 'has no valid JSON response'
         return issueURLs
-
+    # if sleepTime == 3:
+        # print 'Checking',len(resp['pages']),'pages for', issueURL
     for page in resp['pages']:
         urlParts = page['url'].split('/')
         seq_num = urlParts[4]
-        formattedDate = urlParts[5]
+        dateField = urlParts[5]
         edition = urlParts[6]
         seq = urlParts[7].split('.')[0]
         # Determine if we already have the document
-        solrURL = ''.join(['http://130.207.211.77:8983/solr/loc/select?q=date_field:%22', formattedDate,
+        node = str(randint(77,79))
+        solrURL = ''.join(['http://130.207.211.',node,':8983/solr/loc/select?q=date_field:%22', dateField,
                     'T00:00:00.000Z%22%20AND%20seq:',seq,'%20AND%20seq_num:',seq_num,'%20AND%20ed:',
                     edition,'&wt=json&indent=false&fl=id'])
-        r = requests.get(solrURL,headers=headers)
+        try:
+            r = requests.get(solrURL,headers=headers)
+        except requests.exceptions.ConnectionError as e:
+            print solrURL, 'ConnectionError Solr. Retrying.', e
+            time.sleep((sleepTime+1)*2)
+            getIssue(issue)
+
         resp = r.json()
         if resp['response']['numFound'] == 0:
             issueURLs.add(page['url'])
@@ -40,42 +101,74 @@ def getIssue(issue):
     return issueURLs
 
 def getBatch(batchURL):
-    print batchURL  # Example: http://chroniclingamerica.loc.gov/batches/batch_vtu_cauliflower_ver01.json
+    # print batchURL  # Example: http://chroniclingamerica.loc.gov/batches/batch_vtu_cauliflower_ver01.json
 
     r = requests.get(batchURL,headers=headers)
     resp = r.json()
-
+    print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool for", batchURL
     pool = Pool(256)
     issueURLs = pool.map(getIssue,resp['issues'])
     pool.close()
-    print issueURLs
-    sys.exit(1)
+    print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool for", batchURL
+
     return issueURLs
 
-def getBatchPage(pageNum):
+def getSNData(sn):
     client = pymongo.MongoClient()
     db = client["loc"]
-    newsCollection = db["newspapers"]
+    coll = db["newspapers"]
+    url = ''.join(['http://chroniclingamerica.loc.gov/lccn/',sn,'.json'])
+    if coll.find_one({"lccn":sn}):
+        # print sn , "Skipping"
+        client.close()
+        return 0
+
+    r = requests.get(url)
+    # print r.json()
+    try:
+        coll.insert(r.json())
+        # print 'Inserted data for ', sn
+    except:
+        # print sn , "Skipping"
+        client.close()
+        return 0
+    client.close()
+    return 1
+
+def getBatchPage(pageNum):
 
     url = ''.join(['http://chroniclingamerica.loc.gov/batches/',str(pageNum),'.json'])
     r = requests.get(url,headers=headers)
-    # print r, url
     resp = r.json()
     issueURLs = []
     batchURLs = []
+    print 'Collecting SN data'
     for batch in resp['batches']:
+        for sn in batch['lccns']:
+            getSNData(sn)
         batchURLs.append(batch['url'])
 
     # print batchURLs
     for batch in batchURLs:
         issueURLs += getBatch(batch)
 
+    issueURLs = [item for sublist in issueURLs for item in sublist]
     print 'Page',pageNum, 'collected', len(issueURLs), 'documents'
-    client.close()
-    return batchURLs
+    print issueURLs[0]
+
+    poolSize = 256
+    print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool of size {0} for {1} documents from page {2}".format(poolSize,len(issueURLs),pageNum)
+    pool = Pool(poolSize)
+    success = sum(pool.map(getText,issueURLs))
+    pool.close()
+    print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool.    Got {0} of  {1}            for page {2}".format(success,len(issueURLs),pageNum)
+
+    return len(issueURLs)
 
 if __name__ == '__main__':
-    batchPages = [1]
-    issueURLs = set()
+    print time.strftime("%Y-%m-%d %H:%M:%S")
+    batchPages = range(1,53)
     for batch in batchPages:
-        issueURLs |= getBatchPage(batch)
+        print 'Page', batch
+        getBatchPage(batch)
+    print time.strftime("%Y-%m-%d %H:%M:%S")

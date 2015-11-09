@@ -124,7 +124,7 @@
 				</div>
 			</form>
 
-			<div class="row" ng-show="!ack">
+			<div class="row" ng-show="false">
 				<div class="col-md-12">
 					<br/>
 					<div class="alert alert-warning">
@@ -264,7 +264,7 @@
 			<ul>
 				<li ng-repeat="e in allMarkers[selectedCity]">
 					<a href="http://chroniclingamerica.loc.gov/lccn/{{e.seq_num}}/{{e.date}}/{{e.ed}}/{{e.seq}}.pdf" target="_blank" ng-click="clickedPaper(e)">
-						{{e.date}} &mdash; {{newspapers[e.seq_num].name}} 
+						{{e.date}} &mdash; {{newspapers[e.seq_num].name}}
 					</a>
 				</li>
 			</ul>

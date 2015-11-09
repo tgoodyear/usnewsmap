@@ -80,6 +80,8 @@ def docSearch():
         resultsList = existingData['linked_list'] + resultsList
     for d in resultsList:
         loc_data = coll2.find_one({"sn":d['seq_num']})
+        if not loc_data or 'lat' not in loc_data:
+            continue
         if 'date_field' in d:
             dats = map(int, d['date_field'].split("T")[0].split("-"))
             date = datetime.date(dats[0],dats[1],dats[2]).isoformat()
@@ -93,7 +95,6 @@ def docSearch():
             day = d['day']
             date = d['date']
             idField = d['nid']
-
         mark = {'lat':float(loc_data['lat']),
             'lng':float(loc_data['long']),
             'timeDate':str(month)+'/'+str(day)+'/'+str(year),
