@@ -8,8 +8,7 @@ import time
 
 headers = {'User-Agent': 'Georgia Tech Research Institute | trevor.goodyear@gtri.gatech.edu | usnewsmap.com'}
 
-def getText(url):
-    # URL Example: http://chroniclingamerica.loc.gov/lccn/sn91066782/1910-06-18/ed-1/seq-1/ocr.txt
+def getSolrPayload(url):
     sleepTime = randint(0,3)
     time.sleep(sleepTime)
 
@@ -24,13 +23,10 @@ def getText(url):
         r = requests.get(locURL,headers=headers)
     except requests.exceptions.ConnectionError as e:
         sleepTime = (sleepTime+1)*2
-        print 'ConnectionError to',locURL ,' Retrying after',sleepTime,'seconds. ', e
+        print time.strftime("%Y-%m-%d %H:%M:%S"), 'ConnectionError to',locURL ,' Retrying after',sleepTime,'seconds. ', e
         time.sleep(sleepTime)
         return getText(url)
 
-    solrNode = '130.207.211.' + str(randint(77,79))
-    commit = "?commit=true" if randint(0,500) == 1 else ""
-    solrUrl = ''.join(['http://',solrNode,':8983/solr/loc/update',commit])
     payload = {
             'seq_num':seq_num,
             # 'city':data[1],
@@ -42,18 +38,35 @@ def getText(url):
             'text':r.text,
             'text_loose':r.text
         }
-    payload = json.dumps([payload])
+    return payload
+
+def getText(urls):
+    # URL Example: http://chroniclingamerica.loc.gov/lccn/sn91066782/1910-06-18/ed-1/seq-1/ocr.txt
+    payload = []
+    for url in urls:
+        payload.append(getSolrPayload(url))
+
+    payload = json.dumps(payload)
+    solrNode = '130.207.211.' + str(randint(77,79))
+    commit = "?commit=true" if 1 else ""
+    solrUrl = ''.join(['http://',solrNode,':8983/solr/loc/update',commit])
     # print solrUrl
     # print seq_num,ed,seq,dateField
     # print r.text
     # return 0
+    # print solrUrl
+    # print payload
+    # with open('req.txt','r+') as f:
+        # f.write(payload)
+    # return 0
     try:
         h = {'Content-type':'application/json'}
         g = requests.post(solrUrl,data=payload,headers=h)
+        # print g.text
         return 1
     except Exception as e:
         sleepTime = (sleepTime+1)*2
-        print 'ConnectionError to',solrUrl ,' Retrying after',sleepTime,'seconds. ',e
+        print time.strftime("%Y-%m-%d %H:%M:%S"), 'ConnectionError to',solrUrl ,' Retrying after',sleepTime,'seconds. ',e
         time.sleep(sleepTime)
         getText(url)
 
@@ -67,12 +80,12 @@ def getIssue(issue):
         r = requests.get(issueURL,headers=headers)
     except requests.exceptions.ConnectionError as e:
         time.sleep(sleepTime)
-        print issueURL, 'ConnectionError. Retrying.', e
+        print time.strftime("%Y-%m-%d %H:%M:%S"), issueURL, 'ConnectionError. Retrying.', e
         getIssue(issue)
     try:
         resp = r.json()
     except:
-        print issueURL, 'has no valid JSON response'
+        print time.strftime("%Y-%m-%d %H:%M:%S"), issueURL, 'has no valid JSON response'
         return issueURLs
     # if sleepTime == 3:
         # print 'Checking',len(resp['pages']),'pages for', issueURL
@@ -90,7 +103,7 @@ def getIssue(issue):
         try:
             r = requests.get(solrURL,headers=headers)
         except requests.exceptions.ConnectionError as e:
-            print solrURL, 'ConnectionError Solr. Retrying.', e
+            print time.strftime("%Y-%m-%d %H:%M:%S"), solrURL, 'ConnectionError Solr. Retrying.', e
             time.sleep((sleepTime+1)*2)
             getIssue(issue)
 
@@ -105,11 +118,11 @@ def getBatch(batchURL):
 
     r = requests.get(batchURL,headers=headers)
     resp = r.json()
-    print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool for", batchURL
+    # print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool for", batchURL
     pool = Pool(256)
     issueURLs = pool.map(getIssue,resp['issues'])
     pool.close()
-    print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool for", batchURL
+    # print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool for", batchURL
 
     return issueURLs
 
@@ -154,12 +167,13 @@ def getBatchPage(pageNum):
 
     issueURLs = [item for sublist in issueURLs for item in sublist]
     print 'Page',pageNum, 'collected', len(issueURLs), 'documents'
-    print issueURLs[0]
+    # print issueURLs[0]
 
     poolSize = 256
     print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool of size {0} for {1} documents from page {2}".format(poolSize,len(issueURLs),pageNum)
     pool = Pool(poolSize)
-    success = sum(pool.map(getText,issueURLs))
+    n = 50
+    success = sum(pool.map(getText,(issueURLs[i:i+n] for i in xrange(0, len(issueURLs), n))))
     pool.close()
     print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool.    Got {0} of  {1}            for page {2}".format(success,len(issueURLs),pageNum)
 
@@ -169,6 +183,6 @@ if __name__ == '__main__':
     print time.strftime("%Y-%m-%d %H:%M:%S")
     batchPages = range(1,53)
     for batch in batchPages:
-        print 'Page', batch
+        print time.strftime("%Y-%m-%d %H:%M:%S"), 'Page', batch
         getBatchPage(batch)
     print time.strftime("%Y-%m-%d %H:%M:%S")

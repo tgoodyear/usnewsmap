@@ -23,7 +23,7 @@ cors = CORS(application)
 client = pymongo.MongoClient()
 db = client["loc"]
 coll = db["users"]
-coll2 = db["locations"]
+locationCollection = db["locations"]
 logCollection = db["log"]
 newsCollection = db["newspapers"]
 
@@ -79,7 +79,7 @@ def docSearch():
         existingData = coll.find_one({"id":flaskData['user_id']})
         resultsList = existingData['linked_list'] + resultsList
     for d in resultsList:
-        loc_data = coll2.find_one({"sn":d['seq_num']})
+        loc_data = locationCollection.find_one({"sn":d['seq_num']})
         if not loc_data or 'lat' not in loc_data:
             continue
         if 'date_field' in d:
