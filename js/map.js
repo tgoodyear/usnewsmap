@@ -68,7 +68,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         meta : {},
         markerKeyValues : [3,12,50],
         selectedCity : false,
-        userSet : false
+        userSet : false,
+        icons : {'search':true,'play':false,'history':false}
     });
 
     if(!$scope.userSet){
