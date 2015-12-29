@@ -5,13 +5,14 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
 
     //These are the bounds of the map, currently centered on the contenental US.
+    /*
     var bounds = leafletBoundsHelpers.createBoundsFromArray([
 //        [64.583489, -59.778114 ],//Northeast  Including Alaska
 //        [16.278214, -171.071335 ],//Southwest Including Hawaii
     	[50.142969 ,-59.608484],   // Northeast
     	[23.687046,-129.118134]    // Southwest
     ]);
-
+*/
     //This gets the actual tiles that form the map
     var tiles = {
         url: "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
@@ -30,11 +31,11 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     angular.extend($scope, {
         user_id : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}),
         search : "",//Our Search term
-        maxbounds: bounds,//THe bounds of the map, see the var bounds above.
+        // maxbounds: bounds,//THe bounds of the map, see the var bounds above.
         center: {//This is the center of our map, which is currently over the geographical center of the continental US.
-            lat: 39.82825,
-            lng: -98.5795,
-            zoom: 4
+            lat: 36.985003092856,
+            lng: -95.77880859375,
+            zoom: 5
         },
         lit_or_fuzz : "Literal",
         tiles: tiles,//This is the var tiles from above.
@@ -388,6 +389,12 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     $scope.loadMore = function(){
         $scope.getMarkers();
+    };
+
+    $scope.iconClick = function(icon){
+        for(i in $scope.icons){
+            $scope.icons[i] = i == icon;
+        }
     };
 
 }]);
