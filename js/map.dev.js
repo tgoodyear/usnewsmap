@@ -18,12 +18,12 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         url: "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
         options: {
             attribution: '',
-            maxZoom: 9,
+            maxZoom: 8,
             id: 'tgoodyear.cifypr5uo5bccuzkszn0emy7c', // API Key
             accessToken: 'pk.eyJ1IjoidGdvb2R5ZWFyIiwiYSI6ImNpZnlwcjZ6MzViYTB1dWtzN2dnN2x4b2QifQ.3UtPEf_PlHMgqWDX7t1TOA',// API Access Token
     	    continuousWorld: false,
             // This option disables loading tiles outside of the world bounds.
-            noWrap: false
+            noWrap: true
         }
     };
 
@@ -35,7 +35,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         center: {// This is the center of our map, which is currently over the geographical center of the continental US.
             lat: 36.985003092856,
             lng: -95.77880859375,
-            zoom: 4
+            zoom: 5
         },
         lit_or_fuzz : "Literal",
         tiles: tiles,// This is the var tiles from above.

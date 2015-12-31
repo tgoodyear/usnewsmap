@@ -16,7 +16,7 @@
 		<script type="text/javascript" src="js/leaflet/leaflet.js"></script>
 		<script type="text/javascript" src="js/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
 		<script type="text/javascript" src="js/ngRangeSlider-master/dist/ng-range-slider.js"></script>
-		<script type="text/javascript" src="js/map.js"></script>
+		<script type="text/javascript" src="js/map.dev.js"></script>
 		<script type="text/javascript" src="js/angular-horizontal-timeline-master/angular-horizontal-timeline.js"></script>
 		<script type="text/javascript" src="js/moment.js"></script>
 		<script type="text/javascript" src="js/moment-range/lib/moment-range.js"></script>
@@ -27,7 +27,7 @@
 		<!-- Header -->
 		<header class="row">
 			<div class="col-md-6">
-				<h2 style="padding-top:0;margin-top:0;"><i class="fa fa-map-marker"></i> US News Map</h2>
+				<h2 style="padding-top:0;margin-top:0;"><a href="/"><i class="fa fa-map-marker"></i> US News Map</a></h2>
 			</div>
 			<div class="col-md-6 text-right icons">
 				<i class="fa fa-search" ng-class="{iconSelected: icons['search']}" ng-click="iconClick('search')"></i>
@@ -79,7 +79,19 @@
 				</div>
 			</form>
 		</div>
-		<div class="row" ng-show="icons['play']">
+		<div class="control-pane" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0">
+			<div class="row">
+				<div class="col-md-4">
+					<button class="btn">
+						Playback
+					</button>
+				</div>
+				<div class="col-md-4">
+					<button class="btn">
+						Newspapers
+					</button>
+				</div>
+			</div>
 			<div class="row" ng-show="!ack && 0">
 				<div class="col-md-12">
 					<br/>
@@ -160,6 +172,30 @@
 					</div>
 				</div>
 			</div>
+
+			<div class="row">
+				<div class="col-md-12" ng-show="timelineEvents.length > 0">
+					<h3>Timeline of Results</h3>
+					<horizontal-timeline
+						start-date="{{startDate.toLocaleDateString()}}"
+						end-date="{{endDate.toLocaleDateString()}}"
+						events="timelineEvents">
+					</horizontal-timeline>
+				</div>
+			</div>
+
+			<div class="row" ng-show="selectedCity != false">
+				<div class="col-md-12">
+					<h4>{{selectedCity}}</h4>
+					<ul>
+						<li ng-repeat="e in allMarkers[selectedCity]">
+							<a href="http://chroniclingamerica.loc.gov/lccn/{{e.seq_num}}/{{e.date}}/{{e.ed}}/{{e.seq}}.pdf" target="_blank" ng-click="clickedPaper(e)">
+								{{e.date}} {{newspapers[e.seq_num].name}} p{{e.seq.split('-').pop()}}
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
 		</div>
 
 		<!-- Map -->
@@ -168,28 +204,6 @@
 			<leaflet tiles="tiles"  markers="markers" event-broadcast="events" center="center" width="100%" height="83%"></leaflet>
 		</div>
 
-		<div class="row" ng-cloak>
-			<div class="col-md-12" ng-show="timelineEvents.length > 0">
-				<h3>Timeline of Results</h3>
-				<horizontal-timeline
-					start-date="{{startDate.toLocaleDateString()}}"
-					end-date="{{endDate.toLocaleDateString()}}"
-					events="timelineEvents">
-				</horizontal-timeline>
-			</div>
-		</div>
-		<div class="row" ng-cloak ng-show="selectedCity != false">
-			<div class="col-md-12">
-				<h4>{{selectedCity}}</h4>
-				<ul>
-					<li ng-repeat="e in allMarkers[selectedCity]">
-						<a href="http://chroniclingamerica.loc.gov/lccn/{{e.seq_num}}/{{e.date}}/{{e.ed}}/{{e.seq}}.pdf" target="_blank" ng-click="clickedPaper(e)">
-							{{e.date}} &mdash; {{newspapers[e.seq_num].name}}
-						</a>
-					</li>
-				</ul>
-			</div>
-		</div>
 		<footer>
 			<div class="col-md-offset-3 col-md-3 vcenter">
 				<a href="http://www.gtri.gatech.edu/icl" target="_blank">
@@ -200,7 +214,6 @@
 				<a href="http://www.ehistory.org/" target="_blank">
 					<img src="images/eHistory.png" class="img-responsive" />
 				</a>
-				<br/> &nbsp;
 			</div>
 		</footer>
 

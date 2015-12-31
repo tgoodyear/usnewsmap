@@ -20,6 +20,7 @@ header h2 {
     font-size: 4.5em;
     font-family: serif;
     font-weight: bold;
+    color: #EFEFEF;
 }
 .nav {
     background-color: rgb(52,133,160);
@@ -80,4 +81,87 @@ header h2 {
 }
 .highlighted {
     background: yellow
+}
+.leaflet-popup-content {
+    color: #333;
+}
+
+.control-pane{
+    position: absolute;
+    /* background: white; */
+    border: 2px solid #AAA;
+    right: 1%;
+    top: 21%;
+    background-color: #333;
+    z-index: 1;
+    width: 30%;
+    opacity: 0.9;
+    color: #EEE;
+    height: 60%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 10px;
+}
+
+
+h2 a:hover, h2 a:visited, h2 a:active, h2 a:link {
+    text-decoration: none;
+    color: #EFEFEF;
+}
+
+.control-pane a:link {
+    color: #7cbdd3;
+}
+
+.control-pane a:hover {
+    color: #9cddf3;
+}
+
+.control-pane a:visited, .control-pane a:active {
+    color: #3c7d93;
+    text-decoration: underline;
+}
+
+.marker-cluster div {
+    color: transparent;
+}
+
+.marker-cluster-tiny {
+    background-color: rgba(24,84,104, 0.6);
+}
+.marker-cluster-tiny div {
+    background-color: rgba(24,84,104, 1);
+}
+
+.marker-cluster-small {
+    background-color: rgba(35,101,124, 0.6);
+}
+.marker-cluster-small div {
+    background-color: rgba(35,101,124, 1);
+}
+
+.marker-cluster-medium {
+    background-color: rgba(51,120,144, 0.6);
+}
+.marker-cluster-medium div {
+    background-color: rgba(51,120,144, 1);
+}
+
+.marker-cluster-large {
+    background-color: rgba(69,139,163, 0.6);
+}
+.marker-cluster-large div {
+    background-color: rgba(69,139,163, 1);
+}
+
+.marker-cluster-huge {
+    background-color: rgba(92,157,179, 0.6);
+}
+.marker-cluster-huge div {
+    background-color: rgba(92,157,179, 1);
+}
+
+
+.timeline-event-box {
+    color: #333;
 }
