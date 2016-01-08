@@ -59,6 +59,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         showTimeLine : false,
         popupTextData : "",
         search_started : false,
+        defaults : {
+            zoomControlPosition: 'centerleft'
+        },
         interval_var : 1,
         loadingStatus : false,
         markerYears: 1,

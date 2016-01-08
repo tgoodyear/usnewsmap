@@ -42,7 +42,7 @@ def docSearch():
     flaskData = json.loads(request.data)
     user_id = uuid.UUID(flaskData['user_id'])
 
-    searchString = flaskData['search']
+    searchString = flaskData['search'].replace('"','')
     search = ''.join(['text:"',searchString,'"'])
     shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     sort = ''.join(['&sort=random_',str(user_id.int),'%20desc'])
