@@ -78,7 +78,7 @@
 					</label>
 				</div>
 				<div class="col-sm-3" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0">
-					Showing {{resultsShowing | number}} of {{meta['available'] | number}} results.<br/>
+					Showing {{resultsShowing | number}} of {{meta['available'] | number}} results.
 					<label class="label label-info clickable" ng-click="loadMore()" ng-show="resultsShowing < meta['available']">
 						Load {{meta.batchSize}} More
 					</label>
@@ -94,7 +94,7 @@
 						An error has occured while searching. Please try again and send an email to usnewsmap@gtri.gatech.edu if the problem persists.
 					</div>
 				</div>
-				<div class="col-sm-1 text-right">
+				<div class="text-right col-sm-1" ng-class="{'col-sm-offset-3':!(meta.hasOwnProperty('rows') && meta['available'] > 0)}">
 					<span ng-show="loadingStatus"><i class="fa fa-lg fa-spinner fa-spin"></i></span>
 					<button type="submit" class="btn submit-btn">
 						<i class="fa fa-2x fa-arrow-circle-right"></i>
@@ -142,7 +142,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="timeline-results row" ng-show="icons['history']">
+		<div class="timeline-results row" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0 && icons['history'] && search_started && !loadingStatus">
 			<flot dataset="timelineData" options="chartOptions"></flot>
 		</div>
 
@@ -155,7 +155,7 @@
 					<h4 style="font-size:14px;">{{allMarkers[selectedCity].length}} results</h4>
 				</div>
 				<div class="col-sm-2 text-right">
-					<i class="fa fa-close" ng-click="cityResultsClosed=true"></i>
+					<i class="fa fa-close" ng-click="cityResultsClosed=true" style="cursor:pointer"></i>
 				</div>
 			</div>
 			<div class="row">
