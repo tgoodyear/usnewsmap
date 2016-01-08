@@ -1,5 +1,5 @@
 // The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
-var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline']);
+var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline','ui.bootstrap-slider']);
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents", "$window",
                 function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents, $window) {
 
@@ -23,7 +23,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             accessToken: 'pk.eyJ1IjoidGdvb2R5ZWFyIiwiYSI6ImNpZnlwcjZ6MzViYTB1dWtzN2dnN2x4b2QifQ.3UtPEf_PlHMgqWDX7t1TOA',// API Access Token
     	    continuousWorld: false,
             // This option disables loading tiles outside of the world bounds.
-            noWrap: true
+            noWrap: false
         }
     };
 
@@ -185,6 +185,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.rangeDate = new Date($scope.range/1);
         $scope.isOn = !$scope.isOn;//Flips $scope.isOnx to its inverse
         $window.ga('send', 'event','Map','playback','sliderMoved');
+        $scope.filter();
     }
     // This function is what figures out which markers to show on the map. Uses $scope.markers as a stack. Since the markers in $scope.allMarkers are already
     // sorted, as we push from the beginning of allMarkers to markers, we guarentee that the oldest markes will be at the bottom of the stack and the "youngest"
@@ -328,6 +329,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     // This function is called when you press the play/pause button.
     $scope.play = function(){
+        if($scope.range == -1420070400000){
+            $scope.range = -4228588800000;
+        }
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
         if ($scope.isPlaying){//if true we will have play range function be called every 100 seconds.
             $scope.interval_var = $interval($scope.playRange,400);
@@ -400,5 +404,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.iconClick = function(icon){
         $scope.icons[icon] = !$scope.icons[icon];
     };
-
+    console.log($scope.startDate.getTime());
+    console.log($scope.endDate.getTime());
 }]);
