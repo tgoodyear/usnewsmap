@@ -60,7 +60,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         popupTextData : "",
         search_started : false,
         defaults : {
-            zoomControlPosition: 'centerleft'
+            zoomControlPosition: 'bottomright'
         },
         interval_var : 1,
         loadingStatus : false,
@@ -73,7 +73,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         markerKeyValues : [3,12,50],
         selectedCity : false,
         userSet : false,
-        icons : {'search':true,'play':false,'history':false}
+        icons : {'search':true,'play':false,'history':false},
+        cityResultsClosed:false
     });
 
     if(!$scope.userSet){
@@ -162,6 +163,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             if(origShowing == 0){
                 $window.ga('send','event' ,'Search','searched',$scope.search,$scope.resultsShowing);
                 $window.ga('send','timing','Search',$scope.search,respTime - startTime);
+                $scope.icons['play'] = true;
             } else {
                 $window.ga('send', 'event','Search','LoadMore',$scope.search,$scope.resultsShowing);
                 $window.ga('send','timing','LoadMore',$scope.search,respTime - startTime);
@@ -373,6 +375,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.getMetaData = function(mark){
         $scope.selectedCity = mark.hash;
         $window.ga('send', 'event','Map','markerClicked',$scope.selectedCity);
+        $scope.cityResultsClosed = false;
 
         var SNs = _.uniq(_.pluck($scope.allMarkers[mark['hash']],'seq_num'));
         $http.post('/loc_api/news_meta',{"sn":SNs})
@@ -395,9 +398,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     };
 
     $scope.iconClick = function(icon){
-        for(i in $scope.icons){
-            $scope.icons[i] = i == icon;
-        }
+        $scope.icons[icon] = !$scope.icons[icon];
     };
 
 }]);

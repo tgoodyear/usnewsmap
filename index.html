@@ -26,10 +26,10 @@
 	<body ng-controller="MapCtrl" ng-cloak>
 		<!-- Header -->
 		<header class="row">
-			<div class="col-md-6">
+			<div class="col-sm-6">
 				<h2 style="padding-top:0;margin-top:0;"><a href="/"><i class="fa fa-map-marker"></i> US News Map</a></h2>
 			</div>
-			<div class="col-md-6 text-right icons">
+			<div class="col-sm-6 text-right icons">
 				<i class="fa fa-search" ng-class="{iconSelected: icons['search']}" ng-click="iconClick('search')"></i>
 				<i class="fa fa-play-circle-o" ng-class="{iconSelected: icons['play']}" ng-click="iconClick('play')"></i>
 				<i class="fa fa-history" ng-class="{iconSelected: icons['history']}" ng-click="iconClick('history')"></i>
@@ -37,10 +37,10 @@
 		</header>
 
 		<!-- Search -->
-		<div class="row nav form-inline">
+		<div class="row nav form-inline" ng-show="icons['search']">
 			<form ng-submit="newSearch()">
 				<!-- Search Term -->
-				<div class="col-md-2">
+				<div class="col-sm-2">
 					<div class="de-input">
 						<label for="input-search">Search Term</label>
 						<input type="text" ng-model="search" id="input-search" />
@@ -48,7 +48,7 @@
 				</div>
 
 				<!-- Start Date -->
-				<div class="col-md-2">
+				<div class="col-sm-2">
 						<div class="de-input">
 							<label for="input-startDate">Start Date</label>
 							<input type="date" ng-model="startDate" min="1836-01-01" max="1925-01-01" id="input-startDate" />
@@ -56,32 +56,51 @@
 				</div>
 
 				<!-- End Date -->
-				<div class="col-md-2">
+				<div class="col-sm-2">
 					<div class="de-input">
 						<label for="input-endDate">End Date</label>
 						<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-02" id="input-endDate" />
 					</div>
 				</div>
 
-				<div class="btn-group btn-group-sm col-md-2 text-center" data-toggle="buttons">
-					<label class="btn btn-info" ng-class="{active:lit_or_fuzz=='Literal'}">
+				<div class="btn-group btn-group-sm col-sm-2 text-center" data-toggle="buttons">
+					<label class="btn btn-info radio-btn" ng-class="{active:lit_or_fuzz=='Literal'}">
 		            	<input type="radio" name="searchType" ng-model="lit_or_fuzz" value="Literal" autocomplete="off" checked />
 						Literal
 					</label>
-					<label class="btn btn-info" ng-class="{active:lit_or_fuzz=='Fuzzy'}">
+					<label class="btn btn-info radio-btn" ng-class="{active:lit_or_fuzz=='Fuzzy'}">
 		            	<input type="radio" name="searchType" ng-model="lit_or_fuzz" value="Fuzzy" autocomplete="off" />
 						Fuzzy
 					</label>
 				</div>
-				<div class="col-md-2 text-right">
+				<div class="col-sm-1 text-right">
 					<span ng-show="loadingStatus"><i class="fa fa-spinner fa-spin"></i></span>
-					<input type="submit" id="submit" class="btn btn-default" value="Search" ng-disabled="loadingStatus" />
+					<button type="submit" class="btn submit-btn">
+						<i class="fa fa-2x fa-arrow-circle-right"></i>
+					</button>
+				</div>
+				<div class="col-sm-3" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0">
+					Showing {{resultsShowing | number}} of {{meta['available'] | number}} results.<br/>
+					<label class="label label-info clickable" ng-click="loadMore()" ng-show="resultsShowing < meta['available']">
+						Load {{meta.batchSize}} More
+					</label>
+				</div>
+				<div class="col-sm-3" ng-show="meta.hasOwnProperty('rows') && meta['available'] == 0">
+					<br/>
+					No results found. Please try a broader search term or time period.
+				</div>
+				<div class="col-sm-3" ng-show="errorStatus">
+					<br/>
+					<div class="alert alert-warning">
+						<h4>We Apologize</h4>
+						An error has occured while searching. Please try again and send an email to usnewsmap@gtri.gatech.edu if the problem persists.
+					</div>
 				</div>
 			</form>
 		</div>
-		<div class="control-pane" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0">
+		<div class="control-pane" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0 && icons['play']">
 			<div class="row" ng-show="!ack && 0">
-				<div class="col-md-12">
+				<div class="col-sm-12">
 					<br/>
 					<div class="alert alert-warning">
 						<h4>Maintenance Notice</h4>
@@ -93,76 +112,55 @@
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="col-md-12" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0">
-					<br/>
-					Showing {{resultsShowing | number}} of {{meta['available'] | number}} results.<br/>
-					<label class="label label-info clickable" ng-click="loadMore()" ng-show="resultsShowing < meta['available']">
-						Load {{meta.batchSize}} More
-					</label>
-				</div>
-				<div class="col-md-12" ng-show="meta.hasOwnProperty('rows') && meta['available'] == 0">
-					<br/>
-					No results found. Please try a broader search term or time period.
-				</div>
-				<div class="col-md-12" ng-show="errorStatus">
-					<br/>
-					<div class="alert alert-warning">
-						<h4>We Apologize</h4>
-						An error has occured while searching. Please try again and send an email to usnewsmap@gtri.gatech.edu if the problem persists.
+			<div ng-show="search_started && !loadingStatus" class="row">
+				<div class="col-sm-4">
+					<div class="btn-group btn-group-sm" data-toggle="buttons">
+						<label class="btn btn-info" ng-class="{active:markersConstant}">
+							<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="true" autocomplete="off" checked ng-change="setMarkers()" />
+							Show Cumulative Hits
+						</label>
+						<label class="btn btn-info" ng-class="{active:!markersConstant}">
+							<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="false" autocomplete="off" ng-change="setMarkers()" />
+							Show Hits Within {{markerYears}}
+							<ng-pluralize count="markerYears" when="{'1': 'Year', 'other': 'Years'}"></ng-pluralize>
+						</label>
 					</div>
 				</div>
-			</div>
-
-			<div ng-show="search_started && !loadingStatus">
-				<h3>Playback</h3>
-				<div class="btn-group btn-group-sm" data-toggle="buttons">
-					<label class="btn btn-info" ng-class="{active:markersConstant}">
-						<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="true" autocomplete="off" checked ng-change="setMarkers()" />
-						Show Cumulative Hits
-					</label>
-					<label class="btn btn-info" ng-class="{active:!markersConstant}">
-						<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="false" autocomplete="off" ng-change="setMarkers()" />
-						Show Hits Within {{markerYears}}
-						<ng-pluralize count="markerYears" when="{'1': 'Year', 'other': 'Years'}"></ng-pluralize>
-					</label>
-				</div>
-
-				<div class="row">
-					<div class="col-md-12 form-inline">
-						<div class="row form-inline" ng-show="!markersConstant">
-							<div class="col-md-3">
-								<label for="markerYears-input">
-									Years
-								</label>
-							</div>
-							<div class="col-md-9">
-								 <input id="markerYears-input" class="form-control" type="number" name="points" ng-model="markerYears" ng-change="setMarkers()" min="1" max="100" step="1" value="10" />
-							</div>
-						</div>
-						<div class="row form-inline" style="margin-top:5px;">
-							<div class="col-md-3">
-								<label for="playback_date">
-									Playback Date
+				<div class="col-sm-4">
+					<div class="row form-inline" ng-show="!markersConstant">
+						<div class="col-sm-3">
+							<label for="markerYears-input">
+								Years
 							</label>
-							</div>
-							<div class="col-md-9">
-								<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()" class="form-control" id="playback_date" />
-							</div>
+						</div>
+						<div class="col-sm-9">
+							 <input id="markerYears-input" class="form-control" type="number" name="points" ng-model="markerYears" ng-change="setMarkers()" min="1" max="100" step="1" value="10" />
+						</div>
+					</div>
+					<div class="row form-inline" style="margin-top:5px;">
+						<div class="col-sm-3">
+							<label for="playback_date">
+								Playback Date
+							</label>
+						</div>
+						<div class="col-sm-9">
+							<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()" class="form-control" id="playback_date" />
 						</div>
 					</div>
 				</div>
-				<div class="row">
-					<div class="col-md-12 form-inline">
+				<div class="col-sm-3">
+					<div class="col-sm-10 form-inline">
 						<input type="range" min="{{startDate.getTime()}}" max="{{endDate.getTime()}}" ng-model="range" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-change="filter()" step="31536000000" />
-						<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
-						<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
 					</div>
+				</div>
+				<div class="col-sm-1">
+					<button ng-hide="isPlaying" ng-click="play()" class="form-control">Play</button>
+					<button ng-show="isPlaying" ng-click="play()" class="form-control">Pause</button>
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="col-md-12" ng-show="timelineEvents.length > 0">
+			<div class="row" ng-show="false">
+				<div class="col-sm-12" ng-show="timelineEvents.length > 0">
 					<h3>Timeline of Results</h3>
 					<horizontal-timeline
 						start-date="{{startDate.toLocaleDateString()}}"
@@ -171,10 +169,19 @@
 					</horizontal-timeline>
 				</div>
 			</div>
+		</div>
 
-			<div class="row" ng-show="selectedCity != false">
-				<div class="col-md-12">
+		<div class="city-results" ng-hide="cityResultsClosed || selectedCity == false">
+			<div class="row">
+				<div class="col-sm-8">
 					<h4>{{selectedCity}}</h4>
+				</div>
+				<div class="col-sm-4 text-right">
+					<i class="fa fa-close" ng-click="cityResultsClosed=true"></i>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
 					<ul>
 						<li ng-repeat="e in allMarkers[selectedCity]">
 							<a href="http://chroniclingamerica.loc.gov/lccn/{{e.seq_num}}/{{e.date}}/{{e.ed}}/{{e.seq}}.pdf" target="_blank" ng-click="clickedPaper(e)">
@@ -187,18 +194,15 @@
 		</div>
 
 		<!-- Map -->
-
-		<div class="row">
-			<leaflet tiles="tiles" defaults="defaults" markers="markers" event-broadcast="events" center="center" width="100%" height="100%"></leaflet>
-		</div>
+		<leaflet tiles="tiles" defaults="defaults" markers="markers" event-broadcast="events" center="center" width="100%" height="100%"></leaflet>
 
 		<footer>
-			<div class="col-md-offset-3 col-md-3 vcenter">
+			<div class="col-sm-offset-3 col-sm-3 vcenter">
 				<a href="http://www.gtri.gatech.edu/icl" target="_blank">
 					<img src="images/GTRI_Logo_solid.png" class="img-responsive" />
 				</a>
 			</div><!--
-    	--><div class="col-md-2 text-center vcenter" style="padding-top:5px;">
+    	--><div class="col-sm-2 text-center vcenter" style="padding-top:5px;">
 				<a href="http://www.ehistory.org/" target="_blank">
 					<img src="images/UGA_Logo.png" class="img-responsive" />
 				</a>
