@@ -24,6 +24,7 @@
 		<script type="text/javascript" src="js/bower-angular-sanitize/angular-sanitize.js"></script>
 		<script type="text/javascript" src="js/bootstrap-slider.js"></script>
 		<script type="text/javascript" src="js/slider.js"></script>
+		<script type="text/javascript" src="js/angular-flot.js"></script>
 	</head>
 
 	<body ng-controller="MapCtrl" ng-cloak>
@@ -129,7 +130,7 @@
 				</div>
 			</div>
 
-			<div ng-class="{'col-md-5':markersConstant,'col-md-4':!markersConstant}" class="form-inline">
+			<div ng-class="{'col-md-5':markersConstant,'col-md-4':!markersConstant}" class="form-inline" style="padding-top:10px;">
 				<slider ng-model="range" min="-4228588800000" step="31536000000" max="-1420070400000" tooltip="hide" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-change="filter()" step="31536000000"></slider>
 			</div>
 			<div class="col-sm-1 text-right">
@@ -141,15 +142,8 @@
 				</button>
 			</div>
 		</div>
-		<div class="row" ng-show="false">
-			<div class="col-sm-12" ng-show="timelineEvents.length > 0">
-				<h3>Timeline of Results</h3>
-				<horizontal-timeline
-					start-date="{{startDate.toLocaleDateString()}}"
-					end-date="{{endDate.toLocaleDateString()}}"
-					events="timelineEvents">
-				</horizontal-timeline>
-			</div>
+		<div class="timeline-results row" ng-show="icons['history']">
+			<flot dataset="timelineData" options="chartOptions"></flot>
 		</div>
 
 		<div class="city-results" ng-hide="cityResultsClosed || selectedCity == false">
@@ -198,15 +192,17 @@
 		</footer>
 
 		<script>
-			!function(G,T,R,I,u,g,a){G.GoogleAnalyticsObject=R;G[R]||(G[R]=function(){
-			(G[R].q=G[R].q||[]).push(arguments)});G[R].l=+new Date;g=T.createElement(I);
-			a=T.getElementsByTagName(I)[0];g.src=u;a.parentNode.insertBefore(g,a)}
+			!function(g,t,r,i,U,G,A){g.GoogleAnalyticsObject=r;g[r]||(g[r]=function(){
+			(g[r].q=g[r].q||[]).push(arguments)});g[r].l=+new Date;G=t.createElement(i);
+			A=t.getElementsByTagName(i)[0];G.src=U;A.parentNode.insertBefore(G,A)}
 			(window,document,'ga','script','//www.google-analytics.com/analytics.js');
-
 
 			ga('create', 'UA-41089209-6', 'auto');
 			ga('send', 'pageview');
 		</script>
+		<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript" src="js/flot/jquery.flot.min.js"></script>
+		<script type="text/javascript" src="js/flot/jquery.flot.resize.min.js"></script>
   	</body>
 
 </html>

@@ -1,5 +1,5 @@
 // The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
-var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline','ui.bootstrap-slider']);
+var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline','ui.bootstrap-slider','angular-flot']);
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents", "$window",
                 function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents, $window) {
 
@@ -74,7 +74,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         selectedCity : false,
         userSet : false,
         icons : {'search':true,'play':false,'history':false},
-        cityResultsClosed:false
+        cityResultsClosed:false,
+        chartOptions: {},
+        timelineData: []
     });
 
     if(!$scope.userSet){
@@ -164,6 +166,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 $window.ga('send','event' ,'Search','searched',$scope.search,$scope.resultsShowing);
                 $window.ga('send','timing','Search',$scope.search,respTime - startTime);
                 $scope.icons['play'] = true;
+                $scope.icons['history'] = true;
+                $scope.range = $scope.endDate.getTime();
             } else {
                 $window.ga('send', 'event','Search','LoadMore',$scope.search,$scope.resultsShowing);
                 $window.ga('send','timing','LoadMore',$scope.search,respTime - startTime);
@@ -367,13 +371,18 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     $scope.setTimeline = function(marks){
         $scope.timelineEvents = [];
+        $scope.timelineData = [];
+        var dat = {}
         for (e in marks){
             var ev = marks[e];
             var tDate = ev.timeDate.split('/');
             var timelineDate = tDate[2] + '-' + tDate[0] + '-' + tDate[1];
             var timelineEvent = {"date":timelineDate,"content":timelineDate,"data":ev};
             $scope.timelineEvents.push(timelineEvent);
+            dat[tDate[2]] = dat.hasOwnProperty(tDate[2]) ? dat[tDate[2]] + 1 : 1;
         }
+        var data = _.values(_.transform(dat,function(result,n,key){result[key] = [key,n];}));
+        $scope.timelineData = [{data:data,yaxis:1}];
     }
 
     $scope.getMetaData = function(mark){
@@ -404,6 +413,4 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.iconClick = function(icon){
         $scope.icons[icon] = !$scope.icons[icon];
     };
-    console.log($scope.startDate.getTime());
-    console.log($scope.endDate.getTime());
 }]);
