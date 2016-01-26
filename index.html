@@ -17,8 +17,7 @@
 		<script type="text/javascript" src="js/leaflet/leaflet.js"></script>
 		<script type="text/javascript" src="js/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
 		<script type="text/javascript" src="js/ngRangeSlider-master/dist/ng-range-slider.js"></script>
-		<script type="text/javascript" src="js/map.dev.js"></script>
-		<script type="text/javascript" src="js/angular-horizontal-timeline-master/angular-horizontal-timeline.js"></script>
+		<script type="text/javascript" src="js/map.js"></script>
 		<script type="text/javascript" src="js/moment.js"></script>
 		<script type="text/javascript" src="js/moment-range/lib/moment-range.js"></script>
 		<script type="text/javascript" src="js/bower-angular-sanitize/angular-sanitize.js"></script>
@@ -34,6 +33,7 @@
 				<h2 style="padding-top:0;margin-top:0;"><a href="/"><i class="fa fa-map-marker"></i> US News Map</a></h2>
 			</div>
 			<div class="col-sm-6 text-right icons">
+				<i class="fa fa-question" ng-class="{iconSelected: icons['info']}" ng-click="iconClick('info')"></i>
 				<i class="fa fa-search" ng-class="{iconSelected: icons['search']}" ng-click="iconClick('search')"></i>
 				<i class="fa fa-play-circle-o" ng-class="{iconSelected: icons['play']}" ng-click="iconClick('play')"></i>
 				<i class="fa fa-history" ng-class="{iconSelected: icons['history']}" ng-click="iconClick('history')"></i>
@@ -146,8 +146,26 @@
 			<flot dataset="timelineData" options="chartOptions"></flot>
 		</div>
 
-		<div class="city-results" ng-hide="cityResultsClosed || selectedCity == false">
-			<div class="row">
+		<div class="city-results" ng-hide="(cityResultsClosed || selectedCity == false) && icons['info'] == false">
+			<div class="row" ng-show="icons['info']">
+				<div class="col-md-12">
+					<div style="float:right;display:block;margin:5px;">
+						<i class="fa fa-close" ng-click="iconClick('info')" style="cursor:pointer"></i>
+					</div>
+					<p>USNewsMap.com allows users to search <a href="http://chroniclingamerica.loc.gov" target="_blank">Chronicling America: Historic American Newspapers</a> and visualize the results across space and time.
+
+					<p>A literal search will find newspaper articles containing the exact phrase as entered.
+
+					<p>A fuzzy search will find newspaper articles with up to four words between each of the entered terms.
+
+					<p>Boolean logic (and, or, not) is permitted.
+
+					<p>USNewsMap.com is a creation of <a href="http://gtri.gatech.edu/icl" target="_blank">Georgia Tech Research Institute</a> and <a href="http://eHistory.org" target="_blank">eHistory.org at the University of Georgia</a>. Chronicling America: Historic American Newspapers is sponsored jointly by the National Endowment for the Humanities and the Library of Congress.
+
+					<p>You may contact us at info@ehistory.org.
+				</div>
+			</div>
+			<div class="row" ng-hide="icons['info']">
 				<div class="col-sm-6">
 					<h4>{{selectedCity}}</h4>
 				</div>
@@ -158,7 +176,7 @@
 					<i class="fa fa-close" ng-click="cityResultsClosed=true" style="cursor:pointer"></i>
 				</div>
 			</div>
-			<div class="row">
+			<div class="row" ng-hide="icons['info']">
 				<div class="col-sm-12">
 					<ul>
 						<li ng-repeat="e in allMarkers[selectedCity]">
@@ -176,7 +194,7 @@
 		</div>
 
 		<!-- Map -->
-		<leaflet tiles="tiles" defaults="defaults" markers="markers" event-broadcast="events" center="center" width="100%" height="100%"></leaflet>
+		<leaflet tiles="tiles" defaults="defaults" markers="markers" event-broadcast="events" center="center" width="100%" height="100%" geojson="geojson"></leaflet>
 
 		<footer>
 			<div class="col-sm-offset-3 col-sm-3 vcenter">
@@ -200,6 +218,7 @@
 			ga('create', 'UA-41089209-6', 'auto');
 			ga('send', 'pageview');
 		</script>
+		<script type="text/javascript" src="js/us-states.js"></script>
 		<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
 		<script type="text/javascript" src="js/flot/jquery.flot.min.js"></script>
 		<script type="text/javascript" src="js/flot/jquery.flot.resize.min.js"></script>

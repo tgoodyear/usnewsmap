@@ -1,24 +1,14 @@
 // The name of the app, we also use leaflet-directive for the map and ngRangeSlider for the slider.
-var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','angular-horizontal-timeline']);
+var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','ui.bootstrap-slider','angular-flot']);
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents", "$window",
                 function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents, $window) {
 
-
-    // These are the bounds of the map, currently centered on the contenental US.
-    /*
-    var bounds = leafletBoundsHelpers.createBoundsFromArray([
-//        [64.583489, -59.778114 ],//Northeast  Including Alaska
-//        [16.278214, -171.071335 ],//Southwest Including Hawaii
-    	[50.142969 ,-59.608484],   // Northeast
-    	[23.687046,-129.118134]    // Southwest
-    ]);
-*/
     // This gets the actual tiles that form the map
     var tiles = {
         url: "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
         options: {
             attribution: '',
-            maxZoom: 9,
+            maxZoom: 8,
             id: 'tgoodyear.cifypr5uo5bccuzkszn0emy7c', // API Key
             accessToken: 'pk.eyJ1IjoidGdvb2R5ZWFyIiwiYSI6ImNpZnlwcjZ6MzViYTB1dWtzN2dnN2x4b2QifQ.3UtPEf_PlHMgqWDX7t1TOA',// API Access Token
     	    continuousWorld: false,
@@ -35,7 +25,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         center: {// This is the center of our map, which is currently over the geographical center of the continental US.
             lat: 36.985003092856,
             lng: -95.77880859375,
-            zoom: 4
+            zoom: 5
         },
         lit_or_fuzz : "Literal",
         tiles: tiles,// This is the var tiles from above.
@@ -59,6 +49,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         showTimeLine : false,
         popupTextData : "",
         search_started : false,
+        defaults : {
+            zoomControlPosition: 'bottomright'
+        },
         interval_var : 1,
         loadingStatus : false,
         markerYears: 1,
@@ -70,8 +63,31 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         markerKeyValues : [3,12,50],
         selectedCity : false,
         userSet : false,
-        icons : {'search':true,'play':false,'history':false}
+        icons : {'search':true,'play':false,'history':false,'info':false},
+        cityResultsClosed:false,
+        chartOptions: {},
+        timelineData: [],
+		geojson: {
+			data: statesData,
+			style: {
+				fillColor: "black",
+				weight: 1,
+				opacity: 0.9,
+				color: 'grey',
+				dashArray: '1',
+				fillOpacity: 0.9
+			}
+		}
     });
+
+	 var stateMouseover = function (feature, leafletEvent) {
+		var layer = leafletEvent.target;
+		layer.bindPopup("No digitized newspapers available for " + feature.properties.name);
+	};
+
+	$scope.$on("leafletDirectiveGeoJson.click", function(ev, leafletPayload) {
+		stateMouseover(leafletPayload.leafletObject.feature, leafletPayload.leafletEvent);
+	});
 
     if(!$scope.userSet){
         $window.ga('set', '&uid', $scope.user_id);
@@ -104,7 +120,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             for (pos in search){
                 search[pos] = search[pos] + "~"
             }
-            search = '%7B!complexphrase+inOrder%3Dtrue%7Dtext%3A"'+search.join("+")+'"';
+            search = '%7B!complexphrase+inOrder%3Dfalse%7Dtext%3A"'+search.join("+")+'"';
         } else{
             search = search.join("+");
         }
@@ -159,6 +175,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             if(origShowing == 0){
                 $window.ga('send','event' ,'Search','searched',$scope.search,$scope.resultsShowing);
                 $window.ga('send','timing','Search',$scope.search,respTime - startTime);
+                $scope.icons['play'] = true;
+                $scope.icons['history'] = true;
+                $scope.range = $scope.endDate.getTime();
             } else {
                 $window.ga('send', 'event','Search','LoadMore',$scope.search,$scope.resultsShowing);
                 $window.ga('send','timing','LoadMore',$scope.search,respTime - startTime);
@@ -180,6 +199,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.rangeDate = new Date($scope.range/1);
         $scope.isOn = !$scope.isOn;//Flips $scope.isOnx to its inverse
         $window.ga('send', 'event','Map','playback','sliderMoved');
+        $scope.filter();
     }
     // This function is what figures out which markers to show on the map. Uses $scope.markers as a stack. Since the markers in $scope.allMarkers are already
     // sorted, as we push from the beginning of allMarkers to markers, we guarentee that the oldest markes will be at the bottom of the stack and the "youngest"
@@ -323,6 +343,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     // This function is called when you press the play/pause button.
     $scope.play = function(){
+        if($scope.range == -1420070400000){
+            $scope.range = -4228588800000;
+        }
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
         if ($scope.isPlaying){//if true we will have play range function be called every 100 seconds.
             $scope.interval_var = $interval($scope.playRange,400);
@@ -358,18 +381,24 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     $scope.setTimeline = function(marks){
         $scope.timelineEvents = [];
+        $scope.timelineData = [];
+        var dat = {}
         for (e in marks){
             var ev = marks[e];
             var tDate = ev.timeDate.split('/');
             var timelineDate = tDate[2] + '-' + tDate[0] + '-' + tDate[1];
             var timelineEvent = {"date":timelineDate,"content":timelineDate,"data":ev};
             $scope.timelineEvents.push(timelineEvent);
+            dat[tDate[2]] = dat.hasOwnProperty(tDate[2]) ? dat[tDate[2]] + 1 : 1;
         }
+        var data = _.values(_.transform(dat,function(result,n,key){result[key] = [key,n];}));
+        $scope.timelineData = [{data:data,yaxis:1},{xaxis: {tickSize:1, tickDecimals:0 }}];
     }
 
     $scope.getMetaData = function(mark){
         $scope.selectedCity = mark.hash;
         $window.ga('send', 'event','Map','markerClicked',$scope.selectedCity);
+        $scope.cityResultsClosed = false;
 
         var SNs = _.uniq(_.pluck($scope.allMarkers[mark['hash']],'seq_num'));
         $http.post('/loc_api/news_meta',{"sn":SNs})
@@ -392,9 +421,6 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     };
 
     $scope.iconClick = function(icon){
-        for(i in $scope.icons){
-            $scope.icons[i] = i == icon;
-        }
+        $scope.icons[icon] = !$scope.icons[icon];
     };
-
 }]);

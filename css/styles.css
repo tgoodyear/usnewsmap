@@ -29,7 +29,7 @@ header {
     margin: 0;
 }
 header h2 {
-    font-size: 4.5em;
+    font-size: 48px;
     font-family: serif;
     font-weight: bold;
     color: #EFEFEF;
@@ -100,6 +100,9 @@ header h2 {
   background-color: rgba(222,243,255,0.8);
 }
 
+.city-results a {
+	font-weight: bold;
+}
 .city-results a:link {
     color: #333;
 }
@@ -142,13 +145,13 @@ header h2 {
     color: #999;
     position: absolute;
     font-weight: normal !important;
-    padding:1px 0 1px 3px;
+    padding:1px 0 1px 5%;
     margin:0px;
 }
 .de-input input, .de-input select {
     width: 100%;
     height: 80%;
-    padding: 5% 3px 3px 5%;
+    padding: 7% 3px 3px 5%;
     font-size: 16px;
     font-family: sans-serif;
     color: #333;
