@@ -35,8 +35,8 @@
 			<div class="col-sm-6 text-right icons">
 				<i class="fa fa-question" ng-class="{iconSelected: icons['info']}" ng-click="iconClick('info')"></i>
 				<i class="fa fa-search" ng-class="{iconSelected: icons['search']}" ng-click="iconClick('search')"></i>
-				<i class="fa fa-play-circle-o" ng-class="{iconSelected: icons['play']}" ng-click="iconClick('play')"></i>
-				<i class="fa fa-history" ng-class="{iconSelected: icons['history']}" ng-click="iconClick('history')"></i>
+				<i class="fa fa-play-circle-o" ng-class="{iconSelected: icons['play'], iconDisabled:!search_started}" ng-click="iconClick('play')"></i>
+				<i class="fa fa-history" ng-class="{iconSelected: icons['history'], iconDisabled:!search_started}" ng-click="iconClick('history')"></i>
 			</div>
 		</header>
 
@@ -222,6 +222,7 @@
 		<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
 		<script type="text/javascript" src="js/flot/jquery.flot.min.js"></script>
 		<script type="text/javascript" src="js/flot/jquery.flot.resize.min.js"></script>
+		<script type="text/javascript" src="js/flot/jquery.flot.tooltip.min.js"></script>
   	</body>
 
 </html>
