@@ -50,3 +50,45 @@ On line 1875 of Angular-Leaflet-Directive.js the line needs to look something li
 tileLayer: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 ```
 if it is missing the http: then the app will break. Min does not have this so make sure to use the regular .js file.
+
+Startup Script
+==============
+```
+#!/bin/bash
+
+cd /home/ubuntu
+apt-get install -y htop iftop awscli iotop unzip default-jre zookeeper python-pip python-dev
+
+wget http://apache.go-parts.com/lucene/solr/5.4.1/solr-5.4.1.tgz
+tar xvf solr-5.4.1.tgz solr-5.4.1/bin/install_solr_service.sh --strip-components=2
+chmod +x install_solr_service.sh
+./install_solr_service.sh solr-5.4.1.tgz
+
+
+# to create the partitions programatically (rather than manually)
+# we're going to simulate the manual input to fdisk
+# The sed script strips off all the comments so that we can 
+# document what we're doing in-line with the actual commands
+# Note that a blank line (commented as "defualt" will send a empty
+# line terminated with a newline to take the fdisk default.
+sed -e 's/\t\([\+0-9a-zA-Z]*\)[ \t].*/\1/' << EOF | fdisk /dev/xvdb
+  o # clear the in memory partition table
+  n # new partition
+  p # primary partition
+  1 # default - partition number 1
+    # default - start at beginning of disk
+
+    # default - end at end of disk 
+
+  p # print the in-memory partition table
+  w # write the partition table
+  q # and we're done
+EOF
+
+mkfs.ext4 /dev/xvdb
+mount /dev/xvdb /mnt
+
+mkdir /mnt/solr
+mkdir /mnt/solr/data
+cp /opt/solr-5.4.1/server/solr/solr.xml /mnt/solr/data
+```
