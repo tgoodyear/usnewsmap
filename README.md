@@ -57,6 +57,7 @@ Startup Script
 #!/bin/bash
 
 cd /home/ubuntu
+apt-get update
 apt-get install -y htop iftop awscli iotop unzip default-jre zookeeper python-pip python-dev
 
 wget http://apache.go-parts.com/lucene/solr/5.4.1/solr-5.4.1.tgz
