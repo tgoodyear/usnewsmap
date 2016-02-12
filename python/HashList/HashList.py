@@ -31,7 +31,8 @@ class HashList:
 		self.hash_table.add_Node(new_node)
 
 	def update(self,date):
-
+		if self.head is None:
+			self.head = 0
 		if self.tail >= 0:
 			curr_node = self.linked_list[self.tail]
 

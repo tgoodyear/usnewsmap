@@ -62,7 +62,7 @@ def getText(urls):
     try:
         h = {'Content-type':'application/json'}
         g = requests.post(solrUrl,data=payload,headers=h)
-        # print g.text
+        print g.text
         return 1
     except Exception as e:
         sleepTime = (sleepTime+1)*2

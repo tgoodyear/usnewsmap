@@ -1,3 +1,4 @@
+from __future__ import division
 import datetime
 import re
 import requests
@@ -44,11 +45,12 @@ def docSearch():
 
     searchString = flaskData['search'].replace('"','')
     search = ''.join(['text:"',searchString,'"'])
-    shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
+    #shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
     sort = ''.join(['&sort=random_',str(user_id.int),'%20desc'])
     dateSearch = ''.join(['date_field:[',flaskData['startDate'],'+TO+',flaskData['endDate'],']+'])
-    numRows = 1000
+    numRows = 500
     pagination = '&rows=' + str(numRows) + '&start=' + str(flaskData['start'])
+    # url = ['http://a.usnewsmap.net:8983/solr/loc/select?q=',dateSearch,search,
     url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
         '&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
         ,'&q.op=AND', sort
@@ -67,13 +69,14 @@ def docSearch():
                 "solrTime":solrResp['responseHeader']['QTime']
                 # "q":url
             }
-    retObj = {"data":[],"meta":meta}
+    retObj = {"data":[],"meta":meta,"frequencies":[]}
 
     log_metadata(meta,searchString,url)
 
     if meta['available'] == 0:
         return json.dumps(retObj)
 
+    retObj['frequencies'] = getFreq(flaskData)
     resultsList = solrResp['response']['docs']
     if flaskData['start'] > 0:
         existingData = coll.find_one({"id":flaskData['user_id']})
@@ -139,6 +142,33 @@ def log_metadata(meta,search,url):
     obj['dateCreated'] = datetime.datetime.utcnow()
     obj.update(request.headers)
     logCollection.insert(obj)
+
+def getFreq(flaskData):
+    globalFreq = {1836:1798,1837:3662,1838:4896,1839:6664,1840:7682,1841:7905,1842:9300,1843:9301,1844:11271,1845:11666,1846:13395,1847:11713,1848:12966,1849:13129,1850:17216,1851:20236,1852:23414,1853:26305,1854:26684,1855:28348,1856:29562,1857:30618,1858:35334,1859:37689,1860:39900,1861:41613,1862:36326,1863:34502,1864:33711,1865:35792,1866:51372,1867:48381,1868:48036,1869:44845,1870:47468,1871:49297,1872:52996,1873:53875,1874:56374,1875:57112,1876:55018,1877:51613,1878:56439,1879:61438,1880:71290,1881:74003,1882:81175,1883:87451,1884:94211,1885:96043,1886:99523,1887:105844,1888:104071,1889:109376,1890:129453,1891:142431,1892:151292,1893:157094,1894:169563,1895:172359,1896:189546,1897:187778,1898:196695,1899:212314,1900:221567,1901:225438,1902:233644,1903:231682,1904:247743,1905:268166,1906:276029,1907:279085,1908:281283,1909:315339,1910:318104,1911:284628,1912:293786,1913:297669,1914:294896,1915:282396,1916:277674,1917:271030,1918:252884,1919:297172,1920:282027,1921:238189,1922:227616}
+    ret = []
+    searchTerms = flaskData['search']
+    dateStart = flaskData['startDate']
+    dateEnd = flaskData['endDate']
+    url = ['http://130.207.211.77:8983/solr/loc/select?q=text:',searchTerms,
+            '&facet=true&facet.date=date_field&facet.date.start=',dateStart,
+            '&facet.date.end=',dateEnd,'&facet.date.gap=%2B1YEAR&fl=date_field&wt=json']
+    r = requests.get(''.join(url))
+    solrResp = r.json()
+    freq = solrResp['facet_counts']['facet_dates']['date_field']
+    # Remove non-frequency keys
+    for k in ['end','gap','start']:
+        try:
+            del freq[k]
+        except KeyError:
+            pass
+    # Trim down key names to just the year and divide by global year frequency
+    freq = dict((k[:4],v) for k,v in freq.items())
+    for year in freq:
+        if int(year) in globalFreq:
+            ret.append([int(year),freq[year] / globalFreq[int(year)]])
+
+    # print ret
+    return ret
 
 
 def get_from_mongo(id):

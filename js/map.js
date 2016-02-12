@@ -23,8 +23,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         search : "",// Our Search term
         // maxbounds: bounds,//THe bounds of the map, see the var bounds above.
         center: {// This is the center of our map, which is currently over the geographical center of the continental US.
-            lat: 36.985003092856,
-            lng: -95.77880859375,
+            lat: 39.83333,
+            lng: -94.58333,
             zoom: 5
         },
         lit_or_fuzz : "Literal",
@@ -37,7 +37,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         endDate: new Date("1925-01-01"),// The latest date possible for search queries.
         range : new Date("1925-01-01").getTime(),// The range bar value, set to miliseconds since epoch and changed by the slider.
         rangeDate : new Date("1925-01-01"),// The date represented by the slider and range value.
-        events : {// Possible events the can affact the markers. Black Magic Voodoo
+        events : {
             markers: {
                 enable: leafletEvents.getAvailableMarkerEvents(),
             }
@@ -66,10 +66,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         icons : {'search':true,'play':false,'history':false,'info':false},
         cityResultsClosed:false,
         chartOptions: {
-            grid:  { hoverable: true }, //important! flot.tooltip requires this
+            grid:  { hoverable: true }, // flot.tooltip requires this
             tooltip: {
                 show: true,
-                content: "Year %x: %y"
+                content: "Year %x: %y.4"
             }},
         timelineData: [],
 		geojson: {
@@ -187,6 +187,10 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
                 $window.ga('send', 'event','Search','LoadMore',$scope.search,$scope.resultsShowing);
                 $window.ga('send','timing','LoadMore',$scope.search,respTime - startTime);
             }
+
+            data = _.sortBy(response['frequencies'],function(d){return d[0];});
+            // console.log(data);
+            $scope.timelineData = [{data:data,yaxis:1},{xaxis: {tickSize:1, tickDecimals:0 }}];
 
         })
         .error(function(response){
@@ -348,7 +352,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     // This function is called when you press the play/pause button.
     $scope.play = function(){
-        if($scope.range == -1420070400000){
+        if($scope.range >= -1420070400000){ // If current time position is end of timeline
             $scope.range = -4228588800000;
         }
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
@@ -394,13 +398,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             var timelineDate = tDate[2] + '-' + tDate[0] + '-' + tDate[1];
             var timelineEvent = {"date":timelineDate,"content":timelineDate,"data":ev};
             $scope.timelineEvents.push(timelineEvent);
-            dat[tDate[2]] = dat.hasOwnProperty(tDate[2]) ? dat[tDate[2]] + 1 : 1;
+            // dat[tDate[2]] = dat.hasOwnProperty(tDate[2]) ? dat[tDate[2]] + 1 : 1;
         }
-        var data = _.values(_.transform(dat,function(result,n,key){result[key] = [key,n/$scope.yearFreq[key]];}));
-        var dat = [];
-        _.forEach(data,function(value){dat.push(_.takeRight(value))});
-        console.log(data);
-        $scope.timelineData = [{data:data,yaxis:1},{xaxis: {tickSize:1, tickDecimals:0 }}];
     }
 
     $scope.getMetaData = function(mark){
@@ -435,5 +434,4 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.icons[icon] = !$scope.icons[icon];
     };
 
-    $scope.yearFreq = {1836: 1798,1837: 3662,1838: 4896,1839: 6664,1840: 7682,1841: 7905,1842: 9300,1843: 9301,1844: 11271,1845: 11666,1846: 13395,1847: 11713,1848: 12966,1849: 13129,1850: 17216,1851: 20236,1852: 23414,1853: 26305,1854: 26684,1855: 28348,1856: 29562,1857: 30618,1858: 35334,1859: 37689,1860: 39900,1861: 41613,1862: 36326,1863: 34502,1864: 33711,1865: 35792,1866: 51372,1867: 48381,1868: 48036,1869: 44845,1870: 47468,1871: 49297,1872: 52996,1873: 53875,1874: 56374,1875: 57112,1876: 55018,1877: 51613,1878: 56439,1879: 61438,1880: 71290,1881: 74003,1882: 81175,1883: 87451,1884: 94211,1885: 96043,1886: 99523,1887: 105844,1888: 104071,1889: 109376,1890: 129453,1891: 142431,1892: 151292,1893: 157094,1894: 169563,1895: 172359,1896: 189546,1897: 187778,1898: 196695,1899: 212314,1900: 221567,1901: 225438,1902: 233644,1903: 231682,1904: 247743,1905: 268166,1906: 276029,1907: 279085,1908: 281283,1909: 315339,1910: 318104,1911: 284628,1912: 293786,1913: 297669,1914: 294896,1915: 282396,1916: 277674,1917: 271030,1918: 252884,1919: 297172,1920: 282027,1921: 238189,1922: 227616};
 }]);
