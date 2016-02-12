@@ -34,9 +34,9 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         eventTable : [],
         timelineEvents : [],
         startDate: new Date( "1836-01-02"),// The earliest date possible for search queries.
-        endDate: new Date("1925-01-01"),// The latest date possible for search queries.
-        range : new Date("1925-01-01").getTime(),// The range bar value, set to miliseconds since epoch and changed by the slider.
-        rangeDate : new Date("1925-01-01"),// The date represented by the slider and range value.
+        endDate: new Date("1923-01-01"),// The latest date possible for search queries.
+        range : new Date("1923-01-01").getTime(),// The range bar value, set to miliseconds since epoch and changed by the slider.
+        rangeDate : new Date("1923-01-01"),// The date represented by the slider and range value.
         events : {
             markers: {
                 enable: leafletEvents.getAvailableMarkerEvents(),
@@ -54,7 +54,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         },
         interval_var : 1,
         loadingStatus : false,
-        markerYears: 1,
+        markerYears: 10,
         resultStart: 0,
         resultsShowing : 0,
         errorStatus : false,
@@ -82,7 +82,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 				dashArray: '1',
 				fillOpacity: 0.9
 			}
-		}
+		},
+        playbackInterval: 31557600000
     });
 
 	 var stateMouseover = function (feature, leafletEvent) {
@@ -153,7 +154,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.meta = {};
 
         var startTime = +new Date();
-        $http.post('/loc_api/get_data',payload)
+        $http.post('http://usnewsmap.com/loc_api/get_data',payload)
         .success(function (response){
             var respTime = +new Date();
             $scope.loadingStatus = false;
@@ -228,7 +229,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //     return;
         // }
         $scope.rangeDate = new Date($scope.range/1);
-        $http.post('/loc_api/update',{"date":$scope.rangeDate.toISOString(),"user_id":$scope.user_id})
+        $http.post('http://usnewsmap.com/loc_api/update',{"date":$scope.rangeDate.toISOString(),"user_id":$scope.user_id})
             .success(function (response){
                 $scope.allMarkers = [];
                 $scope.markers = [];
@@ -352,7 +353,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     // This function is called when you press the play/pause button.
     $scope.play = function(){
-        if($scope.range >= -1420070400000){ // If current time position is end of timeline
+        if($scope.range >= -1483228800000){ // If current time position is end of timeline
             $scope.range = -4228588800000;
         }
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
@@ -368,7 +369,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
     $scope.playRange = function(){
         var ONE_YEAR = 86400000 * 365.25; // 86400000 is the number of milliseconds in a day.
         if($scope.isPlaying && new Date($scope.range/1) <= $scope.endDate){
-            $scope.range = new Date(($scope.range/1) + ONE_YEAR).getTime();
+            $scope.range = new Date(($scope.range/1) + parseInt($scope.playbackInterval)).getTime();
             $scope.rangeDate = new Date($scope.range/1);//update $scope.range and $scope.rangeDate to make sure they are the same since they are linked.
             $scope.filter();//call filter with new $scope.rangeDate
         }
@@ -408,7 +409,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.cityResultsClosed = false;
 
         var SNs = _.uniq(_.pluck($scope.allMarkers[mark['hash']],'seq_num'));
-        $http.post('/loc_api/news_meta',{"sn":SNs})
+        $http.post('http://usnewsmap.com/loc_api/news_meta',{"sn":SNs})
             .success(function(response){
                 $scope.newspapers = response;
             })

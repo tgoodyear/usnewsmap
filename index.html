@@ -87,13 +87,11 @@
 					<br/>
 					No results found. Please try a broader search term or time period.
 				</div>
-				<div class="col-sm-3" ng-show="errorStatus">
+				<div class="col-sm-3 alert alert-warning" ng-show="errorStatus">
 					<br/>
-					<div class="alert alert-warning">
 						<h4>We Apologize</h4>
 						<!-- We are currently performing necessary unscheduled maintenance on this system. Please email usnewsmap@gtri.gatech.edu with any questions or concerns. -->
 						An error has occured while searching. Please try again and send an email to usnewsmap@gtri.gatech.edu if the problem persists.
-					</div>
 				</div>
 				<div class="text-right col-sm-1" ng-class="{'col-sm-offset-3':!(meta.hasOwnProperty('rows') && meta['available'] > 0)}">
 					<span ng-show="loadingStatus"><i class="fa fa-lg fa-spinner fa-spin"></i></span>
@@ -104,25 +102,6 @@
 			</form>
 		</div>
 		<div class="control-pane row" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0 && icons['play'] && search_started && !loadingStatus">
-			<div class="col-sm-4">
-				<div class="btn-group btn-group-sm" data-toggle="buttons">
-					<label class="btn btn-info" ng-class="{active:markersConstant}">
-						<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="true" autocomplete="off" checked ng-change="setMarkers()" />
-						Show Cumulative Hits
-					</label>
-					<label class="btn btn-info" ng-class="{active:!markersConstant}">
-						<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="false" autocomplete="off" ng-change="setMarkers()" />
-						Show Hits Within {{markerYears}}
-						<ng-pluralize count="markerYears" when="{'1': 'Year', 'other': 'Years'}"></ng-pluralize>
-					</label>
-				</div>
-			</div>
-			<div class="col-sm-1" ng-show="!markersConstant">
-				<div class="de-input">
-					<label for="markerYears-input">Years</label>
-					<input type="number" name="points" ng-model="markerYears" ng-change="setMarkers()" min="1" max="100" step="1" value="10" id="markerYears-input" />
-				</div>
-			</div>
 
 			<div class="col-sm-2">
 				<div class="de-input">
@@ -131,17 +110,58 @@
 				</div>
 			</div>
 
-			<div ng-class="{'col-md-5':markersConstant,'col-md-4':!markersConstant}" class="form-inline" style="padding-top:10px;">
-				<slider ng-model="range" min="-4228588800000" step="31536000000" max="-1420070400000" tooltip="hide" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-change="filter()" step="31536000000"></slider>
+			<div class="col-sm-3">
+				<div class="row">
+					<div class="col-sm-9">
+						<div class="btn-group btn-group-sm" data-toggle="buttons">
+							<label class="btn btn-info" ng-class="{active:markersConstant}">
+								<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="true" autocomplete="off" checked ng-change="setMarkers()" />
+								Cumulative
+							</label>
+							<label class="btn btn-info" ng-class="{active:!markersConstant}">
+								<input type="radio" name="searchType" ng-model="markersConstant" data-ng-value="false" autocomplete="off" ng-change="setMarkers()" />
+								Last {{markerYears}}
+								<ng-pluralize count="markerYears" when="{'1': 'Year', 'other': 'Years'}"></ng-pluralize>
+							</label>
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="de-input" ng-show="!markersConstant">
+							<label for="markerYears-input">Years</label>
+							<input type="number" name="points" ng-model="markerYears" ng-change="setMarkers()" min="1" max="100" step="1" value="10" id="markerYears-input" />
+						</div>
+					</div>
+				</div>
 			</div>
-			<div class="col-sm-1 text-right">
-				<button class="btn submit-btn" ng-show="!isPlaying" ng-click="play()">
-					<i class="fa fa-2x fa-play-circle"></i>
-				</button>
-				<button class="btn submit-btn" ng-show="isPlaying" ng-click="play()">
-					<i class="fa fa-2x fa-pause-circle"></i>
-				</button>
+
+			<div class="form-inline col-md-5" style="padding-top:10px;">
+				<slider ng-model="range" min="-4228588800000" step="playbackInterval" max="-1483228800000" tooltip="hide" ng-mousedown="turnOn()" ng-mouseup="turnOn()" ng-change="filter()" step="31536000000"></slider>
 			</div>
+
+			<div class="col-sm-2">
+				<div class="row">
+					<div class="col-sm-8">
+						<div class="de-input">
+							<label for="playbackInterval-input">Playback Interval</label>
+							<select id="playbackInterval-input" ng-model="playbackInterval">
+								<option value="31557600000" selected>Year</option>
+								<option value="2592000000">Month</option>
+								<option value="604800000">Week</option>
+								<option value="86400000">Day</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-sm-4 text-right">
+						<button class="btn submit-btn" ng-show="!isPlaying" ng-click="play()">
+							<i class="fa fa-2x fa-play-circle"></i>
+						</button>
+						<button class="btn submit-btn" ng-show="isPlaying" ng-click="play()">
+							<i class="fa fa-2x fa-pause-circle"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+
 		</div>
 		<div class="timeline-results row" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0 && icons['history'] && search_started && !loadingStatus">
 			<flot dataset="timelineData" options="chartOptions"></flot>
