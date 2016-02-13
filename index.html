@@ -26,7 +26,7 @@
 		<script type="text/javascript" src="js/angular-flot.js"></script>
 	</head>
 
-	<body ng-controller="MapCtrl" ng-cloak>
+	<body ng-controller="MapCtrl" ng-cloak ng-keypress="keyCapture($event.which)">
 		<!-- Header -->
 		<header class="row">
 			<div class="col-sm-6">
@@ -101,12 +101,12 @@
 				</div>
 			</form>
 		</div>
-		<div class="control-pane row" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0 && icons['play'] && search_started && !loadingStatus">
+		<div class="control-pane row" ng-show="validSearch() && icons['play']">
 
 			<div class="col-sm-2">
 				<div class="de-input">
 					<label for="playback_date">Playback Date</label>
-					<input type="date" ng-model="rangeDate" min="{{startDate}}" max="{{endDate}}" ng-change="updateRange()" id="playback_date" />
+					<input type="date" ng-model="rangeDate" min="startDate" max="endDate" ng-change="updateRange()" id="playback_date" />
 				</div>
 			</div>
 
@@ -143,12 +143,9 @@
 					<div class="col-sm-8">
 						<div class="de-input">
 							<label for="playbackInterval-input">Playback Interval</label>
-							<select id="playbackInterval-input" ng-model="playbackInterval">
-								<option value="31557600000" selected>Year</option>
-								<option value="2592000000">Month</option>
-								<option value="604800000">Week</option>
-								<option value="86400000">Day</option>
-							</select>
+							<select id="playbackInterval-input"
+								ng-model="playbackInterval"
+								ng-options="opt.label for opt in playbackIntervalOptions track by opt.value"></select>
 						</div>
 					</div>
 					<div class="col-sm-4 text-right">
@@ -163,7 +160,7 @@
 			</div>
 
 		</div>
-		<div class="timeline-results row" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0 && icons['history'] && search_started && !loadingStatus">
+		<div class="timeline-results row" ng-show="validSearch() && icons['history']">
 			<flot dataset="timelineData" options="chartOptions"></flot>
 		</div>
 

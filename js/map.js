@@ -83,7 +83,13 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 				fillOpacity: 0.9
 			}
 		},
-        playbackInterval: 31557600000
+        playbackInterval: {label:'Year',value:31557600000},
+        playbackIntervalOptions: [
+            {label:'Year',value:31557600000},
+            {label:'Month',value:2592000000},
+            {label:'Week',value:604800000},
+            {label:'Day',value:86400000}
+        ]
     });
 
 	 var stateMouseover = function (feature, leafletEvent) {
@@ -350,9 +356,16 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         return "medium";
     }
 
+    $scope.validSearch = function(){
+        return ($scope.meta.hasOwnProperty('rows') && $scope.meta['available'] > 0 && $scope.search_started && !$scope.loadingStatus);
+    }
 
     // This function is called when you press the play/pause button.
     $scope.play = function(){
+        // Don't allow playback unless proper search conditions are met
+        if(!$scope.validSearch()){
+            return;
+        }
         if($scope.range >= -1483228800000){ // If current time position is end of timeline
             $scope.range = -4228588800000;
         }
@@ -367,9 +380,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     // This function moves the range slider over, then calls filter(). This causes the effect of markers appearing over time.
     $scope.playRange = function(){
-        var ONE_YEAR = 86400000 * 365.25; // 86400000 is the number of milliseconds in a day.
         if($scope.isPlaying && new Date($scope.range/1) <= $scope.endDate){
-            $scope.range = new Date(($scope.range/1) + parseInt($scope.playbackInterval)).getTime();
+            $scope.range = new Date(($scope.range/1) + parseInt($scope.playbackInterval.value)).getTime();
             $scope.rangeDate = new Date($scope.range/1);//update $scope.range and $scope.rangeDate to make sure they are the same since they are linked.
             $scope.filter();//call filter with new $scope.rangeDate
         }
@@ -383,11 +395,21 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         }
     }
 
+    $scope.keyCapture = function(keyCode) {
+        var currentElement = document.activeElement;
+        if(keyCode == 32 && $scope.validSearch() && currentElement.id != 'input-search') { // Spacebar pressed during search
+            $scope.play();
+        }
+    };
+
     // Function that updates the slider when the user manually changes the current date, then filters.
     $scope.updateRange = function(){
+        if(!$scope.validSearch()){
+            return;
+        }
 		$scope.range = $scope.rangeDate.getTime();
 		$scope.filter(true);
-    }
+    };
 
     $scope.setTimeline = function(marks){
         $scope.timelineEvents = [];
