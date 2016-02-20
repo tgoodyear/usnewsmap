@@ -29,10 +29,17 @@
 	<body ng-controller="MapCtrl" ng-cloak ng-keypress="keyCapture($event.which)">
 		<!-- Header -->
 		<header class="row">
-			<div class="col-sm-6">
+			<div class="col-sm-4">
 				<h2 style="padding-top:0;margin-top:0;"><a href="/"><i class="fa fa-map-marker"></i> US News Map</a></h2>
 			</div>
-			<div class="col-sm-6 text-right icons">
+
+			<div class="col-sm-6 alert alert-warning" ng-show="errorStatus">
+<!--				<h4>We Apologize</h4> -->
+				<span ng-hide="1 || errorStatus">We are currently performing maintenance on this system. Search results may take longer than expected to return. Thank you for your patience. Please email usnewsmap@gtri.gatech.edu with any questions or concerns.</span>
+
+				<span ng-show="errorStatus">An error has occured while searching. Please try again and send an email to usnewsmap@gtri.gatech.edu if the problem persists.</span>
+			</div>
+			<div class="col-sm-2 text-right icons">
 				<i class="fa fa-question" ng-class="{iconSelected: icons['info']}" ng-click="iconClick('info')"></i>
 				<i class="fa fa-search" ng-class="{iconSelected: icons['search']}" ng-click="iconClick('search')"></i>
 				<i class="fa fa-play-circle-o" ng-class="{iconSelected: icons['play'], iconDisabled:!search_started}" ng-click="iconClick('play')"></i>
@@ -66,7 +73,7 @@
 						<input type="date" ng-model="endDate" min="1836-01-02" max="1925-01-02" id="input-endDate" />
 					</div>
 				</div>
-
+<!--
 				<div class="btn-group btn-group-sm col-sm-2 text-center" data-toggle="buttons">
 					<label class="btn btn-info radio-btn" ng-class="{active:lit_or_fuzz=='Literal'}">
 		            	<input type="radio" name="searchType" ng-model="lit_or_fuzz" value="Literal" autocomplete="off" checked />
@@ -77,23 +84,19 @@
 						Fuzzy
 					</label>
 				</div>
-				<div class="col-sm-3" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0">
+-->
+				<div class="col-sm-4 col-sm-offset-1" ng-show="meta.hasOwnProperty('rows') && meta['available'] > 0">
 					Showing {{resultsShowing | number}} of {{meta['available'] | number}} results.
 					<label class="label label-info clickable" ng-click="loadMore()" ng-show="resultsShowing < meta['available']">
 						Load {{meta.batchSize}} More
 					</label>
 				</div>
-				<div class="col-sm-3" ng-show="meta.hasOwnProperty('rows') && meta['available'] == 0">
+				<div class="col-sm-4" ng-show="meta.hasOwnProperty('rows') && meta['available'] == 0">
 					<br/>
 					No results found. Please try a broader search term or time period.
 				</div>
-				<div class="col-sm-3 alert alert-warning" ng-show="errorStatus">
-					<br/>
-						<h4>We Apologize</h4>
-						<!-- We are currently performing necessary unscheduled maintenance on this system. Please email usnewsmap@gtri.gatech.edu with any questions or concerns. -->
-						An error has occured while searching. Please try again and send an email to usnewsmap@gtri.gatech.edu if the problem persists.
-				</div>
-				<div class="text-right col-sm-1" ng-class="{'col-sm-offset-3':!(meta.hasOwnProperty('rows') && meta['available'] > 0)}">
+
+				<div class="text-right col-sm-1" ng-class="{'col-sm-offset-5':!(meta.hasOwnProperty('rows') && meta['available'] > 0)}">
 					<span ng-show="loadingStatus"><i class="fa fa-lg fa-spinner fa-spin"></i></span>
 					<button type="submit" class="btn submit-btn">
 						<i class="fa fa-2x fa-arrow-circle-right"></i>
@@ -128,7 +131,7 @@
 					<div class="col-sm-3">
 						<div class="de-input" ng-show="!markersConstant">
 							<label for="markerYears-input">Years</label>
-							<input type="number" name="points" ng-model="markerYears" ng-change="setMarkers()" min="1" max="100" step="1" value="10" id="markerYears-input" />
+							<input type="number" name="points" ng-model="markerYears" ng-change="setMarkers()" min="0.01" max="100" step="1" value="10" id="markerYears-input" />
 						</div>
 					</div>
 				</div>

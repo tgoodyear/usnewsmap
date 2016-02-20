@@ -19,6 +19,7 @@ from HashList.HashList import HashList, HashTable
 logging.basicConfig(stream=sys.stderr)
 
 application = Flask(__name__)
+application.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(application)
 
 client = pymongo.MongoClient()
