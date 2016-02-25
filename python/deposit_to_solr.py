@@ -10,7 +10,8 @@ HOME = sys.argv[1]#this must be directory holding all sn folders and only works 
 LOC_DATA  = '/var/www/loc/python/town_ref.csv'
 #LOC_DATA = '/home/tgoodyear/town_ref.csv'
 DATA = {}
-solr = ['130.207.211.77','130.207.211.78','130.207.211.79']
+#solr = ['130.207.211.77','130.207.211.78','130.207.211.79']
+solr = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
 
 #http://130.207.211.77:8983/solr/loc/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E&commit=true
 
@@ -28,24 +29,19 @@ def loop(path):
 		return
 	elif not dat[0]:
 		return
-	randint = random.randint(0,99)
-	solrNode = 0
-	if randint<5:
-		solrNode = 2
-	elif randint < 10:
-		solrNode = 1
+	solrNode = random.randint(0,len(solr)-1)
 
 	if random.randint(0,1000) == 1:
-		print strftime("%Y-%m-%d %H:%M:%S"),"Sending", len(dat), "documents to",solrNode
+		print strftime("%Y-%m-%d %H:%M:%S"),"Sending", len(dat), "documents to",solr[solrNode]
 
 	payload = json.dumps(dat)
-	commit = "?commit=true" if random.randint(0,500) == 1 else ""
+	commit = "?commit=true" if random.randint(0,50000) == 1 else ""
 	try:
 		url = ''.join(['http://',solr[solrNode],':8983/solr/loc/update',commit])
 		h = {'Content-type':'application/json'}
 		g = requests.post(url,data=payload,headers=h)
 		if commit:
-			print "\n\n\n\nCommitted\n\n\n\n"
+			print "\nCommitted\n"
 	except Exception as e:
 		print e,"retrying. Node", solrNode,"failed"
 		time.sleep(5)
@@ -61,13 +57,14 @@ def load_folder(folder,path,counter):
 	elif folder[-4:] == '.txt':
 		dat = path.split('/')
 		if len(dat) > 8:
+			# print dat # ['', 'mnt', 'loc', 'sn', 'sn84020616', '1909', '02', '20', 'ed-1', 'seq-3']
+			dl = len(dat)
 			counter = counter + 1
-			directory = dat[5]#might have to redo these to match pastec
-			ed = dat[9]
-			seq = dat[10]
+			directory = dat[dl-6]
+			ed = dat[dl-2]
+			seq = dat[dl-1]
 
-			date = datetime.datetime(int(dat[6]),int(dat[7]),int(dat[8])).isoformat()
-			#date = date[6] +"-"+ date[7] +"-"+ date[8]+"T00:00:00Z"#might have to redo these to match pastec
+			date = datetime.datetime(int(dat[dl-5]),int(dat[dl-4]),int(dat[dl-3])).isoformat()
 			dat = load_data(folder,date,directory,ed,seq)
 			if dat['text'] == '':
 				return
@@ -104,7 +101,7 @@ def import_data(data):
 if __name__ == '__main__':
 	os.chdir(HOME)
 	import_data(LOC_DATA)
-	pools = 150
+	pools = 120
         folder_list = [HOME + d for d in os.listdir(os.getcwd())]
 	if pools > 1:
 		pool = Pool(pools)
@@ -112,7 +109,7 @@ if __name__ == '__main__':
 		pool.map(loop, folder_list)
 		pool.close()
 		print strftime("%Y-%m-%d %H:%M:%S"),"Pool closed"
-		requests.get('http://130.207.211.77:8983/solr/loc/update?commit=true')
+		requests.get('http://c.usnewsmap.net:8983/solr/loc/update?commit=true')
 	else:
 		for folder in folder_list:
 			loop(folder)

@@ -91,12 +91,12 @@
 						Load {{meta.batchSize}} More
 					</label>
 				</div>
-				<div class="col-sm-4" ng-show="meta.hasOwnProperty('rows') && meta['available'] == 0">
+				<div class="col-sm-5" ng-show="meta.hasOwnProperty('rows') && meta['available'] == 0">
 					<br/>
 					No results found. Please try a broader search term or time period.
 				</div>
 
-				<div class="text-right col-sm-1" ng-class="{'col-sm-offset-5':!(meta.hasOwnProperty('rows') && meta['available'] > 0)}">
+				<div class="text-right col-sm-1" ng-class="{'col-sm-offset-5':!validSearch() && !(meta.hasOwnProperty('rows') && meta['available'] == 0)}">
 					<span ng-show="loadingStatus"><i class="fa fa-lg fa-spinner fa-spin"></i></span>
 					<button type="submit" class="btn submit-btn">
 						<i class="fa fa-2x fa-arrow-circle-right"></i>

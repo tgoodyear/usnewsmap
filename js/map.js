@@ -5,12 +5,13 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
 
     // This gets the actual tiles that form the map
     var tiles = {
-        url: "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
+	url: "http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+        // url: "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}",
         options: {
-            attribution: '',
+            attribution: '<a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> | <a href="https://cartodb.com/attributions/" title="Map Your World&apos;s Data">CartoDB</a> | <a href="http://maps.stamen.com/#howto">Stamen Design</a> | <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 8,
-            id: 'tgoodyear.cifypr5uo5bccuzkszn0emy7c', // API Key
-            accessToken: 'pk.eyJ1IjoidGdvb2R5ZWFyIiwiYSI6ImNpZnlwcjZ6MzViYTB1dWtzN2dnN2x4b2QifQ.3UtPEf_PlHMgqWDX7t1TOA',// API Access Token
+//            id: 'tgoodyear.cifypr5uo5bccuzkszn0emy7c', // API Key
+//            accessToken: 'pk.eyJ1IjoidGdvb2R5ZWFyIiwiYSI6ImNpZnlwcjZ6MzViYTB1dWtzN2dnN2x4b2QifQ.3UtPEf_PlHMgqWDX7t1TOA',// API Access Token
     	    continuousWorld: false,
             // This option disables loading tiles outside of the world bounds.
             noWrap: false
@@ -160,7 +161,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.meta = {};
 
         var startTime = +new Date();
-        $http.post('http://usnewsmap.com/loc_api/get_data',payload)
+        $http.post('http://app.usnewsmap.net/loc_api/get_data',payload)
         .success(function (response){
             var respTime = +new Date();
             $scope.loadingStatus = false;
@@ -235,7 +236,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //     return;
         // }
         $scope.rangeDate = new Date($scope.range/1);
-        $http.post('http://usnewsmap.com/loc_api/update',{"date":$scope.rangeDate.toISOString(),"user_id":$scope.user_id})
+        $http.post('http://app.usnewsmap.net/loc_api/update',{"date":$scope.rangeDate.toISOString(),"user_id":$scope.user_id})
             .success(function (response){
                 $scope.allMarkers = [];
                 $scope.markers = [];
@@ -431,7 +432,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.cityResultsClosed = false;
 
         var SNs = _.uniq(_.pluck($scope.allMarkers[mark['hash']],'seq_num'));
-        $http.post('http://usnewsmap.com/loc_api/news_meta',{"sn":SNs})
+        $http.post('http://app.usnewsmap.net/loc_api/news_meta',{"sn":SNs})
             .success(function(response){
                 $scope.newspapers = response;
             })

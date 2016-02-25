@@ -1,8 +1,9 @@
 from __future__ import division
 import datetime
+import logging
 import re
 import requests
-import logging
+import random
 import pymongo
 import traceback
 import simplejson as json
@@ -29,6 +30,9 @@ locationCollection = db["locations"]
 logCollection = db["log"]
 newsCollection = db["newspapers"]
 
+solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
+
+
 ######
 #There is a bug with flask, python, and HashList where if you click the search button too
 # quickly you will get duplication of your data in the hash table and linked list.
@@ -52,7 +56,8 @@ def docSearch():
     numRows = 500
     pagination = '&rows=' + str(numRows) + '&start=' + str(flaskData['start'])
     # url = ['http://a.usnewsmap.net:8983/solr/loc/select?q=',dateSearch,search,
-    url = ['http://130.207.211.77:8983/solr/loc/select?q=',dateSearch,search,
+    node = solrNodes[random.randint(0,len(solrNodes)-1)]
+    url = ['http://',node,':8983/solr/loc/select?q=',dateSearch,search,
         '&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
         ,'&q.op=AND', sort
         # ,shards
@@ -150,7 +155,7 @@ def getFreq(flaskData):
     searchTerms = flaskData['search']
     dateStart = flaskData['startDate']
     dateEnd = flaskData['endDate']
-    url = ['http://130.207.211.77:8983/solr/loc/select?q=text:',searchTerms,
+    url = ['http://',solrNodes[random.randint(0,len(solrNodes)-1)],':8983/solr/loc/select?q=text:',searchTerms,
             '&facet=true&facet.date=date_field&facet.date.start=',dateStart,
             '&facet.date.end=',dateEnd,'&facet.date.gap=%2B1YEAR&fl=date_field&wt=json']
     r = requests.get(''.join(url))
