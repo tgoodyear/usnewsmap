@@ -173,7 +173,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             $scope.allMarkers = response['data'];
             $scope.meta = response['meta'];
             var origShowing = $scope.resultsShowing;
-            $scope.resultsShowing = Math.min(response['meta']['available'],$scope.resultsShowing + response['meta']['rows']);
+            $scope.resultsShowing = Math.min(parseInt(response['meta']['available']),parseInt($scope.resultsShowing) + parseInt(response['meta']['rows']));
             $scope.search_started = $scope.resultsShowing > 0;
 
             if($scope.resultsShowing > 0){

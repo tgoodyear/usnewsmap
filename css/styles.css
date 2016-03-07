@@ -100,6 +100,10 @@ header h2 {
   background-color: rgba(222,243,255,0.8);
 }
 
+.infoBox a, .infoBox a:link, .infoBox a:hover, .infoBox a:active, .infoBox a:visited {
+	color: #333 !important;
+}
+
 .city-results a {
 	font-weight: bold;
 }

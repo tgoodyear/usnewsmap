@@ -7,6 +7,8 @@ from multiprocessing import Pool
 import time
 
 headers = {'User-Agent': 'Georgia Tech Research Institute | trevor.goodyear@gtri.gatech.edu | usnewsmap.com'}
+solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
+
 
 def getSolrPayload(url):
     sleepTime = randint(0,3)
@@ -47,7 +49,7 @@ def getText(urls):
         payload.append(getSolrPayload(url))
 
     payload = json.dumps(payload)
-    solrNode = '130.207.211.' + str(randint(77,79))
+    solrNode = solrNodes[randint(0,len(solrNodes)-1)]
     commit = "?commit=true" if 1 else ""
     solrUrl = ''.join(['http://',solrNode,':8983/solr/loc/update',commit])
     # print solrUrl
@@ -84,8 +86,8 @@ def getIssue(issue):
         getIssue(issue)
     try:
         resp = r.json()
-    except:
-        print time.strftime("%Y-%m-%d %H:%M:%S"), issueURL, 'has no valid JSON response'
+    except Exception as e:
+        print time.strftime("%Y-%m-%d %H:%M:%S"), issueURL, 'has no valid JSON response', str(e)
         return issueURLs
     # if sleepTime == 3:
         # print 'Checking',len(resp['pages']),'pages for', issueURL
@@ -96,8 +98,8 @@ def getIssue(issue):
         edition = urlParts[6]
         seq = urlParts[7].split('.')[0]
         # Determine if we already have the document
-        node = str(randint(77,79))
-        solrURL = ''.join(['http://130.207.211.',node,':8983/solr/loc/select?q=date_field:%22', dateField,
+        node = solrNodes[randint(0,len(solrNodes)-1)]
+        solrURL = ''.join(['http://',node,':8983/solr/loc/select?q=date_field:%22', dateField,
                     'T00:00:00.000Z%22%20AND%20seq:',seq,'%20AND%20seq_num:',seq_num,'%20AND%20ed:',
                     edition,'&wt=json&indent=false&fl=id'])
         try:
@@ -119,7 +121,7 @@ def getBatch(batchURL):
     r = requests.get(batchURL,headers=headers)
     resp = r.json()
     # print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool for", batchURL
-    pool = Pool(256)
+    pool = Pool(120)
     issueURLs = pool.map(getIssue,resp['issues'])
     pool.close()
     # print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool for", batchURL
@@ -169,7 +171,7 @@ def getBatchPage(pageNum):
     print 'Page',pageNum, 'collected', len(issueURLs), 'documents'
     # print issueURLs[0]
 
-    poolSize = 256
+    poolSize = 120
     print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool of size {0} for {1} documents from page {2}".format(poolSize,len(issueURLs),pageNum)
     pool = Pool(poolSize)
     n = 50
