@@ -1,3 +1,4 @@
+import argparse
 import pymongo
 import requests
 import sys
@@ -5,6 +6,7 @@ import simplejson as json
 from random import randint
 from multiprocessing import Pool
 import time
+
 
 headers = {'User-Agent': 'Georgia Tech Research Institute | trevor.goodyear@gtri.gatech.edu | usnewsmap.com'}
 solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
@@ -107,7 +109,7 @@ def getIssue(issue):
         except requests.exceptions.ConnectionError as e:
             print time.strftime("%Y-%m-%d %H:%M:%S"), solrURL, 'ConnectionError Solr. Retrying.', e
             time.sleep((sleepTime+1)*2)
-            getIssue(issue)
+            return getIssue(issue)
 
         resp = r.json()
         if resp['response']['numFound'] == 0:
@@ -120,11 +122,11 @@ def getBatch(batchURL):
 
     r = requests.get(batchURL,headers=headers)
     resp = r.json()
-    # print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool for", batchURL
+    print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool for", batchURL
     pool = Pool(120)
     issueURLs = pool.map(getIssue,resp['issues'])
     pool.close()
-    # print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool for", batchURL
+    print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool for", batchURL
 
     return issueURLs
 
@@ -134,7 +136,7 @@ def getSNData(sn):
     coll = db["newspapers"]
     url = ''.join(['http://chroniclingamerica.loc.gov/lccn/',sn,'.json'])
     if coll.find_one({"lccn":sn}):
-        # print sn , "Skipping"
+        print sn , "Skipping"
         client.close()
         return 0
 
@@ -182,9 +184,10 @@ def getBatchPage(pageNum):
     return len(issueURLs)
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-b','--batch',help="URL of sn. E.g., http://chroniclingamerica.loc.gov/batches/batch_dlc_fairymoss_ver01.json")
+    args = parser.parse_args()
+    
     print time.strftime("%Y-%m-%d %H:%M:%S")
-    batchPages = range(1,53)
-    for batch in batchPages:
-        print time.strftime("%Y-%m-%d %H:%M:%S"), 'Page', batch
-        getBatchPage(batch)
+    getBatch(args.batch)
     print time.strftime("%Y-%m-%d %H:%M:%S")

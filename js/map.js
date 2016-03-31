@@ -3,6 +3,8 @@ var app = angular.module("loc", ['leaflet-directive','ngRangeSlider','ui.bootstr
 app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "leafletBoundsHelpers", "leafletEvents", "$window",
                 function($scope, $http, $sce, $interval, leafletData, leafletBoundsHelpers, leafletEvents, $window) {
 
+    var scrollWheelZoom = $window.location.href.indexOf('disableScroll') === -1;
+
     // This gets the actual tiles that form the map
     var tiles = {
 	url: "http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
@@ -51,7 +53,8 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         popupTextData : "",
         search_started : false,
         defaults : {
-            zoomControlPosition: 'bottomright'
+            zoomControlPosition: 'bottomright',
+	    scrollWheelZoom: scrollWheelZoom
         },
         interval_var : 1,
         loadingStatus : false,

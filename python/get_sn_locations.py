@@ -31,7 +31,7 @@ for snDoc in SNs:
     # print q
     # print r.text
     if len(resp['results']) == 0:
-        print 'No results for', q
+        print 'No results for', sn, "(",q,")"
         continue
     placeID = resp['results'][0]['place_id']
 
