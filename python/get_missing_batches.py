@@ -7,7 +7,8 @@ from multiprocessing import Pool
 import time
 
 headers = {'User-Agent': 'Georgia Tech Research Institute | trevor.goodyear@gtri.gatech.edu | usnewsmap.com'}
-solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
+#solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
+solrNodes  = ['a.usnewsmap.com','b.usnewsmap.com','c.usnewsmap.com']
 
 
 def getSolrPayload(url):

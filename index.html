@@ -42,9 +42,9 @@
 				<h2 style="padding-top:0;margin-top:0;"><a href="/"><i class="fa fa-map-marker"></i> US News Map</a></h2>
 			</div>
 
-			<div class="col-sm-6 alert alert-warning" ng-show="errorStatus">
+			<div class="col-sm-6 alert alert-warning" ng-show="1 || errorStatus">
 <!--				<h4>We Apologize</h4> -->
-				<span ng-hide="1 || errorStatus">We are currently performing maintenance on this system. Search results may take longer than expected to return. Thank you for your patience. Please email usnewsmap@gtri.gatech.edu with any questions or concerns.</span>
+				<span ng-hide="0 && 1 || errorStatus">We are currently performing maintenance on this system. Search results may take longer than expected to return. Thank you for your patience. Please email usnewsmap@gtri.gatech.edu with any questions or concerns.</span>
 
 				<span ng-show="errorStatus">An error has occured while searching. Please try again and send an email to usnewsmap@gtri.gatech.edu if the problem persists.</span>
 			</div>

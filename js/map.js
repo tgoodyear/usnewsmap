@@ -164,7 +164,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.meta = {};
 
         var startTime = +new Date();
-        $http.post('http://app.usnewsmap.net/loc_api/get_data',payload)
+        $http.post('http://usnewsmap.com/loc_api/get_data',payload)
         .success(function (response){
             var respTime = +new Date();
             $scope.loadingStatus = false;
@@ -239,7 +239,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         //     return;
         // }
         $scope.rangeDate = new Date($scope.range/1);
-        $http.post('http://app.usnewsmap.net/loc_api/update',{"date":$scope.rangeDate.toISOString(),"user_id":$scope.user_id})
+        $http.post('http://usnewsmap.com/loc_api/update',{"date":$scope.rangeDate.toISOString(),"user_id":$scope.user_id})
             .success(function (response){
                 $scope.allMarkers = [];
                 $scope.markers = [];
@@ -435,7 +435,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.cityResultsClosed = false;
 
         var SNs = _.uniq(_.pluck($scope.allMarkers[mark['hash']],'seq_num'));
-        $http.post('http://app.usnewsmap.net/loc_api/news_meta',{"sn":SNs})
+        $http.post('http://usnewsmap.com/loc_api/news_meta',{"sn":SNs})
             .success(function(response){
                 $scope.newspapers = response;
             })

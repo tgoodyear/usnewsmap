@@ -30,8 +30,8 @@ locationCollection = db["locations"]
 logCollection = db["log"]
 newsCollection = db["newspapers"]
 
-solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
-
+#solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
+solrNodes = ['a.usnewsmap.com','b.usnewsmap.com','c.usnewsmap.com']
 
 ######
 #There is a bug with flask, python, and HashList where if you click the search button too
