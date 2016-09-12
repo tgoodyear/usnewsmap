@@ -48,6 +48,8 @@ def docSearch():
     flaskData = json.loads(request.data)
     user_id = uuid.UUID(flaskData['user_id'])
 
+    flaskData['startDate'] = flaskData['startDate'][0:10]+'T00:00:00Z'
+    flaskData['endDate'] = flaskData['endDate'][0:10]+'T23:59:59Z'
     searchString = flaskData['search'].replace('"','')
     search = ''.join(['text:"',searchString,'"'])
     #shards = '&shards=130.207.211.77:8983/solr/loc|130.207.211.78:8983/solr/loc|130.207.211.79:8983/solr/loc'
@@ -67,6 +69,8 @@ def docSearch():
     time = flaskData['date']
     r = requests.get(url)
     solrResp = r.json()
+    if solrResp['responseHeader']['status'] != 0:
+        print solrResp
     # print data
     meta = {    "available":solrResp['response']['numFound'],
                 "start":solrResp['responseHeader']['params']['start'],
@@ -156,22 +160,28 @@ def getFreq(flaskData):
     dateStart = flaskData['startDate']
     dateEnd = flaskData['endDate']
     url = ['http://',solrNodes[random.randint(0,len(solrNodes)-1)],':8983/solr/loc/select?q=text:',searchTerms,
-            '&facet=true&facet.date=date_field&facet.date.start=',dateStart,
-            '&facet.date.end=',dateEnd,'&facet.date.gap=%2B1YEAR&fl=date_field&wt=json']
+            '&facet=true&facet.range=date_field&facet.range.start=',dateStart,
+            '&facet.range.end=',dateEnd,'&facet.range.gap=%2B1YEAR&fl=date_field&wt=json']
     r = requests.get(''.join(url))
     solrResp = r.json()
-    freq = solrResp['facet_counts']['facet_dates']['date_field']
+    print ''.join(url) #,solrResp
+
+    freq = solrResp['facet_counts']['facet_ranges']['date_field']['counts']
+#    freq = solrResp['facet_counts']['facet_dates']['date_field']
     # Remove non-frequency keys
+    '''
     for k in ['end','gap','start']:
         try:
             del freq[k]
         except KeyError:
             pass
+    '''
     # Trim down key names to just the year and divide by global year frequency
-    freq = dict((k[:4],v) for k,v in freq.items())
+    # freq = dict((k[:4],v) for k,v in freq.items())
+    freq = zip(freq[0::2], freq[1::2]) 
     for year in freq:
-        if int(year) in globalFreq:
-            ret.append([int(year),freq[year] / globalFreq[int(year)]])
+        if int(year[0][:4]) in globalFreq:
+            ret.append([int(year[0][:4]),year[1] / globalFreq[int(year[0][:4])]])
 
     # print ret
     return ret

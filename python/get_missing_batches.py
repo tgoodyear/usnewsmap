@@ -51,7 +51,7 @@ def getText(urls):
 
     payload = json.dumps(payload)
     solrNode = solrNodes[randint(0,len(solrNodes)-1)]
-    commit = "?commit=true" if 1 else ""
+    commit = '' #"?commit=true" if 1 else ""
     solrUrl = ''.join(['http://',solrNode,':8983/solr/loc/update',commit])
     # print solrUrl
     # print seq_num,ed,seq,dateField
@@ -108,11 +108,14 @@ def getIssue(issue):
         except requests.exceptions.ConnectionError as e:
             print time.strftime("%Y-%m-%d %H:%M:%S"), solrURL, 'ConnectionError Solr. Retrying.', e
             time.sleep((sleepTime+1)*2)
-            getIssue(issue)
+            return getIssue(issue)
 
         resp = r.json()
-        if resp['response']['numFound'] == 0:
-            issueURLs.add(page['url'])
+        try:
+            if resp['response']['numFound'] == 0:
+                issueURLs.add(page['url'])
+        except:
+            print "Could not parse solr resp:", r.text
 
     return issueURLs
 
@@ -121,11 +124,11 @@ def getBatch(batchURL):
 
     r = requests.get(batchURL,headers=headers)
     resp = r.json()
-    # print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool for", batchURL
+    print time.strftime("%Y-%m-%d %H:%M:%S"), "Starting pool for", batchURL
     pool = Pool(120)
     issueURLs = pool.map(getIssue,resp['issues'])
     pool.close()
-    # print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool for", batchURL
+    print time.strftime("%Y-%m-%d %H:%M:%S"), "Closing  pool for", batchURL
 
     return issueURLs
 

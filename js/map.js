@@ -461,4 +461,16 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         $scope.icons[icon] = !$scope.icons[icon];
     };
 
+    $scope.range_decrement = function(){
+        $scope.range -= parseInt($scope.playbackInterval.value);
+        $scope.rangeDate = new Date($scope.range/1);
+        $scope.filter(true);
+    };
+
+    $scope.range_increment = function(){
+        $scope.range += parseInt($scope.playbackInterval.value);
+        $scope.rangeDate = new Date($scope.range/1);
+        $scope.filter(true);
+    };
+
 }]);

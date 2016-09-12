@@ -10,8 +10,8 @@ HOME = sys.argv[1]#this must be directory holding all sn folders and only works 
 LOC_DATA  = '/var/www/loc/python/town_ref.csv'
 #LOC_DATA = '/home/tgoodyear/town_ref.csv'
 DATA = {}
-#solr = ['130.207.211.77','130.207.211.78','130.207.211.79']
-solr = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
+solr = ['130.207.211.77','130.207.211.78','130.207.211.79']
+#solr = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
 
 #http://130.207.211.77:8983/solr/loc/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E&commit=true
 
@@ -101,7 +101,7 @@ def import_data(data):
 if __name__ == '__main__':
 	os.chdir(HOME)
 	import_data(LOC_DATA)
-	pools = 120
+	pools = 60
         folder_list = [HOME + d for d in os.listdir(os.getcwd())]
 	if pools > 1:
 		pool = Pool(pools)
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 		pool.map(loop, folder_list)
 		pool.close()
 		print strftime("%Y-%m-%d %H:%M:%S"),"Pool closed"
-		requests.get('http://c.usnewsmap.net:8983/solr/loc/update?commit=true')
+		requests.get('http://c.usnewsmap.com:8983/solr/loc/update?commit=true')
 	else:
 		for folder in folder_list:
 			loop(folder)
