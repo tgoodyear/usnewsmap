@@ -36,7 +36,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
         allMarkers : [],// The marker holder array used in getMarkers()
         eventTable : [],
         timelineEvents : [],
-        startDate: new Date( "1836-01-02"),// The earliest date possible for search queries.
+        startDate: new Date( "1789-04-15"),// The earliest date possible for search queries.
         endDate: new Date("1923-01-01"),// The latest date possible for search queries.
         range : new Date("1923-01-01").getTime(),// The range bar value, set to miliseconds since epoch and changed by the slider.
         rangeDate : new Date("1923-01-01"),// The date represented by the slider and range value.
@@ -371,7 +371,7 @@ app.controller("MapCtrl", [ "$scope","$http","$sce",'$interval',"leafletData", "
             return;
         }
         if($scope.range >= -1483228800000){ // If current time position is end of timeline
-            $scope.range = -4228588800000;
+            $scope.range = -5711731200000;  // 1789-01-01
         }
         $scope.isPlaying = !$scope.isPlaying;//Flips $scope.isPlaying to its inverse
         if ($scope.isPlaying){//if true we will have play range function be called every 100 seconds.
