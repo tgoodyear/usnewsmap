@@ -11,8 +11,8 @@ import sys
 import uuid
 from bson import json_util
 from flask import Flask, request, jsonify, Response
-from flask.ext.cors import CORS
-from flask.ext.restplus import Api, Resource, fields, apidoc
+from flask_cors import CORS
+from flask_restplus import Api, Resource, fields, apidoc
 
 sys.path.insert(1,'/var/www/loc/python')
 from HashList.HashList import HashList, HashTable
@@ -31,7 +31,8 @@ logCollection = db["log"]
 newsCollection = db["newspapers"]
 
 #solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
-solrNodes = ['a.usnewsmap.com','b.usnewsmap.com','c.usnewsmap.com']
+#solrNodes = ['solr1.icl.gtri.org','solr2.icl.gtri.org','b.usnewsmap.com','c.usnewsmap.com']
+solrNodes = ['b.usnewsmap.com','c.usnewsmap.com']
 
 ######
 #There is a bug with flask, python, and HashList where if you click the search button too
@@ -70,7 +71,7 @@ def docSearch():
     r = requests.get(url)
     solrResp = r.json()
     if solrResp['responseHeader']['status'] != 0:
-        print solrResp
+        print(solrResp)
     # print data
     meta = {    "available":solrResp['response']['numFound'],
                 "start":solrResp['responseHeader']['params']['start'],
@@ -168,7 +169,7 @@ def getFreq(flaskData):
             '&facet.range.end=',dateEnd,'&facet.range.gap=%2B1YEAR&fl=date_field&wt=json']
     r = requests.get(''.join(url))
     solrResp = r.json()
-    print ''.join(url) #,solrResp
+    print(''.join(url)) #,solrResp
 
     freq = solrResp['facet_counts']['facet_ranges']['date_field']['counts']
 #    freq = solrResp['facet_counts']['facet_dates']['date_field']
