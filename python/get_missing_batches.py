@@ -8,7 +8,8 @@ import time
 
 headers = {'User-Agent': 'Georgia Tech Research Institute | trevor.goodyear@gtri.gatech.edu | usnewsmap.com'}
 #solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
-solrNodes  = ['10.50.76.103','10.50.76.190','b.usnewsmap.com','c.usnewsmap.com']
+#solrNodes  = ['10.50.76.103','10.50.76.190','b.usnewsmap.com','c.usnewsmap.com']
+solrNodes = ['violetwaffle08.icl.gtri.org:10125']
 
 
 def getSolrPayload(url):
@@ -31,7 +32,7 @@ def getSolrPayload(url):
         return getText(url)
 
     payload = {
-            'seq_num':seq_num,
+            'sn':seq_num,
             # 'city':data[1],
             # 'state':data[2],
             'ed':ed,
@@ -52,7 +53,7 @@ def getText(urls):
     payload = json.dumps(payload)
     solrNode = solrNodes[randint(0,len(solrNodes)-1)]
     commit = '' #"?commit=true" if 1 else ""
-    solrUrl = ''.join(['http://',solrNode,':8983/solr/loc/update',commit])
+    solrUrl = ''.join(['http://',solrNode,'/solr/loc/update',commit])
     # print solrUrl
     # print seq_num,ed,seq,dateField
     # print r.text
@@ -100,8 +101,8 @@ def getIssue(issue):
         seq = urlParts[7].split('.')[0]
         # Determine if we already have the document
         node = solrNodes[randint(0,len(solrNodes)-1)]
-        solrURL = ''.join(['http://',node,':8983/solr/loc/select?q=date_field:%22', dateField,
-                    'T00:00:00.000Z%22%20AND%20seq:',seq,'%20AND%20seq_num:',seq_num,'%20AND%20ed:',
+        solrURL = ''.join(['http://',node,'/solr/loc/select?q=date_field:%22', dateField,
+                    'T00:00:00.000Z%22%20AND%20seq:',seq,'%20AND%20sn:',seq_num,'%20AND%20ed:',
                     edition,'&wt=json&indent=false&fl=id'])
         try:
             r = requests.get(solrURL,headers=headers)

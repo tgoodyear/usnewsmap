@@ -32,7 +32,9 @@ newsCollection = db["newspapers"]
 
 #solrNodes = ['a.usnewsmap.net','b.usnewsmap.net','c.usnewsmap.net','d.usnewsmap.net','e.usnewsmap.net']
 #solrNodes = ['solr1.icl.gtri.org','solr2.icl.gtri.org','b.usnewsmap.com','c.usnewsmap.com']
-solrNodes = ['b.usnewsmap.com','c.usnewsmap.com']
+#solrNodes = ['b.usnewsmap.com','c.usnewsmap.com']
+#solrNodes = ['solr%s.icl.gtri.org' % x for x in range(1,10)]
+solrNode = 'violetwaffle08.icl.gtri.org:10125'
 
 ######
 #There is a bug with flask, python, and HashList where if you click the search button too
@@ -59,9 +61,9 @@ def docSearch():
     numRows = 500
     pagination = '&rows=' + str(numRows) + '&start=' + str(flaskData['start'])
     # url = ['http://a.usnewsmap.net:8983/solr/loc/select?q=',dateSearch,search,
-    node = solrNodes[random.randint(0,len(solrNodes)-1)]
-    url = ['http://',node,':8983/solr/loc/select?q=',dateSearch,search,
-        '&wt=json&indent=false','&fl=date_field,id,ed,seq,seq_num',pagination
+    node = solrNode
+    url = ['http://',node,'/solr/loc/select?q=',dateSearch,search,
+        '&wt=json&indent=false','&fl=date_field,id,ed,sn,seq',pagination
         ,'&q.op=AND', sort
         # ,shards
         ]
@@ -93,7 +95,7 @@ def docSearch():
         existingData = coll.find_one({"id":flaskData['user_id']})
         resultsList = existingData['linked_list'] + resultsList
     for d in resultsList:
-        loc_data = locationCollection.find_one({"sn":d['seq_num']})
+        loc_data = locationCollection.find_one({"sn":d['sn'][0]})
         if not loc_data or 'lat' not in loc_data:
             continue
         if 'date_field' in d:
@@ -104,11 +106,11 @@ def docSearch():
             day = dats[2]
             idField = d['id']
         else:
-            year = d['year']
-            month = d['month']
-            day = d['day']
-            date = d['date']
-            idField = d['nid']
+            year = d['year'][0]
+            month = d['month'][0]
+            day = d['day'][0]
+            date = d['date_field']
+            idField = d['id']
         mark = {'lat':float(loc_data['lat']),
             'lng':float(loc_data['long']),
             'timeDate':str(month)+'/'+str(day)+'/'+str(year),
@@ -118,17 +120,19 @@ def docSearch():
             'year':year,
             'month':month,
             'day':day,
-            'ed':d['ed'],
-            'seq':d['seq'],
-            'seq_num':d['seq_num'],
-            'nid':idField,
+            'ed':d['ed'][0],
+            'seq':d['seq'][0],
+            'seq_num':d['sn'][0],
+            'id':idField,
             'date':date,
             'hash':loc_data['city']+loc_data['state'],
             'search':search
         }
         marks.append(mark)
     marks = sorted(marks,key=lambda mark : mark['date'])
-
+    if len(marks) == 0:
+        meta['available'] = 0
+        return json.dumps(retObj)
     h_list = HashList(id=str(user_id))
     for mark in marks:
         h_list.add_node(mark)
@@ -155,7 +159,7 @@ def log_metadata(meta,search,url):
     logCollection.insert(obj)
 
 def getFreq(flaskData):
-    globalFreq = {1789:292,1790:416,1791:500,1792:826,1793:640,1794:1211,1795:800,1796:863,1797:808,1798:828,1799:1024,1800:1016,1801:592,1802:584,1803:616,1804:628,1805:618,1806:616,1807:568,1808:628,1809:621,1810:0,1811:0,1812:0,1813:0,1814:0,1815:0,1816:0,1817:0,1818:0,1819:0,1820:0,1821:0,1822:0,1823:0,1824:0,1825:0,1826:0,1827:0,1828:0,1829:0,1830:0,1831:0,1832:0,1833:0,1834:0,1835:120,1836:2897,1837:5597,1838:7222,1839:9319,1840:10335,1841:9253,1842:12376,1843:12236,1844:14830,1845:15159,1846:17050,1847:15028,1848:16980,1849:16976,1850:22103,1851:25721,1852:28893,1853:32213,1854:32923,1855:34638,1856:35604,1857:36438,1858:41540,1859:44375,1860:47443,1861:48239,1862:43104,1863:41732,1864:41737,1865:42447,1866:61978,1867:58937,1868:60240,1869:56330,1870:59493,1871:61540,1872:65952,1873:68397,1874:69151,1875:70747,1876:68169,1877:67339,1878:72515,1879:74653,1880:79270,1881:81416,1882:88308,1883:95390,1884:103874,1885:106036,1886:109857,1887:116469,1888:115143,1889:121473,1890:143001,1891:158328,1892:165310,1893:169582,1894:182263,1895:190025,1896:207603,1897:206841,1898:216692,1899:236710,1900:249443,1901:252148,1902:261739,1903:263323,1904:284206,1905:304608,1906:310612,1907:313728,1908:317035,1909:354037,1910:356044,1911:321759,1912:329388,1913:333987,1914:338026,1915:330384,1916:331536,1917:326738,1918:307147,1919:360521,1920:347713,1921:303603,1922:288937}
+    globalFreq = {1789:292,1790:416,1791:500,1792:826,1793:640,1794:1211,1795:800,1796:863,1797:808,1798:861,1799:1024,1800:1024,1801:604,1802:580,1803:616,1804:642,1805:618,1806:616,1807:568,1808:628,1809:721,1810:92,1811:0,1812:0,1813:0,1814:0,1815:0,1816:0,1817:56,1818:124,1819:0,1820:146,1821:102,1822:600,1823:599,1824:643,1825:687,1826:611,1827:836,1828:1104,1829:726,1830:70,1831:164,1832:314,1833:283,1834:128,1835:292,1836:3770,1837:5625,1838:7066,1839:8714,1840:9725,1841:9478,1842:11993,1843:11925,1844:14261,1845:15069,1846:16582,1847:14352,1848:15951,1849:16480,1850:20964,1851:24259,1852:27014,1853:30704,1854:31286,1855:33046,1856:34816,1857:35350,1858:41230,1859:45154,1860:47665,1861:48316,1862:43116,1863:41652,1864:41729,1865:42444,1866:60648,1867:58375,1868:57798,1869:55182,1870:56392,1871:57823,1872:65738,1873:68263,1874:69998,1875:71594,1876:69478,1877:70216,1878:75384,1879:72956,1880:84171,1881:86172,1882:90775,1883:97918,1884:106105,1885:107424,1886:112782,1887:123819,1888:121525,1889:127443,1890:148016,1891:166122,1892:175662,1893:179732,1894:193785,1895:199539,1896:215745,1897:217955,1898:230563,1899:245043,1900:257061,1901:261414,1902:273055,1903:272962,1904:293746,1905:313940,1906:324530,1907:326202,1908:330956,1909:357510,1910:360477,1911:321181,1912:336007,1913:335840,1914:333003,1915:324920,1916:328118,1917:323144,1918:303386,1919:351725,1920:335770,1921:292788,1922:270691,1923:18006,1924:18253,1925:17821,1926:1856,1927:9632,1928:1214,1929:1222}
     ret = []
     searchTerms = flaskData['search']
     dateStart = flaskData['startDate']
@@ -164,7 +168,7 @@ def getFreq(flaskData):
     dateStart = str(dats[0]) + "-01-01T00:00:00Z"
     dats = map(int, dateEnd.split("T")[0].split("-"))
     dateEnd = str(dats[0]) + "-01-01T00:00:00Z"
-    url = ['http://',solrNodes[random.randint(0,len(solrNodes)-1)],':8983/solr/loc/select?q=text:',searchTerms,
+    url = ['http://',solrNode,'/solr/loc/select?q=text:',searchTerms,
             '&facet=true&facet.range=date_field&facet.range.start=',dateStart,
             '&facet.range.end=',dateEnd,'&facet.range.gap=%2B1YEAR&fl=date_field&wt=json']
     r = requests.get(''.join(url))
